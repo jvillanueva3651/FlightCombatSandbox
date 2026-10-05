@@ -17,6 +17,7 @@ config/features=PackedStringArray("4.7", "C#", "Forward Plus")
 [autoload]
 
 Packs="*res://content/Packs.cs"
+Controls="*res://flight/Controls.cs"
 
 [dotnet]
 
