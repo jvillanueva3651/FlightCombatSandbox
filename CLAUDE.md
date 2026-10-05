@@ -12,7 +12,7 @@ Single-player arcade flight combat game (Ace Combat's rules, an original univers
 
 ## Tools
 
-- Godot 4.7.2 (.NET): `C:\Users\jvill\source\Godot_v4.7.2-stable_mono_win64\Godot_v4.7.2-stable_mono_win64_console.exe`. Use this `_console` build from the command line; `--headless --path game --build-solutions --quit` checks that the project opens and builds.
+- Godot 4.7.2 (.NET): `C:\Users\jvill\source\Godot_v4.7.2-stable_mono_win64\Godot_v4.7.2-stable_mono_win64_console.exe`. Use this `_console` build from the command line; `--headless --path game --build-solutions --quit` checks that the project opens and builds. Run it with the environment variable `UseSharedCompilation=false`: otherwise the C# compiler server the build starts holds the `_console` build's output open, and the command hangs after Godot exits.
 
 ## How we work
 
