@@ -1,5 +1,7 @@
 [gd_scene format=3]
 
+[ext_resource type="Script" path="res://flight/Jet.cs" id="1_jet"]
+
 [sub_resource type="CylinderMesh" id="CylinderMesh_fuselage"]
 top_radius = 0.8
 bottom_radius = 0.8
@@ -20,6 +22,7 @@ size = Vector3(0.2, 2.6, 2.2)
 size = Vector3(4.6, 0.15, 1.6)
 
 [node name="Jet" type="Node3D"]
+script = ExtResource("1_jet")
 
 [node name="Fuselage" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 0, 0)

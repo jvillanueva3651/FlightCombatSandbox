@@ -57,10 +57,10 @@ shadow_enabled = true
 mesh = SubResource("PlaneMesh_ground")
 
 [node name="Jet" parent="." instance=ExtResource("1_jet")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 46, -16)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 300, 0)
 
-[node name="Camera" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.996195, 0.087156, 0, -0.087156, 0.996195, 0, 50, 0)
+[node name="Camera" type="Camera3D" parent="Jet"]
+transform = Transform3D(1, 0, 0, 0, 0.997564, 0.069756, 0, -0.069756, 0.997564, 0, 4, 20)
 far = 50000.0
 
 [node name="DebugOverlay" parent="." instance=ExtResource("2_overlay")]
