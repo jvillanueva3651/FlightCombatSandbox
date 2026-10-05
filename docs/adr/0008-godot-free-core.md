@@ -1,0 +1,3 @@
+# Mission rules live in a Godot-free Core
+
+The code is split in two. Core is plain C# with no Godot code: the Mission model, Mission files, and the rules engine that decides which Triggers fire. Game is the Godot project: flight, combat, AI, rendering, input and the editor screens; it reports what happens to Core and carries out what Core decides. Mission rules are the heart of the sandbox and the easiest part to break, so they get tests that run in seconds without a game window, and keeping Mission state as plain data makes Checkpoints a matter of saving it. Pack code plugs into Core's catalog of Events, Conditions, Actions and Traits.

@@ -1,0 +1,3 @@
+# Arcade flight model driven by Handling values
+
+Aircraft don't simulate aerodynamics. The game moves each jet directly from its Handling values (speeds, turn rates at each speed, speed lost in turns, response time), stored in its Unit Type so Packs can tune them, plus a few global feel settings and multipliers. Ace Combat's appeal is feel, not realism, and making every number an adjustable knob, tuned live from an in-game panel, is how we get that feel. A physics-based model (forces on a rigid body) was rejected because its feel emerges indirectly from many interacting forces and is much harder to tune.

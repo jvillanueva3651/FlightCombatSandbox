@@ -1,0 +1,3 @@
+# Content comes in Packs; Missions are plain data
+
+All content (Unit Types, weapons, Maps) loads from Packs, and the base game is itself the first Pack, so mod support is exercised from day one. Packs load in order and later ones override earlier ones. A Pack is a plain folder (manifest, data files, glTF models, images, sounds, optionally one C# library) rather than Godot's .pck format, which has loading quirks and can't carry C# scripts. Pack code is fully trusted, like RimWorld or Minecraft mods, and the game warns before enabling it; sandboxed Lua was rejected as too much work while the game is personal. Missions are a single versioned JSON file that lists the Packs it needs and never contains code, so sharing a Mission is always safe.
