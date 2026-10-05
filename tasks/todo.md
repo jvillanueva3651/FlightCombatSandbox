@@ -31,7 +31,7 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
   - Done when input actions exist for pitch, roll, yaw, throttle, brake, fire missile, fire gun, switch weapon and switch target, and an on-screen readout shows their live values from both the DualSense and the keyboard.
   - Proposed layout for the user to confirm: left stick pitch and roll; L1/R1 yaw; R2 throttle; L2 brake; Cross missile; Square gun; Triangle switch weapon; Circle switch target. Godot names face buttons by Xbox position: A = Cross, B = Circle, X = Square, Y = Triangle.
   - Verify: godot, play. Files: `game/flight/Controls.cs` (actions defined in code so bindings stay readable), `game/ui/debug_overlay.tscn`, `game/ui/DebugOverlay.cs`.
-- [ ] **1.4 Core library with Handling** · M · after 0.2
+- [x] **1.4 Core library with Handling** · M · after 0.2
   - Done when `core/` (plain C#, net8.0) has a Handling type (cruise speed; pitch, roll and yaw rates) read from JSON, `core.tests/` (xUnit) tests that load, and the Godot project references Core and still builds.
   - Verify: test, build, godot. Files: `core/Core.csproj`, `core/Handling.cs`, `core.tests/Core.Tests.csproj`, `core.tests/HandlingTests.cs`, `game/FlightCombatSandbox.csproj`.
 - [ ] **1.5 Base Pack with the first jet** · S · after 1.4
@@ -386,7 +386,7 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
 - [ ] **5.8 Missing Packs message** · XS · after 5.1
   - Done when opening a Mission names any Packs it needs that aren't installed.
 - [ ] **5.9 Windows build** · S · after 5.1
-  - Done when an exported Windows build runs with the base Pack beside the .exe.
+  - Done when an exported Windows build runs with the base Pack beside the .exe, and Core is compiled with optimizations (Godot's ExportRelease configuration leaves it unoptimized unless `core/Core.csproj` turns them on).
 - [ ] **5.10 Sample second Pack** · S · after 5.7, 5.4
   - Done when a test Pack adds a jet and a Trait without changing the game.
 

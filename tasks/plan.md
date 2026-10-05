@@ -19,7 +19,7 @@ Build the game described in [docs/SPEC.md](../docs/SPEC.md) in six steps, each e
 ## Project layout
 
 - `game/`: the Godot project (Game). Scenes and scripts sit together in feature folders: `flight/`, `combat/`, `ai/`, `world/`, `ui/`, `editor/`.
-- `core/` and `core.tests/`: Core, plain C# with xUnit tests (created in task 1.4). Pack data (Unit Types, Handling, feel settings) lives here too, since Missions refer to it.
+- `core/` and `core.tests/`: Core, plain C# with xUnit tests (created in task 1.4). Pack data (Unit Types, Handling, feel settings) lives here too, since Missions refer to it. The game project references Core; Core and its tests stay out of Godot's `.sln`.
 - `packs/base/`: the base Pack (created in task 1.5). Exported builds carry it next to the .exe.
 - `missions/`: hand-written dev sample Missions (step 3).
 - At runtime, the user's own Packs and Missions live in Godot's user folder (`user://packs`, `user://missions`). The user's private music Pack goes there, never in this repository.
@@ -64,6 +64,5 @@ Sizes are rough guesses at 10-20 hours a week; re-estimate after Milestone 1.
 
 - DualSense default layout: proposed in task 1.3; the user confirms while playing.
 - Air-to-ground Special Weapon: missile or bombs (task 2.21).
-- Whether Core projects join Godot's `.sln` (task 1.4). If they do, map its ExportDebug and ExportRelease configurations to Debug and Release.
 - Which real-world region the 64 km Map comes from (task 6.2).
 - Terrain technology: the Terrain3D plugin or a custom heightmap mesh (task 6.3, recorded as an ADR).
