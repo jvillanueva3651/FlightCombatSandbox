@@ -8,6 +8,10 @@ Single-player arcade flight combat game (Ace Combat's rules, an original univers
 - `docs/PLAN.md`: the confirmed design and the roadmap. Read it at the start of a task to find the current step; tick the task's checkbox when it's done.
 - `docs/adr/`: one file per hard-to-reverse decision. Read the matching ADR before touching the engine setup, the Core/Game split, Packs, Mission files, the flight model, or anything copyright-related.
 
+## Tools
+
+- Godot 4.7.2 (.NET): `C:\Users\jvill\source\Godot_v4.7.2-stable_mono_win64\Godot_v4.7.2-stable_mono_win64_console.exe`. Use this `_console` build from the command line; `--headless --path game --build-solutions --quit` checks that the project opens and builds.
+
 ## How we work
 
 - One task from the plan at a time; the user plays it before the next one starts.

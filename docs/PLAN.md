@@ -94,8 +94,8 @@ Each step ends with something playable. Sizes are rough guesses at 10-20 hours a
 
 ### Step 1: Fly
 
-- [ ] You: install Godot 4 (.NET edition, latest stable) and the .NET SDK version its docs list.
-- [ ] Godot project with the Forward+ renderer, a C# solution, and a .gitignore for Godot and .NET.
+- [x] You: install Godot 4 (.NET edition, latest stable) and the .NET SDK version its docs list.
+- [x] Godot project with the Forward+ renderer, a C# solution, and a .gitignore for Godot and .NET.
 - [ ] Generated test terrain with hills and a canyon to fly through.
 - [ ] Gray-box jet built from simple shapes, flown by the arcade flight model.
 - [ ] Handling values loaded from the jet's file in the base Pack folder.
