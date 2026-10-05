@@ -28,8 +28,8 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
   - Done when a jet built from simple shapes (fuselage, wings, tail), nose along -Z (Godot's forward), sits above the ground in the test scene.
   - Verify: godot, play. Files: `game/flight/jet.tscn`, `game/world/test_flight.tscn`.
 - [ ] **1.3 Controls: DualSense layout with keyboard fallback** · S · after 1.1
-  - Done when input actions exist for pitch, roll, yaw, throttle, brake, fire missile, fire gun, switch weapon and switch target, and an on-screen readout shows their live values from both the DualSense and the keyboard.
-  - Layout, matching Ace Combat 7's PlayStation defaults: left stick pitch and roll; L1/R1 yaw; R2 throttle; L2 brake; Cross gun; Circle missile or Special Weapon; Square switch weapon; Triangle switch target. Holding Triangle or Circle does more in tasks 2.27 and 2.28. Godot names face buttons by Xbox position: A = Cross, B = Circle, X = Square, Y = Triangle.
+  - Done when input actions exist for pitch, roll, yaw, throttle, brake, fire missile, fire gun, switch weapon, switch target, look around, change view, flare, radar map and pause, and an on-screen readout shows their live values from both the DualSense and the keyboard.
+  - Layout, matching Ace Combat 7's PlayStation defaults: left stick pitch and roll; right stick look around; L1/R1 yaw; R2 throttle; L2 brake; Cross gun; Circle missile or Special Weapon; Square switch weapon; Triangle switch target; R3 change view; L3+R3 flare; touchpad radar map; Options pause. Holding Triangle or Circle does more in tasks 2.27 and 2.28. Godot names face buttons by Xbox position: A = Cross, B = Circle, X = Square, Y = Triangle.
   - Verify: godot, play. Files: `game/flight/Controls.cs` (actions defined in code so bindings stay readable), `game/ui/debug_overlay.tscn`, `game/ui/DebugOverlay.cs`.
 - [x] **1.4 Core library with Handling** · M · after 0.2
   - Done when `core/` (plain C#, net8.0) has a Handling type (cruise speed; pitch, roll and yaw rates) read from JSON, `core.tests/` (xUnit) tests that load, and the Godot project references Core and still builds.
@@ -43,6 +43,9 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
 
 **Checkpoint: first flight.** The user flies the jet and notes how it feels before more flight features land.
 
+- [ ] **1.26 Pause** · S · after 1.6
+  - Done when Options (or Escape) pauses the game and shows a menu with Resume and Quit.
+  - Verify: play. Files: `game/ui/pause_menu.tscn`, `game/ui/PauseMenu.cs`.
 - [ ] **1.7 Flight readout** · XS · after 1.6
   - Done when the debug overlay shows speed, altitude, throttle and G-load.
   - Verify: play. Files: `game/ui/DebugOverlay.cs`.
@@ -82,6 +85,12 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
 - [ ] **1.18 Speed zoom and camera shake** · S · after 1.17, 1.14
   - Done when the field of view widens with speed and the camera shakes in high-G turns and stalls, by amounts from the feel settings.
   - Verify: play. Files: `game/flight/ChaseCamera.cs`, `core/FeelSettings.cs`.
+- [ ] **1.27 Look around** · S · after 1.17
+  - Done when the right stick swings the camera around the jet, and the camera eases back behind the jet when the stick is let go.
+  - Verify: play. Files: `game/flight/ChaseCamera.cs`.
+- [ ] **1.28 Change view** · S · after 1.17
+  - Done when R3 switches between the chase camera and a view from the jet's nose with the jet hidden. A cockpit view comes with models in 6.25.
+  - Verify: play. Files: `game/flight/ChaseCamera.cs`, `game/flight/jet.tscn`.
 - [ ] **1.19 Speed cues** · S · after 1.6
   - Done when faint wind streaks around the camera grow with speed, so speed reads even high above the ground.
   - Verify: play. Files: `game/flight/wind_streaks.tscn`, `game/flight/ChaseCamera.cs`.
@@ -145,8 +154,11 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
 - [ ] **2.28 Missile camera** · S · after 2.7, 1.17
   - Done when holding Circle while firing makes the camera follow the fired missile (or Special Weapon, once those exist) until Circle is released or about a second after it explodes, then brings back the chase camera.
   - Verify: play. Files: `game/flight/ChaseCamera.cs`, `game/combat/Missile.cs`.
+- [ ] **2.29 Large radar map** · S · after 2.10
+  - Done when the touchpad switches the radar between the minimap and a large map of the area around the Player.
+  - Verify: play. Files: `game/ui/Radar.cs`, `game/ui/hud.tscn`.
 
-**Checkpoint: armed.** The user shoots dummies with the gun and missiles, reads the HUD, and tries the Target and missile cameras.
+**Checkpoint: armed.** The user shoots dummies with the gun and missiles, reads the HUD and the large radar map, and tries the Target and missile cameras.
 
 - [ ] **2.11 AI pilot flies to a point** · M · after 2.4
   - Done when the flight model takes its inputs from either the controller or an AI pilot, and an enemy jet (same Unit Type, Team 2) flies to a given point with it.
@@ -166,6 +178,9 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
 - [ ] **2.16 AI defense** · S · after 2.14
   - Done when AI jets break hard when a missile closes on them or a hostile sits on their tail.
   - Verify: play. Files: `game/ai/AiPilot.cs`.
+- [ ] **2.30 Flares** · S · after 2.15, 2.9
+  - Done when L3+R3 releases flares that can pull missiles tracking the Player off course, and the HUD shows how many flares are left.
+  - Verify: play. Files: `game/combat/Flares.cs`, `game/combat/Missile.cs`, `game/ui/Hud.cs`.
 
 **Checkpoint: 1v1.** The user dogfights one enemy jet and judges whether the AI is fun: neither helpless nor perfect.
 
@@ -447,3 +462,5 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
   - Done when each Phase start is saved and a Player who is shot down can retry from there.
 - [ ] **6.24 Low-poly models** · M · after 5.4
   - Done when the base Unit Types use free CC0 or CC-BY models, credited in `packs/base/CREDITS.md`.
+- [ ] **6.25 Cockpit view** · M · after 6.24, 1.28
+  - Done when R3's views include a cockpit view with a simple cockpit model.
