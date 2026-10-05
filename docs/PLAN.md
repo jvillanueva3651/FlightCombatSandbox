@@ -116,9 +116,3 @@ Each step ends with something playable. Sizes are rough guesses at 10-20 hours a
 - [ ] Ground targets: an AA gun that shoots back, and a tank.
 - [ ] A throwaway test scene with four enemy jets and a few ground targets. It's a dev scene, not a Mission, so [ADR 0002](adr/0002-every-mission-built-in-the-editor.md) still holds; step 3 replaces it.
 - [ ] Done: fighting four enemy jets is fun.
-
-## How we work
-
-- One task at a time, and play it before moving on.
-- Each finished task gets its own commit.
-- New terms go in the glossary; hard-to-reverse decisions get an ADR.
