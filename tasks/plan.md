@@ -34,7 +34,7 @@ Build the game described in [docs/SPEC.md](../docs/SPEC.md) in six steps, each e
 Sizes are rough guesses at 10-20 hours a week; re-estimate after Milestone 1.
 
 1. **Fly** (tasks 1.x): a gray-box jet over generated test terrain, tuned live. *Done when flying feels right to the user.* (~2-4 weeks) The first flight (1.6) comes before terrain (1.21) so feel work starts early.
-2. **Fight** (2.x): lock-on, missiles, gun, Special Weapons, HUD and radar, enemy jets with basic dogfight AI, ground targets. *Done when fighting four enemy jets is fun.* (~4-8 weeks)
+2. **Fight** (2.x): lock-on, missiles, gun, Special Weapons, HUD and radar, Target and missile cameras, enemy jets with basic dogfight AI, ground targets. *Done when fighting four enemy jets is fun.* (~4-8 weeks)
 
    **Milestone 1: is it fun?**
 
@@ -62,7 +62,6 @@ Sizes are rough guesses at 10-20 hours a week; re-estimate after Milestone 1.
 
 ## Open questions
 
-- DualSense default layout: proposed in task 1.3; the user confirms while playing.
 - Air-to-ground Special Weapon: missile or bombs (task 2.21).
 - Which real-world region the 64 km Map comes from (task 6.2).
 - Terrain technology: the Terrain3D plugin or a custom heightmap mesh (task 6.3, recorded as an ADR).

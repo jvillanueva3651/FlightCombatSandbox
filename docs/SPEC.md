@@ -10,6 +10,7 @@ A single-player arcade flight combat game in the spirit of Ace Combat, where Aut
 ## Flying and fighting
 
 - **Platform:** Windows PC. DualSense first, with Expert controls (direct pitch, roll and yaw). Editor on keyboard and mouse. English only.
+- **Controls** follow Ace Combat 7's PlayStation defaults. Holding Triangle keeps the current Target on screen; holding Circle while firing follows the shot until Circle is released or about a second after it explodes.
 - **Flight model:** arcade, driven by Handling values ([ADR 0009](adr/0009-arcade-flight-model.md)).
   - Per aircraft, in its Unit Type: top and stall speed, throttle and brake strength, pitch/roll/yaw rates at each speed (best at corner speed), speed lost in hard turns, speed gained or lost climbing and diving, high-G turn strength, response time.
   - Shared by all aircraft: stick dead zone and response curve, camera lag, zoom-out at speed, camera shake, overall multipliers on Handling.

@@ -2,7 +2,7 @@
 
 Take the first unchecked task whose dependencies are done, do only that task, tick it, and commit. Design details: [docs/SPEC.md](../docs/SPEC.md). Layout, risks and open questions: [plan.md](plan.md).
 
-**Format:** ID and title · size · after (dependencies), then *Done when* and *Verify*. Steps 1 and 2 also list the files likely touched; later steps get files when they start.
+**Format:** ID and title · size · after (dependencies), then *Done when* and *Verify*. Steps 1 and 2 also list the files likely touched; later steps get files when they start. IDs never change: a task added later takes the next free number in its step and sits where it belongs in the order.
 
 **Sizes:** XS one file · S one or two files · M three to five files.
 
@@ -29,7 +29,7 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
   - Verify: godot, play. Files: `game/flight/jet.tscn`, `game/world/test_flight.tscn`.
 - [ ] **1.3 Controls: DualSense layout with keyboard fallback** · S · after 1.1
   - Done when input actions exist for pitch, roll, yaw, throttle, brake, fire missile, fire gun, switch weapon and switch target, and an on-screen readout shows their live values from both the DualSense and the keyboard.
-  - Proposed layout for the user to confirm: left stick pitch and roll; L1/R1 yaw; R2 throttle; L2 brake; Cross missile; Square gun; Triangle switch weapon; Circle switch target. Godot names face buttons by Xbox position: A = Cross, B = Circle, X = Square, Y = Triangle.
+  - Layout, matching Ace Combat 7's PlayStation defaults: left stick pitch and roll; L1/R1 yaw; R2 throttle; L2 brake; Cross gun; Circle missile or Special Weapon; Square switch weapon; Triangle switch target. Holding Triangle or Circle does more in tasks 2.27 and 2.28. Godot names face buttons by Xbox position: A = Cross, B = Circle, X = Square, Y = Triangle.
   - Verify: godot, play. Files: `game/flight/Controls.cs` (actions defined in code so bindings stay readable), `game/ui/debug_overlay.tscn`, `game/ui/DebugOverlay.cs`.
 - [x] **1.4 Core library with Handling** · M · after 0.2
   - Done when `core/` (plain C#, net8.0) has a Handling type (cruise speed; pitch, roll and yaw rates) read from JSON, `core.tests/` (xUnit) tests that load, and the Godot project references Core and still builds.
@@ -115,19 +115,19 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
   - Done when placed Units have a Team and health; at zero health they explode (placeholder flash and debris) and disappear; a gray-box dummy on Team 2 sits in the test scene, and a debug key damages it.
   - Verify: play. Files: `game/combat/Health.cs`, `game/combat/explosion.tscn`, `game/world/test_flight.tscn`.
 - [ ] **2.3 Gun** · S · after 2.2
-  - Done when holding Square fires tracer rounds that damage the Units they hit, and the dummy can be shot down.
+  - Done when holding Cross fires tracer rounds that damage the Units they hit, and the dummy can be shot down.
   - Verify: play. Files: `game/combat/Gun.cs`, `game/flight/jet.tscn`.
 - [ ] **2.4 Player damage and being shot down** · S · after 2.2, 1.22
   - Done when the Player's jet has health and, at zero or on hitting terrain, is shot down: explosion, then respawn after a pause.
   - Verify: play. Files: `game/flight/Jet.cs`, `game/combat/Health.cs`.
 - [ ] **2.5 Targeting** · M · after 2.2
-  - Done when the nearest hostile Unit in front becomes the current Target (hostile means another Team until Alliances arrive in 3.4), Circle cycles Targets, and a HUD box marks the Target with its distance.
+  - Done when the nearest hostile Unit in front becomes the current Target (hostile means another Team until Alliances arrive in 3.4), Triangle cycles Targets, and a HUD box marks the Target with its distance.
   - Verify: play. Files: `game/combat/Targeting.cs`, `game/ui/hud.tscn`, `game/ui/TargetMarker.cs`.
 - [ ] **2.6 Lock-on** · S · after 2.5
   - Done when a Target inside the seeker cone and range locks after a short delay, its marker turns red, and a lock tone plays.
   - Verify: play. Files: `game/combat/Targeting.cs`, `game/ui/TargetMarker.cs`.
 - [ ] **2.7 Standard missile** · M · after 2.6
-  - Done when Cross fires a missile that homes on a locked Target with a limited turn rate (so tight turns can dodge it), explodes by proximity and deals damage, and flies straight without a lock. Its stats come from the base Pack.
+  - Done when Circle fires a missile that homes on a locked Target with a limited turn rate (so tight turns can dodge it), explodes by proximity and deals damage, and flies straight without a lock. Its stats come from the base Pack.
   - Verify: test (weapon stats load), play. Files: `core/WeaponType.cs`, `packs/base/weapons/standard-missile.json`, `game/combat/Missile.cs`, `game/combat/missile.tscn`.
 - [ ] **2.8 Missile pylons and count** · S · after 2.7
   - Done when two missiles are ready at a time, each reloads after a delay, and the count starts at 144 and runs down.
@@ -139,7 +139,14 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
   - Done when a heading-up radar shows hostile Units in red and allied Units in blue around the Player.
   - Verify: play. Files: `game/ui/Radar.cs`, `game/ui/hud.tscn`.
 
-**Checkpoint: armed.** The user shoots dummies with the gun and missiles and reads the HUD.
+- [ ] **2.27 Look at the Target** · S · after 2.5, 1.17
+  - Done when holding Triangle turns the camera to keep the current Target on screen and releasing it brings back the chase camera, while a tap still switches Targets.
+  - Verify: play. Files: `game/flight/ChaseCamera.cs`, `game/combat/Targeting.cs`.
+- [ ] **2.28 Missile camera** · S · after 2.7, 1.17
+  - Done when holding Circle while firing makes the camera follow the fired missile (or Special Weapon, once those exist) until Circle is released or about a second after it explodes, then brings back the chase camera.
+  - Verify: play. Files: `game/flight/ChaseCamera.cs`, `game/combat/Missile.cs`.
+
+**Checkpoint: armed.** The user shoots dummies with the gun and missiles, reads the HUD, and tries the Target and missile cameras.
 
 - [ ] **2.11 AI pilot flies to a point** · M · after 2.4
   - Done when the flight model takes its inputs from either the controller or an AI pilot, and an enemy jet (same Unit Type, Team 2) flies to a given point with it.
@@ -163,7 +170,7 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
 **Checkpoint: 1v1.** The user dogfights one enemy jet and judges whether the AI is fun: neither helpless nor perfect.
 
 - [ ] **2.17 Special Weapon slots** · M · after 2.8, 2.9
-  - Done when Triangle cycles standard missile → Special Weapon 1 → Special Weapon 2, Special Weapons are defined in the base Pack, and the HUD shows the selected one and its count.
+  - Done when Square cycles standard missile → Special Weapon 1 → Special Weapon 2, Special Weapons are defined in the base Pack, and the HUD shows the selected one and its count.
   - Verify: test (definitions load), play. Files: `core/WeaponType.cs`, `packs/base/weapons/`, `game/combat/WeaponSlots.cs`, `game/ui/Hud.cs`.
 - [ ] **2.18 Special: agile short-range missile** · S · after 2.17
   - Done when a missile with a much higher turn rate and shorter range works as a Special Weapon.
