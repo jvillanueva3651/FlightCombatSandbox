@@ -1,0 +1,58 @@
+[gd_scene format=3]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_sky"]
+ground_bottom_color = Color(0.6463, 0.6558, 0.6708, 1)
+
+[sub_resource type="Sky" id="Sky_sky"]
+sky_material = SubResource("ProceduralSkyMaterial_sky")
+
+[sub_resource type="Environment" id="Environment_sky"]
+background_mode = 2
+sky = SubResource("Sky_sky")
+tonemap_mode = 2
+fog_enabled = true
+fog_density = 5e-05
+fog_aerial_perspective = 1.0
+fog_sky_affect = 0.0
+
+[sub_resource type="Shader" id="Shader_grid"]
+code = "shader_type spatial;
+
+// Flat test ground: a line every cell_size meters, about a pixel wide,
+// fading out in the distance before the lines start to shimmer.
+uniform vec3 ground_color : source_color = vec3(0.33, 0.37, 0.3);
+uniform vec3 line_color : source_color = vec3(0.6, 0.64, 0.56);
+uniform float cell_size = 100.0;
+
+void fragment() {
+	vec2 cell = (INV_VIEW_MATRIX * vec4(VERTEX, 1.0)).xz / cell_size;
+	vec2 cells_per_pixel = fwidth(cell);
+	vec2 pixels_to_line = abs(fract(cell - 0.5) - 0.5) / cells_per_pixel;
+	vec2 lines = (1.0 - min(pixels_to_line, vec2(1.0))) * (1.0 - smoothstep(0.05, 0.3, cells_per_pixel));
+	ALBEDO = mix(ground_color, line_color, max(lines.x, lines.y));
+	ROUGHNESS = 0.9;
+}
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_grid"]
+shader = SubResource("Shader_grid")
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_ground"]
+material = SubResource("ShaderMaterial_grid")
+size = Vector2(100000, 100000)
+
+[node name="TestFlight" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_sky")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.906308, -0.178606, 0.383022, 0, 0.906308, 0.422618, -0.422618, 0.383022, -0.821394, 0, 100, 0)
+shadow_enabled = true
+
+[node name="Ground" type="MeshInstance3D" parent="."]
+mesh = SubResource("PlaneMesh_ground")
+
+[node name="Camera" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.996195, 0.087156, 0, -0.087156, 0.996195, 0, 50, 0)
+far = 50000.0

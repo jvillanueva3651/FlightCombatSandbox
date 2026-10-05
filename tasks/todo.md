@@ -21,7 +21,7 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
 
 ## Step 1: Fly
 
-- [ ] **1.1 Test scene: ground, sky, sun** · XS · after 0.2
+- [x] **1.1 Test scene: ground, sky, sun** · XS · after 0.2
   - Done when running the project shows a large flat ground grid under a sky with sunlight.
   - Verify: godot, play. Files: `game/world/test_flight.tscn`, `game/project.godot` (main scene).
 - [ ] **1.2 Gray-box jet** · S · after 1.1
