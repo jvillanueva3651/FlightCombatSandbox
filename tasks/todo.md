@@ -34,7 +34,7 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
 - [x] **1.4 Core library with Handling** · M · after 0.2
   - Done when `core/` (plain C#, net8.0) has a Handling type (cruise speed; pitch, roll and yaw rates) read from JSON, `core.tests/` (xUnit) tests that load, and the Godot project references Core and still builds.
   - Verify: test, build, godot. Files: `core/Core.csproj`, `core/Handling.cs`, `core.tests/Core.Tests.csproj`, `core.tests/HandlingTests.cs`, `game/FlightCombatSandbox.csproj`.
-- [ ] **1.5 Base Pack with the first jet** · S · after 1.4
+- [x] **1.5 Base Pack with the first jet** · S · after 1.4
   - Done when `packs/base/` holds `pack.json` (id, name, version) and the light fighter's Unit Type file with its Handling, and the game finds the base Pack (beside `game/` in the editor, beside the .exe in builds) and logs the loaded Handling at startup.
   - Verify: test, godot, play (log line). Files: `packs/base/pack.json`, `packs/base/unit-types/light-fighter.json`, `core/PackLoader.cs`, `game/content/Packs.cs`.
 - [ ] **1.6 First flight** · S · after 1.2, 1.3, 1.5

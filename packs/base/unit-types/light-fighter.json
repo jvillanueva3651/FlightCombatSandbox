@@ -1,0 +1,8 @@
+{
+  "handling": {
+    "cruiseSpeed": 550,
+    "pitchRate": 75,
+    "rollRate": 200,
+    "yawRate": 20
+  }
+}
