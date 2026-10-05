@@ -1,5 +1,7 @@
 [gd_scene format=3]
 
+[ext_resource type="PackedScene" path="res://flight/jet.tscn" id="1_jet"]
+
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_sky"]
 ground_bottom_color = Color(0.6463, 0.6558, 0.6708, 1)
 
@@ -52,6 +54,9 @@ shadow_enabled = true
 
 [node name="Ground" type="MeshInstance3D" parent="."]
 mesh = SubResource("PlaneMesh_ground")
+
+[node name="Jet" parent="." instance=ExtResource("1_jet")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 46, -16)
 
 [node name="Camera" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 0.996195, 0.087156, 0, -0.087156, 0.996195, 0, 50, 0)
