@@ -103,7 +103,7 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
 - [ ] **1.22 Crash and respawn** · S · after 1.21
   - Done when hitting the terrain resets the jet to its start after a short pause. Step 2 turns this into being shot down.
   - Verify: play. Files: `game/flight/Jet.cs`.
-- [ ] **1.23 Tuning panel: Handling** · M · after 1.14
+- [x] **1.23 Tuning panel: Handling** · M · after 1.14
   - Done when a key toggles an in-game panel with a slider for every Handling value, built from the type's properties, and changes apply mid-flight.
   - Verify: play. Files: `game/ui/tuning_panel.tscn`, `game/ui/TuningPanel.cs`.
 - [ ] **1.24 Tuning panel: feel settings** · S · after 1.23, 1.18
