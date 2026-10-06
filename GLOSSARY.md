@@ -88,7 +88,7 @@ _Avoid_: Class, Category
 
 **Handling**:
 The tunable numbers that define how an aircraft flies (speeds, turn rates, response time and so on), stored in its Unit Type.
-_Avoid_: Variables, Weights, Stats, Flight physics
+_Avoid_: Variables, Weights, Stats, Flight physics, Maneuverability
 
 **Feel Settings**:
 The tunable numbers shared by every aircraft that shape how flying feels: stick response, camera behavior, and multipliers on every aircraft's Handling. Unlike Handling, they belong to no single aircraft.
