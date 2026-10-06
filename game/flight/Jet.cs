@@ -3,10 +3,10 @@ using Godot;
 
 /// <summary>
 /// Flies a jet straight from its Handling, with no aerodynamics: R2 and L2 set its speed, hard pulls
-/// and climbs bleed it, dives build it, and the stick and L1/R1 turn it at the Handling rates,
-/// strongest at corner speed and easing in and out over its response time. Below stall speed the
-/// nose falls toward the ground. Squeezing R2 and L2 together while pulling makes a high-G turn:
-/// tighter, and much costlier in speed.
+/// and climbs bleed it, dives build it, and the stick (through the feel settings' response curve) and
+/// L1/R1 turn it at the Handling rates, strongest at corner speed and easing in and out over its
+/// response time. Below stall speed the nose falls toward the ground. Squeezing R2 and L2 together
+/// while pulling makes a high-G turn: tighter, and much costlier in speed.
 /// </summary>
 public partial class Jet : Node3D
 {
@@ -39,9 +39,9 @@ public partial class Jet : Node3D
     public override void _Process(double delta)
     {
         var dt = (float)delta;
-        _pitch = _handling.NextTurn(_pitch, Input.GetAxis(Controls.PitchDown, Controls.PitchUp), dt);  // + = nose up
-        _roll = _handling.NextTurn(_roll, Input.GetAxis(Controls.RollLeft, Controls.RollRight), dt);    // + = right wing down
-        _yaw = _handling.NextTurn(_yaw, Input.GetAxis(Controls.YawLeft, Controls.YawRight), dt);        // + = nose right
+        _pitch = _handling.NextTurn(_pitch, Stick(Controls.PitchDown, Controls.PitchUp), dt);  // + = nose up
+        _roll = _handling.NextTurn(_roll, Stick(Controls.RollLeft, Controls.RollRight), dt);    // + = right wing down
+        _yaw = _handling.NextTurn(_yaw, Stick(Controls.YawLeft, Controls.YawRight), dt);        // + = nose right
         Throttle = Input.GetAxis(Controls.Brake, Controls.Throttle);
         var squeeze = Mathf.Min(Input.GetActionStrength(Controls.Brake), Input.GetActionStrength(Controls.Throttle));
         _squeeze = _handling.NextTurn(_squeeze, squeeze, dt);
@@ -69,4 +69,7 @@ public partial class Jet : Node3D
         // Pitching bends the flight path toward the jet's top side; gravity adds its share along that axis.
         GLoad = metersPerSecond * pitchRate / 9.81f + GlobalTransform.Basis.Y.Y;
     }
+
+    // An axis's position after the feel settings' response curve.
+    static float Stick(StringName negative, StringName positive) => Packs.Base.Feel.Curve(Input.GetAxis(negative, positive));
 }

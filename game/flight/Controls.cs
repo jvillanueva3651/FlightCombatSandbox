@@ -21,9 +21,6 @@ public partial class Controls : Node
     // L3 on its own does nothing; it only counts as half of the flare chord.
     static readonly StringName LeftStickClick = "left_stick_click";
 
-    // Stick and trigger travel ignored around rest. Feel settings take this over in task 1.15.
-    const float Deadzone = 0.1f;
-
     public override void _EnterTree()
     {
         // Pushing the stick forward dives, like a plane's control stick.
@@ -61,9 +58,10 @@ public partial class Controls : Node
     public static bool IsFlarePressed() =>
         Input.IsActionPressed(Flare) || (Input.IsActionPressed(LeftStickClick) && Input.IsActionPressed(ChangeView));
 
+    // Stick and trigger travel inside the feel settings' dead zone is ignored.
     static void Bind(StringName action, params InputEvent[] events)
     {
-        InputMap.AddAction(action, Deadzone);
+        InputMap.AddAction(action, Packs.Base.Feel.DeadZone);
         foreach (var e in events)
             InputMap.ActionAddEvent(action, e);
     }

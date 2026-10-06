@@ -73,7 +73,7 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
 
 **Checkpoint: flight model complete.** The user flies everything above and lists what feels off.
 
-- [ ] **1.15 Feel settings and stick response** · S · after 1.6
+- [x] **1.15 Feel settings and stick response** · S · after 1.6
   - Done when `packs/base/feel.json`, loaded into a Core type, sets the stick dead zone and response curve, and the jet's input uses them.
   - Verify: test, play. Files: `packs/base/feel.json`, `core/FeelSettings.cs`, `core.tests/FeelSettingsTests.cs`, `game/flight/Jet.cs`.
 - [ ] **1.16 Overall Handling multipliers** · XS · after 1.15

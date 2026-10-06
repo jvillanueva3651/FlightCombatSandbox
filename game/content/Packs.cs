@@ -10,9 +10,12 @@ public partial class Packs : Node
 {
     public static Pack Base { get; private set; }
 
-    public override void _Ready()
+    // Loads on entering the tree rather than in _Ready, so the Controls autoload after it can bind
+    // its actions with the feel settings' dead zone.
+    public override void _EnterTree()
     {
         Base = PackLoader.Load(BaseFolder());
+        GD.Print($"Pack '{Base.Id}' {Base.Version}: {Base.Feel}");
         foreach (var (id, unitType) in Base.UnitTypes)
             GD.Print($"Pack '{Base.Id}' {Base.Version}: {id} {unitType.Handling}");
     }

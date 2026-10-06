@@ -9,6 +9,7 @@ public class PackLoaderTests
 
         Assert.Equal("base", pack.Id);
         Assert.Contains("light-fighter", pack.UnitTypes);
+        Assert.Equal(0.1f, pack.Feel.DeadZone);
     }
 
     // Walks up from the test binaries (core.tests/bin/...) to the repository's packs/base.
