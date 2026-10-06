@@ -8,6 +8,7 @@
     "cruiseReturnStrength": 60,
     "pitchRate": 90,
     "rollRate": 150,
-    "yawRate": 20
+    "yawRate": 20,
+    "responseTime": 0.25
   }
 }

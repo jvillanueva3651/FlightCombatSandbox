@@ -15,7 +15,8 @@ public class HandlingTests
           "cruiseReturnStrength": 60,
           "pitchRate": 90,
           "rollRate": 150,
-          "yawRate": 20
+          "yawRate": 20,
+          "responseTime": 0.25
         }
         """;
 
@@ -33,6 +34,7 @@ public class HandlingTests
         Assert.Equal(90f, LightFighter.PitchRate);
         Assert.Equal(150f, LightFighter.RollRate);
         Assert.Equal(20f, LightFighter.YawRate);
+        Assert.Equal(0.25f, LightFighter.ResponseTime);
     }
 
     [Fact]
@@ -72,5 +74,32 @@ public class HandlingTests
     public void Half_throttle_aims_halfway_between_cruise_and_top_speed()
     {
         Assert.Equal(925f, LightFighter.NextSpeed(920, throttle: 0.5f, seconds: 1));
+    }
+
+    [Fact]
+    public void Full_stick_turns_in_at_a_steady_pace_over_the_response_time()
+    {
+        Assert.Equal(0.5f, LightFighter.NextTurn(0, stick: 1, seconds: 0.125f));
+        Assert.Equal(1f, LightFighter.NextTurn(0, stick: 1, seconds: 0.25f));
+    }
+
+    [Fact]
+    public void Letting_go_of_the_stick_eases_the_turn_out_over_the_response_time()
+    {
+        Assert.Equal(0.5f, LightFighter.NextTurn(1, stick: 0, seconds: 0.125f));
+        Assert.Equal(0f, LightFighter.NextTurn(1, stick: 0, seconds: 0.25f));
+    }
+
+    [Fact]
+    public void A_longer_response_time_turns_in_more_slowly()
+    {
+        var heavier = LightFighter with { ResponseTime = 0.5f };
+        Assert.Equal(0.25f, heavier.NextTurn(0, stick: 1, seconds: 0.125f));
+    }
+
+    [Fact]
+    public void A_small_stick_movement_arrives_sooner_than_a_full_one()
+    {
+        Assert.Equal(0.3f, LightFighter.NextTurn(0, stick: 0.3f, seconds: 0.125f));
     }
 }

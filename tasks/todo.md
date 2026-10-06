@@ -52,7 +52,7 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
 - [x] **1.8 Throttle and brake** · S · after 1.7
   - Done when R2 accelerates toward top speed, L2 slows toward minimum speed (set below where the jet will stall, so braking can stall it), and letting go returns to cruise speed, all at Handling rates.
   - Verify: test, play. Files: `core/Handling.cs`, `packs/base/unit-types/light-fighter.json`, `game/flight/Jet.cs`.
-- [ ] **1.9 Response time** · S · after 1.6
+- [x] **1.9 Response time** · S · after 1.6
   - Done when turn rates ease toward the stick position over the Handling response time instead of snapping, so a higher value feels heavier.
   - Verify: test, play. Files: `core/Handling.cs`, `packs/base/unit-types/light-fighter.json`, `game/flight/Jet.cs`.
 - [ ] **1.10 Turn rates change with speed** · S · after 1.8
