@@ -49,6 +49,10 @@ public partial class Controls : Node
         Bind(LeftStickClick, PadButton(JoyButton.LeftStick));                  // L3
         Bind(RadarMap, PadButton(JoyButton.Touchpad), Keyboard(Key.M));
         Bind(Pause, PadButton(JoyButton.Start), Keyboard(Key.Escape));         // Options
+
+        // Godot's built-in menu actions have no controller buttons for confirm and back.
+        InputMap.ActionAddEvent("ui_accept", PadButton(JoyButton.A));          // Cross confirms
+        InputMap.ActionAddEvent("ui_cancel", PadButton(JoyButton.B));          // Circle backs out
     }
 
     /// <summary>Flare is L3+R3 held together on the DualSense, a chord an input action can't express.</summary>

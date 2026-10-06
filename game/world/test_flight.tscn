@@ -2,6 +2,7 @@
 
 [ext_resource type="PackedScene" path="res://flight/jet.tscn" id="1_jet"]
 [ext_resource type="PackedScene" path="res://ui/debug_overlay.tscn" id="2_overlay"]
+[ext_resource type="PackedScene" path="res://ui/pause_menu.tscn" id="3_pause"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_sky"]
 ground_bottom_color = Color(0.6463, 0.6558, 0.6708, 1)
@@ -64,3 +65,5 @@ transform = Transform3D(1, 0, 0, 0, 0.997564, 0.069756, 0, -0.069756, 0.997564, 
 far = 50000.0
 
 [node name="DebugOverlay" parent="." instance=ExtResource("2_overlay")]
+
+[node name="PauseMenu" parent="." instance=ExtResource("3_pause")]

@@ -43,7 +43,7 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
 
 **Checkpoint: first flight.** The user flies the jet and notes how it feels before more flight features land.
 
-- [ ] **1.26 Pause** · S · after 1.6
+- [x] **1.26 Pause** · S · after 1.6
   - Done when Options (or Escape) pauses the game and shows a menu with Resume and Quit.
   - Verify: play. Files: `game/ui/pause_menu.tscn`, `game/ui/PauseMenu.cs`.
 - [ ] **1.7 Flight readout** · XS · after 1.6
