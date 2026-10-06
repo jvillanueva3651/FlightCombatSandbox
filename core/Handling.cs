@@ -2,8 +2,8 @@ namespace Core;
 
 /// <summary>
 /// The tunable numbers that define how an aircraft flies, stored in its Unit Type.
-/// Speeds are in km/h, strengths in km/h per second, turn rates in degrees per second, and the
-/// response time in seconds.
+/// Speeds are in km/h, strengths in km/h per second, turn rates in degrees per second, the response
+/// time in seconds, and the turn at stall and top speed in fractions of the full turn rates.
 /// </summary>
 public sealed record Handling
 {
@@ -17,6 +17,10 @@ public sealed record Handling
     public required float RollRate { get; set; }
     public required float YawRate { get; set; }
     public required float ResponseTime { get; set; }
+    public required float StallSpeed { get; set; }
+    public required float CornerSpeed { get; set; }
+    public required float TurnAtStallSpeed { get; set; }
+    public required float TurnAtTopSpeed { get; set; }
 
     public static Handling FromJson(string json) => PackLoader.Read<Handling>(json);
 
@@ -38,6 +42,15 @@ public sealed record Handling
     /// go from no turn to a full one, so turns ease in and out and small corrections arrive sooner.
     /// </summary>
     public float NextTurn(float turn, float stick, float seconds) => MoveToward(turn, stick, seconds / ResponseTime);
+
+    /// <summary>
+    /// How much of its full turn rates the jet has at <paramref name="speed"/>: all of them at corner
+    /// speed, falling in straight lines to the turn at stall speed and the turn at top speed, and held
+    /// there below stall speed and above top speed.
+    /// </summary>
+    public float TurnRateScale(float speed) => speed < CornerSpeed
+        ? float.Lerp(TurnAtStallSpeed, 1, Math.Clamp((speed - StallSpeed) / (CornerSpeed - StallSpeed), 0, 1))
+        : float.Lerp(1, TurnAtTopSpeed, Math.Clamp((speed - CornerSpeed) / (TopSpeed - CornerSpeed), 0, 1));
 
     static float MoveToward(float from, float to, float maxStep) =>
         Math.Abs(to - from) <= maxStep ? to : from + Math.Sign(to - from) * maxStep;

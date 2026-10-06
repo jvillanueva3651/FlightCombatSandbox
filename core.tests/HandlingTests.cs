@@ -16,7 +16,11 @@ public class HandlingTests
           "pitchRate": 90,
           "rollRate": 150,
           "yawRate": 20,
-          "responseTime": 0.25
+          "responseTime": 0.25,
+          "stallSpeed": 300,
+          "cornerSpeed": 500,
+          "turnAtStallSpeed": 0.5,
+          "turnAtTopSpeed": 0.6
         }
         """;
 
@@ -35,6 +39,10 @@ public class HandlingTests
         Assert.Equal(150f, LightFighter.RollRate);
         Assert.Equal(20f, LightFighter.YawRate);
         Assert.Equal(0.25f, LightFighter.ResponseTime);
+        Assert.Equal(300f, LightFighter.StallSpeed);
+        Assert.Equal(500f, LightFighter.CornerSpeed);
+        Assert.Equal(0.5f, LightFighter.TurnAtStallSpeed);
+        Assert.Equal(0.6f, LightFighter.TurnAtTopSpeed);
     }
 
     [Fact]
@@ -101,5 +109,32 @@ public class HandlingTests
     public void A_small_stick_movement_arrives_sooner_than_a_full_one()
     {
         Assert.Equal(0.3f, LightFighter.NextTurn(0, stick: 0.3f, seconds: 0.125f));
+    }
+
+    [Fact]
+    public void Turn_rates_are_full_at_corner_speed()
+    {
+        Assert.Equal(1f, LightFighter.TurnRateScale(speed: 500));
+    }
+
+    [Fact]
+    public void Turn_rates_weaken_in_a_straight_line_toward_stall_speed()
+    {
+        Assert.Equal(0.75f, LightFighter.TurnRateScale(speed: 400));
+        Assert.Equal(0.5f, LightFighter.TurnRateScale(speed: 300));
+    }
+
+    [Fact]
+    public void Turn_rates_weaken_in_a_straight_line_toward_top_speed()
+    {
+        Assert.Equal(0.8f, LightFighter.TurnRateScale(speed: 900));
+        Assert.Equal(0.6f, LightFighter.TurnRateScale(speed: 1300));
+    }
+
+    [Fact]
+    public void Turn_rates_hold_their_end_values_below_stall_and_above_top_speed()
+    {
+        Assert.Equal(0.5f, LightFighter.TurnRateScale(speed: 200));
+        Assert.Equal(0.6f, LightFighter.TurnRateScale(speed: 1400));
     }
 }

@@ -9,6 +9,10 @@
     "pitchRate": 90,
     "rollRate": 150,
     "yawRate": 20,
-    "responseTime": 0.25
+    "responseTime": 0.25,
+    "stallSpeed": 300,
+    "cornerSpeed": 500,
+    "turnAtStallSpeed": 0.5,
+    "turnAtTopSpeed": 0.6
   }
 }

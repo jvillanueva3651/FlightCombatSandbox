@@ -55,7 +55,7 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
 - [x] **1.9 Response time** · S · after 1.6
   - Done when turn rates ease toward the stick position over the Handling response time instead of snapping, so a higher value feels heavier.
   - Verify: test, play. Files: `core/Handling.cs`, `packs/base/unit-types/light-fighter.json`, `game/flight/Jet.cs`.
-- [ ] **1.10 Turn rates change with speed** · S · after 1.8
+- [x] **1.10 Turn rates change with speed** · S · after 1.8
   - Done when a Core function gives a turn-rate scale from speed (best at the corner speed, weaker toward stall and top speed), and the jet uses it.
   - Verify: test, play. Files: `core/Handling.cs`, `core.tests/HandlingTests.cs`, `game/flight/Jet.cs`.
 - [ ] **1.11 Speed lost in hard turns** · XS · after 1.10
