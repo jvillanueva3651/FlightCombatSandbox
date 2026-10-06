@@ -22,7 +22,8 @@ public class HandlingTests
           "turnAtStallSpeed": 0.5,
           "turnAtTopSpeed": 0.6,
           "turnSpeedLoss": 100,
-          "gravityStrength": 150
+          "gravityStrength": 150,
+          "stallDropRate": 90
         }
         """;
 
@@ -47,6 +48,7 @@ public class HandlingTests
         Assert.Equal(0.6f, LightFighter.TurnAtTopSpeed);
         Assert.Equal(100f, LightFighter.TurnSpeedLoss);
         Assert.Equal(150f, LightFighter.GravityStrength);
+        Assert.Equal(90f, LightFighter.StallDropRate);
     }
 
     [Fact]
@@ -206,5 +208,24 @@ public class HandlingTests
     public void Diving_never_speeds_the_jet_past_top_speed()
     {
         Assert.Equal(1300f, LightFighter.SpeedAfterClimb(1290, climb: -1, seconds: 1));
+    }
+
+    [Fact]
+    public void The_nose_holds_up_at_stall_speed_and_above()
+    {
+        Assert.Equal(0f, LightFighter.NoseDropRate(speed: 300));
+        Assert.Equal(0f, LightFighter.NoseDropRate(speed: 550));
+    }
+
+    [Fact]
+    public void At_minimum_speed_the_nose_drops_at_the_stall_drop_rate()
+    {
+        Assert.Equal(90f, LightFighter.NoseDropRate(speed: 200));
+    }
+
+    [Fact]
+    public void Below_stall_speed_the_nose_drops_harder_the_slower_the_jet()
+    {
+        Assert.Equal(45f, LightFighter.NoseDropRate(speed: 250));
     }
 }

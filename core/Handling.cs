@@ -2,9 +2,9 @@ namespace Core;
 
 /// <summary>
 /// The tunable numbers that define how an aircraft flies, stored in its Unit Type.
-/// Speeds are in km/h, strengths and the turn speed loss in km/h per second, turn rates in degrees
-/// per second, the response time in seconds, and the turn at stall and top speed in fractions of the
-/// full turn rates.
+/// Speeds are in km/h, strengths and the turn speed loss in km/h per second, turn rates and the stall
+/// drop rate in degrees per second, the response time in seconds, and the turn at stall and top speed
+/// in fractions of the full turn rates.
 /// </summary>
 public sealed record Handling
 {
@@ -24,6 +24,7 @@ public sealed record Handling
     public required float TurnAtTopSpeed { get; set; }
     public required float TurnSpeedLoss { get; set; }
     public required float GravityStrength { get; set; }
+    public required float StallDropRate { get; set; }
 
     public static Handling FromJson(string json) => PackLoader.Read<Handling>(json);
 
@@ -73,6 +74,14 @@ public sealed record Handling
     /// </summary>
     public float SpeedAfterClimb(float speed, float climb, float seconds) =>
         Math.Clamp(speed - GravityStrength * climb * seconds, Math.Min(speed, StallSpeed), Math.Max(speed, TopSpeed));
+
+    /// <summary>
+    /// How fast the nose falls toward the ground at <paramref name="speed"/>, in degrees per second: not at
+    /// all at stall speed and above, then harder the slower the jet, reaching the stall drop rate at
+    /// minimum speed.
+    /// </summary>
+    public float NoseDropRate(float speed) =>
+        StallDropRate * Math.Clamp((StallSpeed - speed) / (StallSpeed - MinSpeed), 0, 1);
 
     static float MoveToward(float from, float to, float maxStep) =>
         Math.Abs(to - from) <= maxStep ? to : from + Math.Sign(to - from) * maxStep;

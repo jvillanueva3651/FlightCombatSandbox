@@ -64,7 +64,7 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
 - [x] **1.12 Climbing and diving change speed** · XS · after 1.8
   - Done when climbing slows the jet and diving speeds it up, scaled by a Handling value, without climbing alone ever slowing the jet enough to stall.
   - Verify: play. Files: `core/Handling.cs`, `game/flight/Jet.cs`.
-- [ ] **1.13 Stall** · S · after 1.10, 1.12
+- [x] **1.13 Stall** · S · after 1.10, 1.12
   - Done when below stall speed the controls weaken and the nose drops until the dive restores speed.
   - Verify: play. Files: `core/Handling.cs`, `game/flight/Jet.cs`.
 - [ ] **1.14 High-G turn** · S · after 1.11

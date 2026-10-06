@@ -4,7 +4,8 @@ using Godot;
 /// <summary>
 /// Flies a jet straight from its Handling, with no aerodynamics: R2 and L2 set its speed, hard pulls
 /// and climbs bleed it, dives build it, and the stick and L1/R1 turn it at the Handling rates,
-/// strongest at corner speed and easing in and out over its response time.
+/// strongest at corner speed and easing in and out over its response time. Below stall speed the
+/// nose falls toward the ground.
 /// </summary>
 public partial class Jet : Node3D
 {
@@ -47,6 +48,12 @@ public partial class Jet : Node3D
         RotateObjectLocal(Vector3.Right, pitchRate * dt);
         RotateObjectLocal(Vector3.Forward, Mathf.DegToRad(_handling.RollRate * _roll * scale * dt));
         RotateObjectLocal(Vector3.Down, Mathf.DegToRad(_handling.YawRate * _yaw * scale * dt));
+
+        // A stall drops the nose toward the ground, whichever way the jet is banked.
+        var nose = -GlobalTransform.Basis.Z;
+        var drop = Mathf.Min(Mathf.DegToRad(_handling.NoseDropRate(Speed)) * dt, nose.AngleTo(Vector3.Down));
+        if (drop > 0)
+            GlobalRotate(nose.Cross(Vector3.Down).Normalized(), drop);
         Transform = Transform.Orthonormalized(); // stops rounding errors slowly skewing the jet
 
         var metersPerSecond = Speed / 3.6f;
