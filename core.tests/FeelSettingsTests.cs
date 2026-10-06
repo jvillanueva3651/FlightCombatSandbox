@@ -14,7 +14,10 @@ public class FeelSettingsTests
           "rollMultiplier": 0.5,
           "yawMultiplier": 1.25,
           "responseMultiplier": 0.75,
-          "cameraLag": 0.1
+          "cameraLag": 0.1,
+          "speedZoom": 15,
+          "highGShake": 0.4,
+          "stallShake": 0.8
         }
         """;
 
@@ -38,6 +41,9 @@ public class FeelSettingsTests
         Assert.Equal(1.25f, Feel.YawMultiplier);
         Assert.Equal(0.75f, Feel.ResponseMultiplier);
         Assert.Equal(0.1f, Feel.CameraLag);
+        Assert.Equal(15f, Feel.SpeedZoom);
+        Assert.Equal(0.4f, Feel.HighGShake);
+        Assert.Equal(0.8f, Feel.StallShake);
     }
 
     [Fact]
@@ -126,5 +132,37 @@ public class FeelSettingsTests
     {
         var left = 1 - Feel.CameraCatchUp(seconds: 1 / 120f);
         Assert.Equal(Feel.CameraCatchUp(seconds: 1 / 60f), 1 - left * left, precision: 5);
+    }
+
+    [Fact]
+    public void The_view_widens_by_the_speed_zoom_from_cruise_to_top_speed()
+    {
+        Assert.Equal(0f, Feel.ExtraFieldOfView(LightFighter, speed: 550));
+        Assert.Equal(15f, Feel.ExtraFieldOfView(LightFighter, speed: 1300));
+    }
+
+    [Fact]
+    public void Below_cruise_speed_the_view_narrows_at_the_same_rate()
+    {
+        Assert.Equal(-7f, Feel.ExtraFieldOfView(LightFighter, speed: 200));
+    }
+
+    [Fact]
+    public void A_full_high_G_turn_shakes_the_camera_by_the_high_G_shake()
+    {
+        Assert.Equal(0.4f, Feel.Shake(highG: 1, stallDepth: 0));
+    }
+
+    [Fact]
+    public void A_deep_stall_shakes_the_camera_by_the_stall_shake()
+    {
+        Assert.Equal(0.8f, Feel.Shake(highG: 0, stallDepth: 1));
+    }
+
+    [Fact]
+    public void In_a_high_G_turn_and_a_stall_at_once_the_stronger_shake_wins()
+    {
+        Assert.Equal(0.4f, Feel.Shake(highG: 1, stallDepth: 0.25f));
+        Assert.Equal(0.8f, Feel.Shake(highG: 1, stallDepth: 1));
     }
 }

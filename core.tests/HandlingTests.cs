@@ -228,6 +228,14 @@ public class HandlingTests
     }
 
     [Fact]
+    public void Stall_depth_runs_from_none_at_stall_speed_to_full_at_minimum_speed()
+    {
+        Assert.Equal(0f, LightFighter.StallDepth(speed: 300));
+        Assert.Equal(0.5f, LightFighter.StallDepth(speed: 250));
+        Assert.Equal(1f, LightFighter.StallDepth(speed: 200));
+    }
+
+    [Fact]
     public void Below_stall_speed_the_nose_drops_harder_the_slower_the_jet()
     {
         Assert.Equal(45f, LightFighter.NoseDropRate(speed: 250));

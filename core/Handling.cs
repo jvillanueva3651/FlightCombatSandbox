@@ -79,12 +79,17 @@ public sealed record Handling
         Math.Clamp(speed - GravityStrength * climb * seconds, Math.Min(speed, StallSpeed), Math.Max(speed, TopSpeed));
 
     /// <summary>
+    /// How deep into a stall the jet is at <paramref name="speed"/>: 0 at stall speed and above, rising
+    /// to 1 at minimum speed.
+    /// </summary>
+    public float StallDepth(float speed) => Math.Clamp((StallSpeed - speed) / (StallSpeed - MinSpeed), 0, 1);
+
+    /// <summary>
     /// How fast the nose falls toward the ground at <paramref name="speed"/>, in degrees per second: not at
-    /// all at stall speed and above, then harder the slower the jet, reaching the stall drop rate at
+    /// all at stall speed and above, then harder the deeper the stall, reaching the stall drop rate at
     /// minimum speed.
     /// </summary>
-    public float NoseDropRate(float speed) =>
-        StallDropRate * Math.Clamp((StallSpeed - speed) / (StallSpeed - MinSpeed), 0, 1);
+    public float NoseDropRate(float speed) => StallDropRate * StallDepth(speed);
 
     /// <summary>
     /// How many times its pitch rate the jet pulls with R2 and L2 squeezed together by

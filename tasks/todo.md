@@ -82,7 +82,7 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
 - [x] **1.17 Chase camera** · S · after 1.15
   - Done when the camera follows the jet with smoothing set by the Feel Settings' camera lag, instead of being fixed behind it.
   - Verify: play. Files: `game/flight/ChaseCamera.cs`, `game/world/test_flight.tscn`.
-- [ ] **1.18 Speed zoom and camera shake** · S · after 1.17, 1.14
+- [x] **1.18 Speed zoom and camera shake** · S · after 1.17, 1.14
   - Done when the field of view widens with speed and the camera shakes in high-G turns and stalls, by amounts from the Feel Settings.
   - Verify: play. Files: `game/flight/ChaseCamera.cs`, `core/FeelSettings.cs`.
 - [ ] **1.27 Look around** · S · after 1.17

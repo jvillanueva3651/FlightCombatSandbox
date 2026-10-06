@@ -6,5 +6,8 @@
   "rollMultiplier": 1,
   "yawMultiplier": 1,
   "responseMultiplier": 1,
-  "cameraLag": 0.1
+  "cameraLag": 0.1,
+  "speedZoom": 15,
+  "highGShake": 0.4,
+  "stallShake": 0.8
 }
