@@ -3,8 +3,8 @@ using Godot;
 
 /// <summary>
 /// Flies a jet straight from its Handling, with no aerodynamics: R2 and L2 set its speed, hard pulls
-/// bleed it, and the stick and L1/R1 turn it at the Handling rates, strongest at corner speed and
-/// easing in and out over its response time.
+/// and climbs bleed it, dives build it, and the stick and L1/R1 turn it at the Handling rates,
+/// strongest at corner speed and easing in and out over its response time.
 /// </summary>
 public partial class Jet : Node3D
 {
@@ -40,6 +40,7 @@ public partial class Jet : Node3D
         Throttle = Input.GetAxis(Controls.Brake, Controls.Throttle);
         Speed = _handling.NextSpeed(Speed, Throttle, dt);
         Speed = _handling.SpeedAfterTurn(Speed, _pitch, dt);
+        Speed = _handling.SpeedAfterClimb(Speed, -GlobalTransform.Basis.Z.Y, dt);  // the nose points along -Z
 
         var scale = _handling.TurnRateScale(Speed);
         var pitchRate = Mathf.DegToRad(_handling.PitchRate * _pitch * scale);  // radians per second

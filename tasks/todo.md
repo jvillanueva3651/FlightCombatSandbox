@@ -61,7 +61,7 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
 - [x] **1.11 Speed lost in hard turns** · XS · after 1.10
   - Done when pulling hard bleeds speed at a Handling rate.
   - Verify: play. Files: `core/Handling.cs`, `game/flight/Jet.cs`.
-- [ ] **1.12 Climbing and diving change speed** · XS · after 1.8
+- [x] **1.12 Climbing and diving change speed** · XS · after 1.8
   - Done when climbing slows the jet and diving speeds it up, scaled by a Handling value, without climbing alone ever slowing the jet enough to stall.
   - Verify: play. Files: `core/Handling.cs`, `game/flight/Jet.cs`.
 - [ ] **1.13 Stall** · S · after 1.10, 1.12

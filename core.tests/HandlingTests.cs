@@ -21,7 +21,8 @@ public class HandlingTests
           "cornerSpeed": 500,
           "turnAtStallSpeed": 0.5,
           "turnAtTopSpeed": 0.6,
-          "turnSpeedLoss": 100
+          "turnSpeedLoss": 100,
+          "gravityStrength": 150
         }
         """;
 
@@ -45,6 +46,7 @@ public class HandlingTests
         Assert.Equal(0.5f, LightFighter.TurnAtStallSpeed);
         Assert.Equal(0.6f, LightFighter.TurnAtTopSpeed);
         Assert.Equal(100f, LightFighter.TurnSpeedLoss);
+        Assert.Equal(150f, LightFighter.GravityStrength);
     }
 
     [Fact]
@@ -168,5 +170,41 @@ public class HandlingTests
     public void Turning_leaves_a_jet_braked_below_stall_speed_as_it_is()
     {
         Assert.Equal(250f, LightFighter.SpeedAfterTurn(250, pitch: 1, seconds: 1));
+    }
+
+    [Fact]
+    public void Climbing_straight_up_loses_the_gravity_strength_each_second()
+    {
+        Assert.Equal(475f, LightFighter.SpeedAfterClimb(550, climb: 1, seconds: 0.5f));
+    }
+
+    [Fact]
+    public void Diving_straight_down_gains_the_gravity_strength_each_second()
+    {
+        Assert.Equal(625f, LightFighter.SpeedAfterClimb(550, climb: -1, seconds: 0.5f));
+    }
+
+    [Fact]
+    public void A_gentler_slope_changes_speed_less()
+    {
+        Assert.Equal(475f, LightFighter.SpeedAfterClimb(550, climb: 0.5f, seconds: 1));
+    }
+
+    [Fact]
+    public void Climbing_never_slows_the_jet_below_stall_speed()
+    {
+        Assert.Equal(300f, LightFighter.SpeedAfterClimb(310, climb: 1, seconds: 1));
+    }
+
+    [Fact]
+    public void Climbing_leaves_a_jet_braked_below_stall_speed_as_it_is()
+    {
+        Assert.Equal(250f, LightFighter.SpeedAfterClimb(250, climb: 1, seconds: 1));
+    }
+
+    [Fact]
+    public void Diving_never_speeds_the_jet_past_top_speed()
+    {
+        Assert.Equal(1300f, LightFighter.SpeedAfterClimb(1290, climb: -1, seconds: 1));
     }
 }

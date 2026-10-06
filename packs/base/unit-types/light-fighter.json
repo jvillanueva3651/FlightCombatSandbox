@@ -14,6 +14,7 @@
     "cornerSpeed": 500,
     "turnAtStallSpeed": 0.5,
     "turnAtTopSpeed": 0.6,
-    "turnSpeedLoss": 100
+    "turnSpeedLoss": 100,
+    "gravityStrength": 150
   }
 }

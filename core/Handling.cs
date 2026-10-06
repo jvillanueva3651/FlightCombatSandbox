@@ -23,6 +23,7 @@ public sealed record Handling
     public required float TurnAtStallSpeed { get; set; }
     public required float TurnAtTopSpeed { get; set; }
     public required float TurnSpeedLoss { get; set; }
+    public required float GravityStrength { get; set; }
 
     public static Handling FromJson(string json) => PackLoader.Read<Handling>(json);
 
@@ -62,6 +63,16 @@ public sealed record Handling
     /// </summary>
     public float SpeedAfterTurn(float speed, float pitch, float seconds) =>
         Math.Max(speed - TurnSpeedLoss * pitch * pitch * seconds, Math.Min(speed, StallSpeed));
+
+    /// <summary>
+    /// Speed after <paramref name="seconds"/> with the nose at <paramref name="climb"/>, the sine of its
+    /// angle above the horizon (1 straight up, -1 straight down). Straight up loses the gravity strength
+    /// each second and straight down gains it, gentler slopes less. Climbing alone never slows the jet
+    /// below stall speed, but leaves one already braked below it as it is, and diving never speeds it
+    /// past top speed.
+    /// </summary>
+    public float SpeedAfterClimb(float speed, float climb, float seconds) =>
+        Math.Clamp(speed - GravityStrength * climb * seconds, Math.Min(speed, StallSpeed), Math.Max(speed, TopSpeed));
 
     static float MoveToward(float from, float to, float maxStep) =>
         Math.Abs(to - from) <= maxStep ? to : from + Math.Sign(to - from) * maxStep;
