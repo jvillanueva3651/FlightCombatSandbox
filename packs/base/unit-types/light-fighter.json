@@ -1,9 +1,9 @@
 {
   "handling": {
     "cruiseSpeed": 550,
-    "topSpeed": 1300,
-    "throttleStrength": 100,
-    "minSpeed": 200,
+    "topSpeed": 2500,
+    "throttleStrength": 200,
+    "minSpeed": 100,
     "brakeStrength": 150,
     "cruiseReturnStrength": 60,
     "pitchRate": 90,
@@ -15,9 +15,9 @@
     "turnAtStallSpeed": 0.5,
     "turnAtTopSpeed": 0.6,
     "turnSpeedLoss": 100,
-    "gravityStrength": 150,
-    "stallDropRate": 90,
+    "gravityStrength": 75,
+    "stallDropRate": 150,
     "highGStrength": 1.5,
-    "highGSpeedLoss": 150
+    "highGSpeedLoss": 100
   }
 }

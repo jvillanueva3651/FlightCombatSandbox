@@ -73,6 +73,10 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
 
 **Checkpoint: flight model complete.** The user flies everything above and lists what feels off.
 
+- Flown 2026-10-06, together with tasks 1.15 to 1.18, 1.23 and 1.27. Passed: turns easing in and out, turning best at corner speed, speed lost in hard turns, tuning panel, Feel Settings, chase camera, speed zoom and shake, look around. The stall stays gradual.
+- Changed in `light-fighter.json`: `topSpeed` 1300 → 2500 ("for now"), `throttleStrength` 100 → 200, `minSpeed` 200 → 100 with `stallSpeed` left at 300 (so a slow jet stays stalled for a while before the throttle pulls it out), `stallDropRate` 90 → 150, `gravityStrength` 150 → 75 (full throttle straight up now gains 125 km/h per second), `highGSpeedLoss` 150 → 100 (a full high-G turn costs about 140 km/h per second, and can still drag the jet into a stall).
+- Look at again later: climbing and diving (the least settled; full throttle straight up must beat gravity by a lot), the stall, the high-G speed loss, `topSpeed`, and the Feel Settings' response curve.
+
 - [x] **1.15 Feel Settings and stick response** · S · after 1.6
   - Done when `packs/base/feel.json`, loaded into a Core type, sets the stick dead zone and response curve, and the jet's input uses them.
   - Verify: test, play. Files: `packs/base/feel.json`, `core/FeelSettings.cs`, `core.tests/FeelSettingsTests.cs`, `game/flight/Jet.cs`.
