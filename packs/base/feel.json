@@ -1,4 +1,9 @@
 {
   "deadZone": 0.1,
-  "responseCurve": 0
+  "responseCurve": 0,
+  "speedMultiplier": 1,
+  "pitchMultiplier": 1,
+  "rollMultiplier": 1,
+  "yawMultiplier": 1,
+  "responseMultiplier": 1
 }

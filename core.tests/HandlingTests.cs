@@ -29,7 +29,7 @@ public class HandlingTests
         }
         """;
 
-    static readonly Handling LightFighter = Handling.FromJson(LightFighterJson);
+    internal static readonly Handling LightFighter = Handling.FromJson(LightFighterJson);
 
     [Fact]
     public void Reads_every_value_from_json()

@@ -76,7 +76,7 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
 - [x] **1.15 Feel Settings and stick response** · S · after 1.6
   - Done when `packs/base/feel.json`, loaded into a Core type, sets the stick dead zone and response curve, and the jet's input uses them.
   - Verify: test, play. Files: `packs/base/feel.json`, `core/FeelSettings.cs`, `core.tests/FeelSettingsTests.cs`, `game/flight/Jet.cs`.
-- [ ] **1.16 Overall Handling multipliers** · XS · after 1.15
+- [x] **1.16 Overall Handling multipliers** · XS · after 1.15
   - Done when Feel Settings hold multipliers (speed, pitch, roll, yaw, response) applied on top of every aircraft's Handling.
   - Verify: test, play. Files: `core/FeelSettings.cs`, `game/flight/Jet.cs`.
 - [ ] **1.17 Chase camera** · S · after 1.15

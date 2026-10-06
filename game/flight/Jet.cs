@@ -33,32 +33,33 @@ public partial class Jet : Node3D
     public override void _Ready()
     {
         _handling = Packs.Base.UnitTypes[UnitTypeId].Handling;
-        Speed = _handling.CruiseSpeed;
+        Speed = Packs.Base.Feel.Apply(_handling).CruiseSpeed;
     }
 
     public override void _Process(double delta)
     {
         var dt = (float)delta;
-        _pitch = _handling.NextTurn(_pitch, Stick(Controls.PitchDown, Controls.PitchUp), dt);  // + = nose up
-        _roll = _handling.NextTurn(_roll, Stick(Controls.RollLeft, Controls.RollRight), dt);    // + = right wing down
-        _yaw = _handling.NextTurn(_yaw, Stick(Controls.YawLeft, Controls.YawRight), dt);        // + = nose right
+        var handling = Packs.Base.Feel.Apply(_handling);  // with the Feel Settings' multipliers on top
+        _pitch = handling.NextTurn(_pitch, Stick(Controls.PitchDown, Controls.PitchUp), dt);  // + = nose up
+        _roll = handling.NextTurn(_roll, Stick(Controls.RollLeft, Controls.RollRight), dt);    // + = right wing down
+        _yaw = handling.NextTurn(_yaw, Stick(Controls.YawLeft, Controls.YawRight), dt);        // + = nose right
         Throttle = Input.GetAxis(Controls.Brake, Controls.Throttle);
         var squeeze = Mathf.Min(Input.GetActionStrength(Controls.Brake), Input.GetActionStrength(Controls.Throttle));
-        _squeeze = _handling.NextTurn(_squeeze, squeeze, dt);
-        Speed = _handling.NextSpeed(Speed, Throttle, dt);
-        Speed = _handling.SpeedAfterTurn(Speed, _pitch, dt);
-        Speed = _handling.SpeedAfterHighG(Speed, _pitch, _squeeze, dt);
-        Speed = _handling.SpeedAfterClimb(Speed, -GlobalTransform.Basis.Z.Y, dt);  // the nose points along -Z
+        _squeeze = handling.NextTurn(_squeeze, squeeze, dt);
+        Speed = handling.NextSpeed(Speed, Throttle, dt);
+        Speed = handling.SpeedAfterTurn(Speed, _pitch, dt);
+        Speed = handling.SpeedAfterHighG(Speed, _pitch, _squeeze, dt);
+        Speed = handling.SpeedAfterClimb(Speed, -GlobalTransform.Basis.Z.Y, dt);  // the nose points along -Z
 
-        var scale = _handling.TurnRateScale(Speed);
-        var pitchRate = Mathf.DegToRad(_handling.PitchRate * _pitch * scale * _handling.HighGTurnScale(_squeeze));  // radians per second
+        var scale = handling.TurnRateScale(Speed);
+        var pitchRate = Mathf.DegToRad(handling.PitchRate * _pitch * scale * handling.HighGTurnScale(_squeeze));  // radians per second
         RotateObjectLocal(Vector3.Right, pitchRate * dt);
-        RotateObjectLocal(Vector3.Forward, Mathf.DegToRad(_handling.RollRate * _roll * scale * dt));
-        RotateObjectLocal(Vector3.Down, Mathf.DegToRad(_handling.YawRate * _yaw * scale * dt));
+        RotateObjectLocal(Vector3.Forward, Mathf.DegToRad(handling.RollRate * _roll * scale * dt));
+        RotateObjectLocal(Vector3.Down, Mathf.DegToRad(handling.YawRate * _yaw * scale * dt));
 
         // A stall drops the nose toward the ground, whichever way the jet is banked.
         var nose = -GlobalTransform.Basis.Z;
-        var drop = Mathf.Min(Mathf.DegToRad(_handling.NoseDropRate(Speed)) * dt, nose.AngleTo(Vector3.Down));
+        var drop = Mathf.Min(Mathf.DegToRad(handling.NoseDropRate(Speed)) * dt, nose.AngleTo(Vector3.Down));
         if (drop > 0)
             GlobalRotate(nose.Cross(Vector3.Down).Normalized(), drop);
         Transform = Transform.Orthonormalized(); // stops rounding errors slowly skewing the jet
