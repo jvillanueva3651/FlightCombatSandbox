@@ -3,7 +3,8 @@ namespace Core;
 /// <summary>
 /// Settings shared by every aircraft that shape how flying feels, from the base Pack's feel.json.
 /// The dead zone is a fraction of the stick's travel, the response curve runs from 0 (straight) to 1
-/// (softest), and the multipliers apply on top of every aircraft's Handling (1 leaves it as it is).
+/// (softest), the multipliers apply on top of every aircraft's Handling (1 leaves it as it is), and
+/// the camera lag is in seconds.
 /// </summary>
 public sealed record FeelSettings
 {
@@ -14,6 +15,7 @@ public sealed record FeelSettings
     public required float RollMultiplier { get; set; }
     public required float YawMultiplier { get; set; }
     public required float ResponseMultiplier { get; set; }
+    public required float CameraLag { get; set; }
 
     public static FeelSettings FromJson(string json) => PackLoader.Read<FeelSettings>(json);
 
@@ -42,4 +44,10 @@ public sealed record FeelSettings
     /// full push stays full.
     /// </summary>
     public float Curve(float stick) => stick * (1 - ResponseCurve + ResponseCurve * stick * stick);
+
+    /// <summary>
+    /// How much of the way the chase camera turns toward the jet in <paramref name="seconds"/>: all of it
+    /// with no camera lag, otherwise about two thirds in one camera lag, and the same at any frame rate.
+    /// </summary>
+    public float CameraCatchUp(float seconds) => 1 - MathF.Exp(-seconds / CameraLag);
 }

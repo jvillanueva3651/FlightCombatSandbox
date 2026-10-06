@@ -13,7 +13,8 @@ public class FeelSettingsTests
           "pitchMultiplier": 2,
           "rollMultiplier": 0.5,
           "yawMultiplier": 1.25,
-          "responseMultiplier": 0.75
+          "responseMultiplier": 0.75,
+          "cameraLag": 0.1
         }
         """;
 
@@ -36,6 +37,7 @@ public class FeelSettingsTests
         Assert.Equal(0.5f, Feel.RollMultiplier);
         Assert.Equal(1.25f, Feel.YawMultiplier);
         Assert.Equal(0.75f, Feel.ResponseMultiplier);
+        Assert.Equal(0.1f, Feel.CameraLag);
     }
 
     [Fact]
@@ -105,5 +107,24 @@ public class FeelSettingsTests
     {
         var heavier = NoMultipliers with { ResponseMultiplier = 2 };
         Assert.Equal(LightFighter with { ResponseTime = 0.5f }, heavier.Apply(LightFighter));
+    }
+
+    [Fact]
+    public void With_no_camera_lag_the_camera_turns_with_the_jet_at_once()
+    {
+        Assert.Equal(1f, (Feel with { CameraLag = 0 }).CameraCatchUp(seconds: 1 / 60f));
+    }
+
+    [Fact]
+    public void The_camera_covers_about_two_thirds_of_the_way_in_one_camera_lag()
+    {
+        Assert.Equal(0.632, Feel.CameraCatchUp(seconds: 0.1f), precision: 3);
+    }
+
+    [Fact]
+    public void The_camera_follows_the_same_way_at_any_frame_rate()
+    {
+        var left = 1 - Feel.CameraCatchUp(seconds: 1 / 120f);
+        Assert.Equal(Feel.CameraCatchUp(seconds: 1 / 60f), 1 - left * left, precision: 5);
     }
 }

@@ -5,5 +5,6 @@
   "pitchMultiplier": 1,
   "rollMultiplier": 1,
   "yawMultiplier": 1,
-  "responseMultiplier": 1
+  "responseMultiplier": 1,
+  "cameraLag": 0.1
 }

@@ -4,6 +4,7 @@
 [ext_resource type="PackedScene" path="res://ui/debug_overlay.tscn" id="2_overlay"]
 [ext_resource type="PackedScene" path="res://ui/pause_menu.tscn" id="3_pause"]
 [ext_resource type="PackedScene" path="res://ui/tuning_panel.tscn" id="4_tuning"]
+[ext_resource type="Script" path="res://flight/ChaseCamera.cs" id="5_chase"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_sky"]
 ground_bottom_color = Color(0.6463, 0.6558, 0.6708, 1)
@@ -61,9 +62,11 @@ mesh = SubResource("PlaneMesh_ground")
 [node name="Jet" parent="." instance=ExtResource("1_jet")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 300, 0)
 
-[node name="Camera" type="Camera3D" parent="Jet"]
-transform = Transform3D(1, 0, 0, 0, 0.997564, 0.069756, 0, -0.069756, 0.997564, 0, 4, 20)
+[node name="Camera" type="Camera3D" parent="." node_paths=PackedStringArray("Jet")]
+transform = Transform3D(1, 0, 0, 0, 0.997564, 0.069756, 0, -0.069756, 0.997564, 0, 304, 20)
 far = 50000.0
+script = ExtResource("5_chase")
+Jet = NodePath("../Jet")
 
 [node name="DebugOverlay" parent="." node_paths=PackedStringArray("Jet") instance=ExtResource("2_overlay")]
 Jet = NodePath("../Jet")

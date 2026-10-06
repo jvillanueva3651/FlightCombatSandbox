@@ -79,7 +79,7 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
 - [x] **1.16 Overall Handling multipliers** · XS · after 1.15
   - Done when Feel Settings hold multipliers (speed, pitch, roll, yaw, response) applied on top of every aircraft's Handling.
   - Verify: test, play. Files: `core/FeelSettings.cs`, `game/flight/Jet.cs`.
-- [ ] **1.17 Chase camera** · S · after 1.15
+- [x] **1.17 Chase camera** · S · after 1.15
   - Done when the camera follows the jet with smoothing set by the Feel Settings' camera lag, instead of being fixed behind it.
   - Verify: play. Files: `game/flight/ChaseCamera.cs`, `game/world/test_flight.tscn`.
 - [ ] **1.18 Speed zoom and camera shake** · S · after 1.17, 1.14
