@@ -2,8 +2,8 @@ using Core;
 using Godot;
 
 /// <summary>
-/// Flies a jet straight from its Handling, with no aerodynamics: it always moves forward at
-/// cruise speed, and the stick and L1/R1 turn it at the Handling rates.
+/// Flies a jet straight from its Handling, with no aerodynamics: R2 and L2 set its speed, and
+/// the stick and L1/R1 turn it at the Handling rates.
 /// </summary>
 public partial class Jet : Node3D
 {
@@ -33,7 +33,8 @@ public partial class Jet : Node3D
         var pitch = Input.GetAxis(Controls.PitchDown, Controls.PitchUp);  // + = nose up
         var roll = Input.GetAxis(Controls.RollLeft, Controls.RollRight);  // + = right wing down
         var yaw = Input.GetAxis(Controls.YawLeft, Controls.YawRight);     // + = nose right
-        Throttle = Input.GetAxis(Controls.Brake, Controls.Throttle);      // speed follows it from task 1.8
+        Throttle = Input.GetAxis(Controls.Brake, Controls.Throttle);
+        Speed = _handling.NextSpeed(Speed, Throttle, dt);
 
         var pitchRate = Mathf.DegToRad(_handling.PitchRate * pitch);      // radians per second
         RotateObjectLocal(Vector3.Right, pitchRate * dt);

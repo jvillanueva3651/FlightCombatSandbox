@@ -1,6 +1,11 @@
 {
   "handling": {
     "cruiseSpeed": 550,
+    "topSpeed": 1300,
+    "throttleStrength": 100,
+    "minSpeed": 200,
+    "brakeStrength": 150,
+    "cruiseReturnStrength": 60,
     "pitchRate": 90,
     "rollRate": 150,
     "yawRate": 20

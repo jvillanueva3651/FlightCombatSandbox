@@ -49,8 +49,8 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
 - [x] **1.7 Flight readout** · XS · after 1.6
   - Done when the debug overlay shows speed, altitude, throttle and G-load.
   - Verify: play. Files: `game/ui/DebugOverlay.cs`.
-- [ ] **1.8 Throttle and brake** · S · after 1.7
-  - Done when R2 accelerates toward top speed, L2 slows toward minimum speed, and letting go returns to cruise speed, all at Handling rates.
+- [x] **1.8 Throttle and brake** · S · after 1.7
+  - Done when R2 accelerates toward top speed, L2 slows toward minimum speed (set below where the jet will stall, so braking can stall it), and letting go returns to cruise speed, all at Handling rates.
   - Verify: test, play. Files: `core/Handling.cs`, `packs/base/unit-types/light-fighter.json`, `game/flight/Jet.cs`.
 - [ ] **1.9 Response time** · S · after 1.6
   - Done when turn rates ease toward the stick position over the Handling response time instead of snapping, so a higher value feels heavier.
@@ -62,7 +62,7 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
   - Done when pulling hard bleeds speed at a Handling rate.
   - Verify: play. Files: `core/Handling.cs`, `game/flight/Jet.cs`.
 - [ ] **1.12 Climbing and diving change speed** · XS · after 1.8
-  - Done when climbing slows the jet and diving speeds it up, scaled by a Handling value.
+  - Done when climbing slows the jet and diving speeds it up, scaled by a Handling value, without climbing alone ever slowing the jet enough to stall.
   - Verify: play. Files: `core/Handling.cs`, `game/flight/Jet.cs`.
 - [ ] **1.13 Stall** · S · after 1.10, 1.12
   - Done when below stall speed the controls weaken and the nose drops until the dive restores speed.
