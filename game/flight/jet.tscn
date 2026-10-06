@@ -43,3 +43,6 @@ mesh = SubResource("BoxMesh_tail_fin")
 [node name="TailWings" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 5.2)
 mesh = SubResource("BoxMesh_tail_wings")
+
+[node name="NoseView" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -9)

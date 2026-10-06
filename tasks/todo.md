@@ -92,7 +92,7 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
 - [x] **1.27 Look around** · S · after 1.17
   - Done when the right stick swings the camera around the jet, and the camera eases back behind the jet when the stick is let go.
   - Verify: play. Files: `game/flight/ChaseCamera.cs`.
-- [ ] **1.28 Change view** · S · after 1.17
+- [x] **1.28 Change view** · S · after 1.17
   - Done when R3 switches between the chase camera and a view from the jet's nose with the jet hidden, and L3+R3 for flares never switches the view, whichever stick is clicked first. A cockpit view comes with models in 6.25.
   - Verify: play. Files: `game/flight/ChaseCamera.cs`, `game/flight/jet.tscn`.
 - [ ] **1.19 Speed cues** · S · after 1.6
