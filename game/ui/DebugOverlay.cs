@@ -28,7 +28,7 @@ public partial class DebugOverlay : CanvasLayer
             Throttle       {Amount(Controls.Throttle)}  R2                     Shift
             Brake          {Amount(Controls.Brake)}  L2                     Ctrl
             Look sideways  {Axis(Controls.LookLeft, Controls.LookRight)}  Right stick            Left / Right
-            Look up/down   {Axis(Controls.LookDown, Controls.LookUp)}  Right stick            Down / Up
+            Look up/down   {Axis(Controls.LookDown, Controls.LookUp)}  Right stick            Up / Down
             Gun            {Held(Controls.FireGun)}  Cross                  Space
             Missile        {Held(Controls.FireMissile)}  Circle                 F
             Switch weapon  {Held(Controls.SwitchWeapon)}  Square                 R

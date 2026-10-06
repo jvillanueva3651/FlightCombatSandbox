@@ -5,15 +5,20 @@ using Godot;
 /// lag: the jet visibly rolls and pitches on screen while the view catches up, but stays the same
 /// distance away. Where the camera sits relative to the jet in the scene sets how far behind and above
 /// it flies. The view widens with speed and shakes in high-G turns and stalls, by the Feel Settings'
-/// amounts.
+/// amounts, and the right stick swings the camera around the jet.
 /// </summary>
 public partial class ChaseCamera : Camera3D
 {
     /// <summary>The jet to follow.</summary>
     [Export] public Jet Jet { get; set; }
 
+    // How far the right stick swings the view, in degrees: all the way behind to either side, and just
+    // short of straight up or down, where the view would spin.
+    const float MaxLookSideways = 180, MaxLookUpDown = 85;
+
     Transform3D _offset;  // the camera relative to the jet, as placed in the scene
     Basis _turn;          // the jet's orientation as the camera follows it, a little behind
+    Vector2 _look;        // degrees the right stick has swung the view: to the left (X) and up (Y)
     float _fov;           // the field of view set in the scene, kept at cruise speed
     float _time;
 
@@ -32,8 +37,15 @@ public partial class ChaseCamera : Camera3D
     {
         var feel = Packs.Base.Feel;
         var dt = (float)delta;
-        _turn = _turn.Slerp(Jet.GlobalBasis, feel.CameraCatchUp(dt));
-        GlobalTransform = new Transform3D(_turn, Jet.GlobalPosition) * _offset;
+        var catchUp = feel.CameraCatchUp(dt);
+        _turn = _turn.Slerp(Jet.GlobalBasis, catchUp);
+
+        // The right stick swings the camera around the jet, as far as it's pushed; let go and the
+        // view eases back behind the jet.
+        var stick = new Vector2(-Input.GetAxis(Controls.LookLeft, Controls.LookRight), Input.GetAxis(Controls.LookDown, Controls.LookUp));
+        _look = _look.Lerp(stick * new Vector2(MaxLookSideways, MaxLookUpDown), catchUp);
+        var look = new Basis(Vector3.Up, Mathf.DegToRad(_look.X)) * new Basis(Vector3.Right, Mathf.DegToRad(_look.Y));
+        GlobalTransform = new Transform3D(_turn, Jet.GlobalPosition) * new Transform3D(look, Vector3.Zero) * _offset;
         Fov = _fov + feel.ExtraFieldOfView(Jet.Handling, Jet.Speed);
 
         // The shake turns the view up to its amount up and down and side to side, on top of the follow,

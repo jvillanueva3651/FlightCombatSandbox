@@ -34,8 +34,9 @@ public partial class Controls : Node
         Bind(Brake, PadAxis(JoyAxis.TriggerLeft, 1), Keyboard(Key.Ctrl));      // L2
         Bind(LookLeft, PadAxis(JoyAxis.RightX, -1), Keyboard(Key.Left));
         Bind(LookRight, PadAxis(JoyAxis.RightX, 1), Keyboard(Key.Right));
-        Bind(LookUp, PadAxis(JoyAxis.RightY, -1), Keyboard(Key.Up));
-        Bind(LookDown, PadAxis(JoyAxis.RightY, 1), Keyboard(Key.Down));
+        // Pushing the right stick forward looks down, like tilting your head.
+        Bind(LookDown, PadAxis(JoyAxis.RightY, -1), Keyboard(Key.Up));
+        Bind(LookUp, PadAxis(JoyAxis.RightY, 1), Keyboard(Key.Down));
 
         // Godot names face buttons by Xbox position: A = Cross, B = Circle, X = Square, Y = Triangle.
         Bind(FireGun, PadButton(JoyButton.A), Keyboard(Key.Space));
