@@ -16,6 +16,8 @@
     "turnAtTopSpeed": 0.6,
     "turnSpeedLoss": 100,
     "gravityStrength": 150,
-    "stallDropRate": 90
+    "stallDropRate": 90,
+    "highGStrength": 1.5,
+    "highGSpeedLoss": 150
   }
 }

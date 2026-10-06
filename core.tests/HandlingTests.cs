@@ -23,7 +23,9 @@ public class HandlingTests
           "turnAtTopSpeed": 0.6,
           "turnSpeedLoss": 100,
           "gravityStrength": 150,
-          "stallDropRate": 90
+          "stallDropRate": 90,
+          "highGStrength": 1.5,
+          "highGSpeedLoss": 150
         }
         """;
 
@@ -49,6 +51,8 @@ public class HandlingTests
         Assert.Equal(100f, LightFighter.TurnSpeedLoss);
         Assert.Equal(150f, LightFighter.GravityStrength);
         Assert.Equal(90f, LightFighter.StallDropRate);
+        Assert.Equal(1.5f, LightFighter.HighGStrength);
+        Assert.Equal(150f, LightFighter.HighGSpeedLoss);
     }
 
     [Fact]
@@ -227,5 +231,48 @@ public class HandlingTests
     public void Below_stall_speed_the_nose_drops_harder_the_slower_the_jet()
     {
         Assert.Equal(45f, LightFighter.NoseDropRate(speed: 250));
+    }
+
+    [Fact]
+    public void A_full_squeeze_tightens_pitch_by_the_high_G_strength()
+    {
+        Assert.Equal(1.5f, LightFighter.HighGTurnScale(squeeze: 1));
+        Assert.Equal(1f, LightFighter.HighGTurnScale(squeeze: 0));
+    }
+
+    [Fact]
+    public void A_half_squeeze_tightens_pitch_halfway()
+    {
+        Assert.Equal(1.25f, LightFighter.HighGTurnScale(squeeze: 0.5f));
+    }
+
+    [Fact]
+    public void A_full_high_G_pull_loses_the_high_G_speed_loss_each_second()
+    {
+        Assert.Equal(475f, LightFighter.SpeedAfterHighG(550, pitch: 1, squeeze: 1, seconds: 0.5f));
+    }
+
+    [Fact]
+    public void A_half_squeeze_loses_half_as_much()
+    {
+        Assert.Equal(512.5f, LightFighter.SpeedAfterHighG(550, pitch: 1, squeeze: 0.5f, seconds: 0.5f));
+    }
+
+    [Fact]
+    public void A_half_pull_in_a_high_G_turn_loses_a_quarter_as_much()
+    {
+        Assert.Equal(531.25f, LightFighter.SpeedAfterHighG(550, pitch: 0.5f, squeeze: 1, seconds: 0.5f));
+    }
+
+    [Fact]
+    public void A_high_G_turn_can_slow_the_jet_below_stall_speed()
+    {
+        Assert.Equal(235f, LightFighter.SpeedAfterHighG(310, pitch: 1, squeeze: 1, seconds: 0.5f));
+    }
+
+    [Fact]
+    public void A_high_G_turn_never_slows_the_jet_below_minimum_speed()
+    {
+        Assert.Equal(200f, LightFighter.SpeedAfterHighG(250, pitch: 1, squeeze: 1, seconds: 1));
     }
 }

@@ -5,7 +5,8 @@ using Godot;
 /// Flies a jet straight from its Handling, with no aerodynamics: R2 and L2 set its speed, hard pulls
 /// and climbs bleed it, dives build it, and the stick and L1/R1 turn it at the Handling rates,
 /// strongest at corner speed and easing in and out over its response time. Below stall speed the
-/// nose falls toward the ground.
+/// nose falls toward the ground. Squeezing R2 and L2 together while pulling makes a high-G turn:
+/// tighter, and much costlier in speed.
 /// </summary>
 public partial class Jet : Node3D
 {
@@ -26,6 +27,9 @@ public partial class Jet : Node3D
     // How much of each full turn rate the jet uses, from -1 to 1; follows the stick over the response time.
     float _pitch, _roll, _yaw;
 
+    // How hard R2 and L2 are squeezed together for a high-G turn, from 0 to 1; eased like the stick.
+    float _squeeze;
+
     public override void _Ready()
     {
         _handling = Packs.Base.UnitTypes[UnitTypeId].Handling;
@@ -39,12 +43,15 @@ public partial class Jet : Node3D
         _roll = _handling.NextTurn(_roll, Input.GetAxis(Controls.RollLeft, Controls.RollRight), dt);    // + = right wing down
         _yaw = _handling.NextTurn(_yaw, Input.GetAxis(Controls.YawLeft, Controls.YawRight), dt);        // + = nose right
         Throttle = Input.GetAxis(Controls.Brake, Controls.Throttle);
+        var squeeze = Mathf.Min(Input.GetActionStrength(Controls.Brake), Input.GetActionStrength(Controls.Throttle));
+        _squeeze = _handling.NextTurn(_squeeze, squeeze, dt);
         Speed = _handling.NextSpeed(Speed, Throttle, dt);
         Speed = _handling.SpeedAfterTurn(Speed, _pitch, dt);
+        Speed = _handling.SpeedAfterHighG(Speed, _pitch, _squeeze, dt);
         Speed = _handling.SpeedAfterClimb(Speed, -GlobalTransform.Basis.Z.Y, dt);  // the nose points along -Z
 
         var scale = _handling.TurnRateScale(Speed);
-        var pitchRate = Mathf.DegToRad(_handling.PitchRate * _pitch * scale);  // radians per second
+        var pitchRate = Mathf.DegToRad(_handling.PitchRate * _pitch * scale * _handling.HighGTurnScale(_squeeze));  // radians per second
         RotateObjectLocal(Vector3.Right, pitchRate * dt);
         RotateObjectLocal(Vector3.Forward, Mathf.DegToRad(_handling.RollRate * _roll * scale * dt));
         RotateObjectLocal(Vector3.Down, Mathf.DegToRad(_handling.YawRate * _yaw * scale * dt));

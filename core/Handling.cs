@@ -2,9 +2,10 @@ namespace Core;
 
 /// <summary>
 /// The tunable numbers that define how an aircraft flies, stored in its Unit Type.
-/// Speeds are in km/h, strengths and the turn speed loss in km/h per second, turn rates and the stall
-/// drop rate in degrees per second, the response time in seconds, and the turn at stall and top speed
-/// in fractions of the full turn rates.
+/// Speeds are in km/h; the throttle, brake, cruise-return and gravity strengths and the speed losses
+/// in km/h per second; turn rates and the stall drop rate in degrees per second; the response time in
+/// seconds; the turn at stall and top speed in fractions of the full turn rates; and the high-G
+/// strength in times the pitch rate.
 /// </summary>
 public sealed record Handling
 {
@@ -25,6 +26,8 @@ public sealed record Handling
     public required float TurnSpeedLoss { get; set; }
     public required float GravityStrength { get; set; }
     public required float StallDropRate { get; set; }
+    public required float HighGStrength { get; set; }
+    public required float HighGSpeedLoss { get; set; }
 
     public static Handling FromJson(string json) => PackLoader.Read<Handling>(json);
 
@@ -82,6 +85,21 @@ public sealed record Handling
     /// </summary>
     public float NoseDropRate(float speed) =>
         StallDropRate * Math.Clamp((StallSpeed - speed) / (StallSpeed - MinSpeed), 0, 1);
+
+    /// <summary>
+    /// How many times its pitch rate the jet pulls with R2 and L2 squeezed together by
+    /// <paramref name="squeeze"/> (0 to 1): the high-G strength at a full squeeze, less with a lighter one.
+    /// </summary>
+    public float HighGTurnScale(float squeeze) => float.Lerp(1, HighGStrength, squeeze);
+
+    /// <summary>
+    /// Speed after <paramref name="seconds"/> of a high-G turn: the stick at <paramref name="pitch"/>
+    /// (-1 to 1) with R2 and L2 squeezed together by <paramref name="squeeze"/> (0 to 1). A full pull at a
+    /// full squeeze loses the high-G speed loss each second, less with a lighter squeeze and a quarter as
+    /// much with a half pull. Since it uses the brake, it can slow the jet into a stall, down to minimum speed.
+    /// </summary>
+    public float SpeedAfterHighG(float speed, float pitch, float squeeze, float seconds) =>
+        Math.Max(speed - HighGSpeedLoss * squeeze * pitch * pitch * seconds, MinSpeed);
 
     static float MoveToward(float from, float to, float maxStep) =>
         Math.Abs(to - from) <= maxStep ? to : from + Math.Sign(to - from) * maxStep;

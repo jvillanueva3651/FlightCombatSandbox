@@ -67,7 +67,7 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
 - [x] **1.13 Stall** · S · after 1.10, 1.12
   - Done when below stall speed the controls weaken and the nose drops until the dive restores speed.
   - Verify: play. Files: `core/Handling.cs`, `game/flight/Jet.cs`.
-- [ ] **1.14 High-G turn** · S · after 1.11
+- [x] **1.14 High-G turn** · S · after 1.11
   - Done when holding L2 and R2 together while pulling tightens the turn by the Handling high-G strength and bleeds speed fast.
   - Verify: play. Files: `core/Handling.cs`, `game/flight/Jet.cs`.
 
