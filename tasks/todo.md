@@ -144,6 +144,9 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
 - [ ] **2.9 HUD** · M · after 2.8
   - Done when a green Ace Combat-style HUD shows speed, altitude, damage %, the selected weapon and its count.
   - Verify: play. Files: `game/ui/hud.tscn`, `game/ui/Hud.cs`.
+- [ ] **2.31 Stall warning** · XS · after 2.9, 1.13
+  - Done when the HUD flashes STALL while the jet is below stall speed, as in Ace Combat.
+  - Verify: play. Files: `game/ui/Hud.cs`.
 - [ ] **2.10 Radar minimap** · M · after 2.5
   - Done when a heading-up radar shows hostile Units in red and allied Units in blue around the Player.
   - Verify: play. Files: `game/ui/Radar.cs`, `game/ui/hud.tscn`.
