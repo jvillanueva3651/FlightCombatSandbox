@@ -19,7 +19,7 @@ Build the game described in [docs/SPEC.md](../docs/SPEC.md) in six steps, each e
 ## Project layout
 
 - `game/`: the Godot project (Game). Scenes and scripts sit together in feature folders: `flight/`, `combat/`, `ai/`, `world/`, `ui/`, `editor/`.
-- `core/` and `core.tests/`: Core, plain C# with xUnit tests (created in task 1.4). Pack data (Unit Types, Handling, feel settings) lives here too, since Missions refer to it. The game project references Core; Core and its tests stay out of Godot's `.sln`.
+- `core/` and `core.tests/`: Core, plain C# with xUnit tests (created in task 1.4). Pack data (Unit Types, Handling, Feel Settings) lives here too, since Missions refer to it. The game project references Core; Core and its tests stay out of Godot's `.sln`.
 - `packs/base/`: the base Pack (created in task 1.5). Exported builds carry it next to the .exe.
 - `missions/`: hand-written dev sample Missions (step 3).
 - At runtime, the user's own Packs and Missions live in Godot's user folder (`user://packs`, `user://missions`). The user's private music Pack goes there, never in this repository.

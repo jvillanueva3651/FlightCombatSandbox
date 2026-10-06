@@ -58,7 +58,7 @@ public partial class Controls : Node
     public static bool IsFlarePressed() =>
         Input.IsActionPressed(Flare) || (Input.IsActionPressed(LeftStickClick) && Input.IsActionPressed(ChangeView));
 
-    // Stick and trigger travel inside the feel settings' dead zone is ignored.
+    // Stick and trigger travel inside the Feel Settings' dead zone is ignored.
     static void Bind(StringName action, params InputEvent[] events)
     {
         InputMap.AddAction(action, Packs.Base.Feel.DeadZone);

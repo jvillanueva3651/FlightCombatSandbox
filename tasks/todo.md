@@ -73,17 +73,17 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
 
 **Checkpoint: flight model complete.** The user flies everything above and lists what feels off.
 
-- [x] **1.15 Feel settings and stick response** · S · after 1.6
+- [x] **1.15 Feel Settings and stick response** · S · after 1.6
   - Done when `packs/base/feel.json`, loaded into a Core type, sets the stick dead zone and response curve, and the jet's input uses them.
   - Verify: test, play. Files: `packs/base/feel.json`, `core/FeelSettings.cs`, `core.tests/FeelSettingsTests.cs`, `game/flight/Jet.cs`.
 - [ ] **1.16 Overall Handling multipliers** · XS · after 1.15
-  - Done when feel settings hold multipliers (speed, pitch, roll, yaw, response) applied on top of every aircraft's Handling.
+  - Done when Feel Settings hold multipliers (speed, pitch, roll, yaw, response) applied on top of every aircraft's Handling.
   - Verify: test, play. Files: `core/FeelSettings.cs`, `game/flight/Jet.cs`.
 - [ ] **1.17 Chase camera** · S · after 1.15
-  - Done when the camera follows the jet with smoothing set by the feel settings' camera lag, instead of being fixed behind it.
+  - Done when the camera follows the jet with smoothing set by the Feel Settings' camera lag, instead of being fixed behind it.
   - Verify: play. Files: `game/flight/ChaseCamera.cs`, `game/world/test_flight.tscn`.
 - [ ] **1.18 Speed zoom and camera shake** · S · after 1.17, 1.14
-  - Done when the field of view widens with speed and the camera shakes in high-G turns and stalls, by amounts from the feel settings.
+  - Done when the field of view widens with speed and the camera shakes in high-G turns and stalls, by amounts from the Feel Settings.
   - Verify: play. Files: `game/flight/ChaseCamera.cs`, `core/FeelSettings.cs`.
 - [ ] **1.27 Look around** · S · after 1.17
   - Done when the right stick swings the camera around the jet, and the camera eases back behind the jet when the stick is let go.
@@ -106,7 +106,7 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
 - [x] **1.23 Tuning panel: Handling** · M · after 1.14
   - Done when a key toggles an in-game panel with a slider for every Handling value, built from the type's properties, and changes apply mid-flight.
   - Verify: play. Files: `game/ui/tuning_panel.tscn`, `game/ui/TuningPanel.cs`.
-- [ ] **1.24 Tuning panel: feel settings** · S · after 1.23, 1.18
+- [ ] **1.24 Tuning panel: Feel Settings** · S · after 1.23, 1.18
   - Done when the panel also shows every feel setting and multiplier.
   - Verify: play. Files: `game/ui/TuningPanel.cs`.
 - [ ] **1.25 Tuning panel: save and reset** · S · after 1.24

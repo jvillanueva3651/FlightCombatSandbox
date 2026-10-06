@@ -11,7 +11,7 @@ public partial class Packs : Node
     public static Pack Base { get; private set; }
 
     // Loads on entering the tree rather than in _Ready, so the Controls autoload after it can bind
-    // its actions with the feel settings' dead zone.
+    // its actions with the Feel Settings' dead zone.
     public override void _EnterTree()
     {
         Base = PackLoader.Load(BaseFolder());

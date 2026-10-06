@@ -3,7 +3,7 @@ using Godot;
 
 /// <summary>
 /// Flies a jet straight from its Handling, with no aerodynamics: R2 and L2 set its speed, hard pulls
-/// and climbs bleed it, dives build it, and the stick (through the feel settings' response curve) and
+/// and climbs bleed it, dives build it, and the stick (through the Feel Settings' response curve) and
 /// L1/R1 turn it at the Handling rates, strongest at corner speed and easing in and out over its
 /// response time. Below stall speed the nose falls toward the ground. Squeezing R2 and L2 together
 /// while pulling makes a high-G turn: tighter, and much costlier in speed.
@@ -70,6 +70,6 @@ public partial class Jet : Node3D
         GLoad = metersPerSecond * pitchRate / 9.81f + GlobalTransform.Basis.Y.Y;
     }
 
-    // An axis's position after the feel settings' response curve.
+    // An axis's position after the Feel Settings' response curve.
     static float Stick(StringName negative, StringName positive) => Packs.Base.Feel.Curve(Input.GetAxis(negative, positive));
 }
