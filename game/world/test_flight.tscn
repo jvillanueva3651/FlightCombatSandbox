@@ -64,6 +64,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 300, 0)
 transform = Transform3D(1, 0, 0, 0, 0.997564, 0.069756, 0, -0.069756, 0.997564, 0, 4, 20)
 far = 50000.0
 
-[node name="DebugOverlay" parent="." instance=ExtResource("2_overlay")]
+[node name="DebugOverlay" parent="." node_paths=PackedStringArray("Jet") instance=ExtResource("2_overlay")]
+Jet = NodePath("../Jet")
 
 [node name="PauseMenu" parent="." instance=ExtResource("3_pause")]

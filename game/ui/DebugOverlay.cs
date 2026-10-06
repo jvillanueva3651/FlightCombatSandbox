@@ -1,8 +1,14 @@
 using Godot;
 
-/// <summary>Shows what every control is doing right now, from the DualSense and the keyboard.</summary>
+/// <summary>
+/// Shows the jet's flight numbers and what every control is doing right now, from the
+/// DualSense and the keyboard.
+/// </summary>
 public partial class DebugOverlay : CanvasLayer
 {
+    /// <summary>The jet whose speed, altitude, throttle and G-load are shown.</summary>
+    [Export] public Jet Jet { get; set; }
+
     Label _label;
 
     public override void _Ready() => _label = GetNode<Label>("Label");
@@ -10,6 +16,11 @@ public partial class DebugOverlay : CanvasLayer
     public override void _Process(double delta)
     {
         _label.Text = $"""
+            Speed          {Jet.Speed,5:0} km/h
+            Altitude       {Jet.GlobalPosition.Y,5:0} m
+            Throttle       {Signed(Jet.Throttle)}
+            G-load         {Jet.GLoad,5:0.0} G
+
             Control        Value  DualSense              Keyboard
             Pitch          {Axis(Controls.PitchDown, Controls.PitchUp)}  Left stick up/down     W / S
             Roll           {Axis(Controls.RollLeft, Controls.RollRight)}  Left stick left/right  A / D
@@ -29,8 +40,9 @@ public partial class DebugOverlay : CanvasLayer
             """;
     }
 
-    static string Axis(StringName negative, StringName positive) =>
-        Input.GetAxis(negative, positive).ToString("+0.00;-0.00; 0.00");
+    static string Axis(StringName negative, StringName positive) => Signed(Input.GetAxis(negative, positive));
+
+    static string Signed(float value) => value.ToString("+0.00;-0.00; 0.00");
 
     static string Amount(StringName action) => Input.GetActionStrength(action).ToString(" 0.00");
 

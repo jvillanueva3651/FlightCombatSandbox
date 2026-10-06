@@ -46,7 +46,7 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
 - [x] **1.26 Pause** · S · after 1.6
   - Done when Options (or Escape) pauses the game and shows a menu with Resume and Quit.
   - Verify: play. Files: `game/ui/pause_menu.tscn`, `game/ui/PauseMenu.cs`.
-- [ ] **1.7 Flight readout** · XS · after 1.6
+- [x] **1.7 Flight readout** · XS · after 1.6
   - Done when the debug overlay shows speed, altitude, throttle and G-load.
   - Verify: play. Files: `game/ui/DebugOverlay.cs`.
 - [ ] **1.8 Throttle and brake** · S · after 1.7
