@@ -38,7 +38,8 @@ public partial class ChaseCamera : Camera3D
         var feel = Packs.Base.Feel;
         var dt = (float)delta;
         var catchUp = feel.CameraCatchUp(dt);
-        _turn = _turn.Slerp(Jet.GlobalBasis, catchUp);
+        // Orthonormalized stops rounding errors building up until Slerp refuses _turn, which froze the camera.
+        _turn = _turn.Slerp(Jet.GlobalBasis, catchUp).Orthonormalized();
 
         // The right stick swings the camera around the jet, as far as it's pushed; let go and the
         // view eases back behind the jet.
