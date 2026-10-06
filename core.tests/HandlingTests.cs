@@ -20,7 +20,8 @@ public class HandlingTests
           "stallSpeed": 300,
           "cornerSpeed": 500,
           "turnAtStallSpeed": 0.5,
-          "turnAtTopSpeed": 0.6
+          "turnAtTopSpeed": 0.6,
+          "turnSpeedLoss": 100
         }
         """;
 
@@ -43,6 +44,7 @@ public class HandlingTests
         Assert.Equal(500f, LightFighter.CornerSpeed);
         Assert.Equal(0.5f, LightFighter.TurnAtStallSpeed);
         Assert.Equal(0.6f, LightFighter.TurnAtTopSpeed);
+        Assert.Equal(100f, LightFighter.TurnSpeedLoss);
     }
 
     [Fact]
@@ -136,5 +138,35 @@ public class HandlingTests
     {
         Assert.Equal(0.5f, LightFighter.TurnRateScale(speed: 200));
         Assert.Equal(0.6f, LightFighter.TurnRateScale(speed: 1400));
+    }
+
+    [Fact]
+    public void A_full_pull_loses_the_turn_speed_loss_each_second()
+    {
+        Assert.Equal(500f, LightFighter.SpeedAfterTurn(550, pitch: 1, seconds: 0.5f));
+    }
+
+    [Fact]
+    public void Pushing_the_nose_down_loses_speed_too()
+    {
+        Assert.Equal(500f, LightFighter.SpeedAfterTurn(550, pitch: -1, seconds: 0.5f));
+    }
+
+    [Fact]
+    public void A_half_pull_loses_a_quarter_as_much()
+    {
+        Assert.Equal(525f, LightFighter.SpeedAfterTurn(550, pitch: 0.5f, seconds: 1));
+    }
+
+    [Fact]
+    public void Turning_never_slows_the_jet_below_stall_speed()
+    {
+        Assert.Equal(300f, LightFighter.SpeedAfterTurn(310, pitch: 1, seconds: 1));
+    }
+
+    [Fact]
+    public void Turning_leaves_a_jet_braked_below_stall_speed_as_it_is()
+    {
+        Assert.Equal(250f, LightFighter.SpeedAfterTurn(250, pitch: 1, seconds: 1));
     }
 }

@@ -13,6 +13,7 @@
     "stallSpeed": 300,
     "cornerSpeed": 500,
     "turnAtStallSpeed": 0.5,
-    "turnAtTopSpeed": 0.6
+    "turnAtTopSpeed": 0.6,
+    "turnSpeedLoss": 100
   }
 }

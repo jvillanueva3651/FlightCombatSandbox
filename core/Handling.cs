@@ -2,8 +2,9 @@ namespace Core;
 
 /// <summary>
 /// The tunable numbers that define how an aircraft flies, stored in its Unit Type.
-/// Speeds are in km/h, strengths in km/h per second, turn rates in degrees per second, the response
-/// time in seconds, and the turn at stall and top speed in fractions of the full turn rates.
+/// Speeds are in km/h, strengths and the turn speed loss in km/h per second, turn rates in degrees
+/// per second, the response time in seconds, and the turn at stall and top speed in fractions of the
+/// full turn rates.
 /// </summary>
 public sealed record Handling
 {
@@ -21,6 +22,7 @@ public sealed record Handling
     public required float CornerSpeed { get; set; }
     public required float TurnAtStallSpeed { get; set; }
     public required float TurnAtTopSpeed { get; set; }
+    public required float TurnSpeedLoss { get; set; }
 
     public static Handling FromJson(string json) => PackLoader.Read<Handling>(json);
 
@@ -51,6 +53,15 @@ public sealed record Handling
     public float TurnRateScale(float speed) => speed < CornerSpeed
         ? float.Lerp(TurnAtStallSpeed, 1, Math.Clamp((speed - StallSpeed) / (CornerSpeed - StallSpeed), 0, 1))
         : float.Lerp(1, TurnAtTopSpeed, Math.Clamp((speed - CornerSpeed) / (TopSpeed - CornerSpeed), 0, 1));
+
+    /// <summary>
+    /// Speed after <paramref name="seconds"/> of pitching with the stick at <paramref name="pitch"/>
+    /// (-1 to 1). A full pull either way loses the turn speed loss each second and a half pull a quarter
+    /// as much, so gentle turns barely cost speed. Turning alone never slows the jet below stall speed,
+    /// but leaves one already braked below it as it is.
+    /// </summary>
+    public float SpeedAfterTurn(float speed, float pitch, float seconds) =>
+        Math.Max(speed - TurnSpeedLoss * pitch * pitch * seconds, Math.Min(speed, StallSpeed));
 
     static float MoveToward(float from, float to, float maxStep) =>
         Math.Abs(to - from) <= maxStep ? to : from + Math.Sign(to - from) * maxStep;

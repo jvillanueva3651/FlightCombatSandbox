@@ -2,9 +2,9 @@ using Core;
 using Godot;
 
 /// <summary>
-/// Flies a jet straight from its Handling, with no aerodynamics: R2 and L2 set its speed, and
-/// the stick and L1/R1 turn it at the Handling rates, strongest at corner speed and easing in and
-/// out over its response time.
+/// Flies a jet straight from its Handling, with no aerodynamics: R2 and L2 set its speed, hard pulls
+/// bleed it, and the stick and L1/R1 turn it at the Handling rates, strongest at corner speed and
+/// easing in and out over its response time.
 /// </summary>
 public partial class Jet : Node3D
 {
@@ -39,6 +39,7 @@ public partial class Jet : Node3D
         _yaw = _handling.NextTurn(_yaw, Input.GetAxis(Controls.YawLeft, Controls.YawRight), dt);        // + = nose right
         Throttle = Input.GetAxis(Controls.Brake, Controls.Throttle);
         Speed = _handling.NextSpeed(Speed, Throttle, dt);
+        Speed = _handling.SpeedAfterTurn(Speed, _pitch, dt);
 
         var scale = _handling.TurnRateScale(Speed);
         var pitchRate = Mathf.DegToRad(_handling.PitchRate * _pitch * scale);  // radians per second
