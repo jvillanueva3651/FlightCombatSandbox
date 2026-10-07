@@ -5,7 +5,7 @@ namespace Core.Tests;
 public class HandlingTests
 {
     // One key per line, so a test can drop or add a key with a plain Replace.
-    const string LightFighterJson = """
+    internal const string LightFighterJson = """
         {
           "cruiseSpeed": 550,
           "topSpeed": 1300,

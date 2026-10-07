@@ -1,4 +1,7 @@
 {
+  "role": "fighter",
+  "health": 100,
+  "points": 100,
   "handling": {
     "cruiseSpeed": 550,
     "topSpeed": 2500,

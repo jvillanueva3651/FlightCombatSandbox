@@ -9,10 +9,12 @@ namespace Core;
 /// </summary>
 public static class PackLoader
 {
-    // Pack files are edited by hand, so a misspelled key is an error rather than ignored.
+    // Pack files are edited by hand, so a misspelled key is an error rather than ignored, and Roles
+    // are written as words ("antiAir"), never numbers.
     static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
         UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
+        Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase, allowIntegerValues: false) },
     };
 
     static readonly JsonSerializerOptions SaveOptions = new(JsonOptions) { WriteIndented = true };

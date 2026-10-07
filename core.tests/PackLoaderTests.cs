@@ -13,7 +13,7 @@ public class PackLoaderTests : IDisposable
         var pack = PackLoader.Load(BasePackFolder());
 
         Assert.Equal("base", pack.Id);
-        Assert.Contains("light-fighter", pack.UnitTypes);
+        Assert.Equal(Role.Fighter, pack.UnitTypes["light-fighter"].Role);
         Assert.Equal(0.1f, pack.Feel.DeadZone);
     }
 

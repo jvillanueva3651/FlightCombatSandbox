@@ -123,8 +123,8 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
 
 ## Step 2: Fight
 
-- [ ] **2.1 Unit Types gain health, points and Role** · S · after 1.5
-  - Done when Core's Unit Type has health, points and Role (fighter, multirole, attacker, bomber, or a ground or sea role), and the light fighter's file sets them.
+- [x] **2.1 Unit Types gain health, points and Role** · S · after 1.5
+  - Done when Core's Unit Type has health, points and Role (fighter, multirole, attacker, bomber, armor or anti-air; later tasks add Roles as their Unit Types need them), and the light fighter's file sets them.
   - Verify: test. Files: `core/UnitType.cs`, `core.tests/UnitTypeTests.cs`, `packs/base/unit-types/light-fighter.json`.
 - [ ] **2.2 Health and destruction** · S · after 2.1
   - Done when placed Units have a Team and health; at zero health they explode (placeholder flash and debris) and disappear; a gray-box dummy on Team 2 sits in the test scene, and a debug key damages it.
@@ -203,13 +203,13 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
   - Done when a missile with long lock range and lower agility works as a Special Weapon.
   - Verify: play. Files: `packs/base/weapons/long-range-missile.json`, `game/combat/Targeting.cs`.
 - [ ] **2.20 Tank** · S · after 2.2
-  - Done when a gray-box tank Unit Type (ground Role) sits in the test scene and can be destroyed.
+  - Done when a gray-box tank Unit Type (armor Role) sits in the test scene and can be destroyed.
   - Verify: play. Files: `packs/base/unit-types/tank.json`, `game/combat/tank.tscn`.
 - [ ] **2.21 Special: air-to-ground weapon** · S · after 2.17, 2.20
   - Done when an air-to-ground missile or bombs (pick one; the spec allows either) can destroy the tank.
   - Verify: play. Files: `packs/base/weapons/`, `game/combat/`.
 - [ ] **2.22 AA gun** · M · after 2.20
-  - Done when an AA gun Unit Type tracks the Player within range and fires bursts that can damage it.
+  - Done when an AA gun Unit Type (anti-air Role) tracks the Player within range and fires bursts that can damage it.
   - Verify: play. Files: `packs/base/unit-types/aa-gun.json`, `game/combat/aa_gun.tscn`, `game/combat/AaGun.cs`.
 - [ ] **2.23 Score** · XS · after 2.2
   - Done when destroying a Unit adds its points and the HUD shows the score.
@@ -325,13 +325,13 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
 - [ ] **3.48 Scenery Targets** · S · after 3.47, 3.18
   - Done when an action gives a Scenery piece to a Team or takes it back, making it a Target or not, and destroying it fires the destroyed event.
 - [ ] **3.49 Trucks: Drive Route, Hold position** · M · after 3.8
-  - Done when a gray-box truck Unit Type drives its Route on the ground or holds position, and a convoy works as one Group.
+  - Done when a gray-box truck Unit Type drives its Route on the ground or holds position, and a convoy works as one Group. Adds the truck's Role (proposed: transport; confirm with the user).
 - [ ] **3.50 Ground Orders: Take Zone, Attack, Retreat** · S · after 3.49
   - Done when ground Groups carry out these three Orders.
 - [ ] **3.51 Bomber and Strike Zone** · M · after 3.8
   - Done when an AI-only bomber Unit Type bombs the Targets in a Zone.
 - [ ] **3.52 Frigate** · M · after 3.8
-  - Done when a frigate Unit Type with AA guns sails a Route, holds position or retreats.
+  - Done when a frigate Unit Type with AA guns sails a Route, holds position or retreats. Adds the frigate's Role (proposed: ship; confirm with the user).
 - [ ] **3.53 Mission state save and load** · S · after 3.31
   - Done when Core saves and restores a running Mission's state (Phase, Variables, Objectives, fired Triggers), round-trip tested. Groundwork for Checkpoints.
 - [ ] **3.54 Sample two-Phase Mission** · S · after 3.33, 3.32
@@ -444,11 +444,11 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
 - [ ] **6.10 Attacker jet** · S · after 5.10
   - Done when a flyable attacker Unit Type exists with its own Handling.
 - [ ] **6.11 SAM site** · M · after 5.10
-  - Done when a SAM site Unit Type launches missiles at aircraft in range.
+  - Done when a SAM site Unit Type (anti-air Role) launches missiles at aircraft in range.
 - [ ] **6.12 Radar** · S · after 5.10
-  - Done when a radar Unit Type extends its Team's spotting range.
+  - Done when a radar Unit Type extends its Team's spotting range. Adds its Role (proposed: structure, shared with 6.13; confirm with the user).
 - [ ] **6.13 Bunker** · XS · after 5.10
-  - Done when a hardened bunker Unit Type exists for ground strikes.
+  - Done when a hardened bunker Unit Type exists for ground strikes. Adds its Role (proposed: structure, shared with 6.12; confirm with the user).
 - [ ] **6.14 Command menu** · M · after 5.10
   - Done when a D-pad radial menu offers the quick selections, limited to Units under the Player's command.
 - [ ] **6.15 Commands** · M · after 6.14

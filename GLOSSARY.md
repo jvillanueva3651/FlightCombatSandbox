@@ -83,7 +83,7 @@ _Avoid_: TGT (Ace Combat's marker for objective targets is a different idea)
 ### Flying
 
 **Role**:
-The job an aircraft is built for: fighter, multirole, attacker or bomber. Players only ever fly fighters, multiroles and attackers.
+The job a Unit Type is built for: fighter, multirole, attacker or bomber for aircraft; armor or anti-air on the ground. New Roles arrive with the Unit Types that need them. Players only ever fly fighters, multiroles and attackers.
 _Avoid_: Class, Category
 
 **Handling**:
