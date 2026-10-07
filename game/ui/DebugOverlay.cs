@@ -1,64 +1,76 @@
+using System.Collections.Generic;
+using System.Linq;
 using Godot;
 
 /// <summary>
-/// Shows the jet's flight numbers, its and the dummy's health and what every control is doing right
-/// now, from the DualSense and the keyboard. F2 damages the dummy, and a destroyed dummy comes back,
-/// as it was at the start, a few seconds later. F3 damages the jet.
+/// Shows the jet's flight numbers, its and its Target's health and what every control is doing right
+/// now, from the DualSense and the keyboard. F2 damages the Target and F3 the jet. The test dummies,
+/// every Unit on another Team when the scene starts, each come back as they were placed a few seconds
+/// after being destroyed.
 /// </summary>
 public partial class DebugOverlay : CanvasLayer
 {
     /// <summary>The jet whose speed, altitude, throttle, G-load and health are shown, and that F3 damages.</summary>
     [Export] public Jet Jet { get; set; }
 
-    /// <summary>The test target that F2 damages.</summary>
-    [Export] public Unit Dummy { get; set; }
-
     const int DebugDamage = 25;          // damage per press of F2 or F3
-    const float DummyRespawnDelay = 5;   // seconds from the dummy's destruction to a fresh one
+    const float DummyRespawnDelay = 5;   // seconds from a dummy's destruction to a fresh one
 
+    sealed class Dummy
+    {
+        public Unit Live;          // the one in the scene, gone once destroyed
+        public Unit Fresh;         // a copy as the scene placed it, kept out of the scene
+        public Node Parent;
+        public float SinceDestroyed;
+    }
+
+    readonly List<Dummy> _dummies = new();
     Label _label;
-    Unit _freshDummy;  // a copy of the dummy as the scene placed it, kept out of the scene
-    Node _dummyParent;
-    float _sinceDummyDestroyed;
+    Targeting _targeting;
 
+    // The dummies come before this overlay in the scene, so they're ready and in the Unit group by now.
     public override void _Ready()
     {
         _label = GetNode<Label>("Label");
-        _freshDummy = (Unit)Dummy.Duplicate();
-        _dummyParent = Dummy.GetParent();
+        _targeting = Jet.GetNode<Targeting>("Targeting");
+        foreach (var unit in GetTree().GetNodesInGroup(Unit.Group).Cast<Unit>().Where(unit => unit.Team != Jet.Team))
+            _dummies.Add(new Dummy { Live = unit, Fresh = (Unit)unit.Duplicate(), Parent = unit.GetParent() });
     }
 
-    public override void _ExitTree() => _freshDummy.Free();  // never in the scene, so nothing else frees it
+    public override void _ExitTree()
+    {
+        foreach (var dummy in _dummies)
+            dummy.Fresh.Free();  // never in the scene, so nothing else frees them
+    }
 
     public override void _UnhandledInput(InputEvent e)
     {
-        if (e.IsActionPressed(Controls.DamageDummy) && IsInstanceValid(Dummy))
-            Dummy.Damage(DebugDamage);
+        if (e.IsActionPressed(Controls.DamageTarget))
+            _targeting.Target?.Damage(DebugDamage);
         else if (e.IsActionPressed(Controls.DamageJet))
             Jet.Damage(DebugDamage);
     }
 
     public override void _Process(double delta)
     {
-        if (!IsInstanceValid(Dummy))
+        foreach (var dummy in _dummies.Where(dummy => !IsInstanceValid(dummy.Live)))
         {
-            _sinceDummyDestroyed += (float)delta;
-            if (_sinceDummyDestroyed >= DummyRespawnDelay)
-            {
-                _sinceDummyDestroyed = 0;
-                Dummy = (Unit)_freshDummy.Duplicate();
-                _dummyParent.AddChild(Dummy);
-            }
+            dummy.SinceDestroyed += (float)delta;
+            if (dummy.SinceDestroyed < DummyRespawnDelay)
+                continue;
+            dummy.SinceDestroyed = 0;
+            dummy.Live = (Unit)dummy.Fresh.Duplicate();
+            dummy.Parent.AddChild(dummy.Live);
         }
 
-        var dummyHealth = IsInstanceValid(Dummy) ? $"{Dummy.Health,5}" : "destroyed";
+        var targetHealth = _targeting.Target is { } target ? $"{target.Health,5}" : " none";
         _label.Text = $"""
             Speed          {Jet.Speed,5:0} km/h
             Altitude       {Jet.GlobalPosition.Y,5:0} m
             Throttle       {Signed(Jet.Throttle)}
             G-load         {Jet.GLoad,5:0.0} G
             Jet health     {Jet.Health,5}
-            Dummy health   {dummyHealth}
+            Target health  {targetHealth}
 
             Control        Value  DualSense              Keyboard
             Pitch          {Axis(Controls.PitchDown, Controls.PitchUp)}  Left stick up/down     W / S
@@ -76,7 +88,7 @@ public partial class DebugOverlay : CanvasLayer
             Flare          {Held(Controls.IsFlarePressed())}  L3 + R3                G
             Radar map      {Held(Controls.RadarMap)}  Touchpad               M
             Pause          {Held(Controls.Pause)}  Options                Esc
-            Damage dummy   {Held(Controls.DamageDummy)}  --                     F2
+            Damage target  {Held(Controls.DamageTarget)}  --                     F2
             Damage jet     {Held(Controls.DamageJet)}  --                     F3
             """;
     }

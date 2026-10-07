@@ -8,6 +8,7 @@
 [ext_resource type="PackedScene" path="res://flight/wind_streaks.tscn" id="6_streaks"]
 [ext_resource type="Script" path="res://world/TestTerrain.cs" id="7_terrain"]
 [ext_resource type="Script" path="res://combat/Unit.cs" id="8_unit"]
+[ext_resource type="PackedScene" path="res://ui/hud.tscn" id="9_hud"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_sky"]
 ground_bottom_color = Color(0.6463, 0.6558, 0.6708, 1)
@@ -98,6 +99,32 @@ mesh = SubResource("BoxMesh_dummy")
 [node name="Shape" type="CollisionShape3D" parent="Dummy/HitBox"]
 shape = SubResource("BoxShape3D_dummy")
 
+[node name="Dummy2" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -400, 950, -2500)
+script = ExtResource("8_unit")
+Team = 2
+
+[node name="Box" type="MeshInstance3D" parent="Dummy2"]
+mesh = SubResource("BoxMesh_dummy")
+
+[node name="HitBox" type="Area3D" parent="Dummy2"]
+
+[node name="Shape" type="CollisionShape3D" parent="Dummy2/HitBox"]
+shape = SubResource("BoxShape3D_dummy")
+
+[node name="Dummy3" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 600, 1150, -3500)
+script = ExtResource("8_unit")
+Team = 2
+
+[node name="Box" type="MeshInstance3D" parent="Dummy3"]
+mesh = SubResource("BoxMesh_dummy")
+
+[node name="HitBox" type="Area3D" parent="Dummy3"]
+
+[node name="Shape" type="CollisionShape3D" parent="Dummy3/HitBox"]
+shape = SubResource("BoxShape3D_dummy")
+
 [node name="Camera" type="Camera3D" parent="." node_paths=PackedStringArray("Jet")]
 transform = Transform3D(1, 0, 0, 0, 0.997564, 0.069756, 0, -0.069756, 0.997564, 0, 1004, 20)
 far = 50000.0
@@ -106,9 +133,11 @@ Jet = NodePath("../Jet")
 
 [node name="WindStreaks" parent="Camera" instance=ExtResource("6_streaks")]
 
-[node name="DebugOverlay" parent="." node_paths=PackedStringArray("Jet", "Dummy") instance=ExtResource("2_overlay")]
+[node name="Hud" parent="." node_paths=PackedStringArray("Jet") instance=ExtResource("9_hud")]
 Jet = NodePath("../Jet")
-Dummy = NodePath("../Dummy")
+
+[node name="DebugOverlay" parent="." node_paths=PackedStringArray("Jet") instance=ExtResource("2_overlay")]
+Jet = NodePath("../Jet")
 
 [node name="PauseMenu" parent="." instance=ExtResource("3_pause")]
 
