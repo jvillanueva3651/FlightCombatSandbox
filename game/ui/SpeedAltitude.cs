@@ -10,6 +10,9 @@ public partial class SpeedAltitude : Control
     const float BoxWidth = 84, BoxHeight = 28, PointLength = 10;  // pixels
     const int FontSize = 20, LabelSize = 16;
 
+    /// <summary>Pixels from the middle of the screen out to the far end of each box.</summary>
+    public const float Reach = FromMiddle + PointLength + BoxWidth;
+
     Jet _jet;
 
     public override void _Ready() => _jet = ((Hud)Owner).Jet;

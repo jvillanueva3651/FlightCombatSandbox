@@ -169,9 +169,10 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
   - Done when holding Circle while firing makes the camera follow the fired missile (or Special Weapon, once those exist) until Circle is released or about a second after it explodes, then brings back the chase camera.
   - Verify: play. Files: `game/flight/ChaseCamera.cs`, `game/combat/MissileLauncher.cs`, `game/combat/Missile.cs`.
   - Not played yet: committed 2026-10-07 while the user was away from the PC. Play it there: lock a dummy, fire with Circle and keep holding to ride the missile, watch the fireball, and let go mid-flight to cut back. The view backing off 80 m to watch the fireball was added after the plan; check it reads well.
-- [ ] **2.29 Large radar map** · S · after 2.10
-  - Done when the touchpad switches the radar between the minimap and a large map of the area around the Player.
-  - Verify: play. Files: `game/ui/Radar.cs`, `game/ui/hud.tscn`.
+- [x] **2.29 Large radar map** · S · after 2.10
+  - Done when each touchpad press cycles the radar through default, zoomed out (3x the range) and whole map (the box grows as far as it can without covering the SPEED box, north-up, showing the whole terrain), easing between them (the user's design).
+  - Verify: play. Files: `game/ui/Radar.cs`, `game/world/TestTerrain.cs`, `game/ui/SpeedAltitude.cs`.
+  - Not played yet: committed 2026-10-07 while the user was away from the PC (they approved it from screenshots). Play it there: press the touchpad (or M) three times to go through zoomed out and the whole map and back, while flying and turning.
 
 **Checkpoint: armed.** The user shoots dummies with the gun and missiles, reads the HUD and the large radar map, and tries the Target and missile cameras.
 

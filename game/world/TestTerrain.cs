@@ -9,7 +9,7 @@ using Godot;
 /// </summary>
 public partial class TestTerrain : MeshInstance3D
 {
-    const float Size = 16000;      // meters along each side
+    public const float Size = 16000;  // meters along each side, centered on the world's origin
     const int Cells = 512;         // grid squares along each side, 31.25 m each
     const float HillHeight = 700;  // meters at the highest
     const float RimHeight = 450;   // the high ground the canyon cuts through, in meters
