@@ -161,9 +161,10 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
   - Verify: play. Files: `game/ui/Radar.cs`, `game/ui/hud.tscn`, `game/ui/Hud.cs`, `game/ui/TargetMarker.cs`, `game/combat/Targeting.cs`.
   - Not played yet: committed 2026-10-07 while the user was away from the PC. Play it there: turn and watch the dummies swing around the radar, check the boxed one is the Target, and that a Target inside the two lines and the ring locks.
 
-- [ ] **2.27 Look at the Target** · S · after 2.5, 1.17
+- [x] **2.27 Look at the Target** · S · after 2.5, 1.17
   - Done when holding Triangle turns the camera to keep the current Target on screen and releasing it brings back the chase camera, while a tap still switches Targets.
   - Verify: play. Files: `game/flight/ChaseCamera.cs`, `game/combat/Targeting.cs`.
+  - Not played yet: committed 2026-10-07 while the user was away from the PC. Play it there: tap Triangle to switch Targets (it switches when let go), hold it to swing the view onto the Target with a 1.25x zoom, and try it with the Target off to the side, behind, and in the nose view.
 - [ ] **2.28 Missile camera** · S · after 2.7, 1.17
   - Done when holding Circle while firing makes the camera follow the fired missile (or Special Weapon, once those exist) until Circle is released or about a second after it explodes, then brings back the chase camera.
   - Verify: play. Files: `game/flight/ChaseCamera.cs`, `game/combat/Missile.cs`.

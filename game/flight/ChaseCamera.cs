@@ -5,8 +5,9 @@ using Godot;
 /// lag: the jet visibly rolls and pitches on screen while the view catches up, but stays the same
 /// distance away. Where the camera sits relative to the jet in the scene sets how far behind and above
 /// it flies. The view widens with speed and shakes in high-G turns and stalls, by the Feel Settings'
-/// amounts, and the right stick swings the camera around the jet. R3 switches to a view from the jet's
-/// nose, fixed to the jet with the jet hidden, and back. Wind streaks rush past the camera at the jet's
+/// amounts, and the right stick swings the camera around the jet. Holding Triangle swings it onto the
+/// current Target instead, a little quicker, and zooms in. R3 switches to a view from the jet's nose,
+/// fixed to the jet with the jet hidden, and back. Wind streaks rush past the camera at the jet's
 /// speed, so speed reads even high above the ground.
 /// </summary>
 public partial class ChaseCamera : Camera3D
@@ -18,6 +19,10 @@ public partial class ChaseCamera : Camera3D
     // short of straight up or down, where the view would spin.
     const float MaxLookSideways = 180, MaxLookUpDown = 85;
 
+    // Looking at the Target: how much quicker than the camera lag the view swings over and back, and
+    // how much it zooms in.
+    const float WatchQuickness = 1.5f, TargetZoom = 1.25f;
+
     // km/h at and below which there are no wind streaks.
     const float StreakStartSpeed = 800;
 
@@ -27,6 +32,10 @@ public partial class ChaseCamera : Camera3D
     bool _flareChord;     // L3 joined R3 for flares since R3 went down, so letting go of R3 keeps the view
     Basis _turn;          // the jet's orientation as the camera follows it, a little behind
     Vector2 _look;        // degrees the right stick has swung the view: to the left (X) and up (Y)
+    Targeting _targeting;
+    float _tilt;          // degrees the chase view looks down, as placed in the scene
+    float _watch;         // how far the view has turned from the right stick's look to the Target, from 0 to 1
+    Vector2 _watchLook;   // degrees left and up that put the Target in the middle of the view
     float _fov;           // the field of view set in the scene, kept at cruise speed
     float _time;
     GpuParticles3D _streaks;
@@ -39,6 +48,8 @@ public partial class ChaseCamera : Camera3D
     {
         _offset = Jet.GlobalTransform.AffineInverse() * GlobalTransform;
         _nose = Jet.GetNode<Node3D>("NoseView").Transform;
+        _tilt = Mathf.RadToDeg(Mathf.Asin(-(_offset.Basis * Vector3.Forward).Y));
+        _targeting = Jet.GetNode<Targeting>("Targeting");
         _turn = Jet.GlobalBasis;
         _fov = Fov;
         _streaks = GetNode<GpuParticles3D>("WindStreaks");
@@ -54,12 +65,6 @@ public partial class ChaseCamera : Camera3D
         // Orthonormalized stops rounding errors building up until Slerp refuses _turn, which froze the camera.
         _turn = _turn.Slerp(Jet.GlobalBasis, catchUp).Orthonormalized();
 
-        // The right stick swings the camera around the jet, as far as it's pushed; let go and the
-        // view eases back behind the jet.
-        var stick = new Vector2(-Input.GetAxis(Controls.LookLeft, Controls.LookRight), Input.GetAxis(Controls.LookDown, Controls.LookUp));
-        _look = _look.Lerp(stick * new Vector2(MaxLookSideways, MaxLookUpDown), catchUp);
-        var look = new Transform3D(new Basis(Vector3.Up, Mathf.DegToRad(_look.X)) * new Basis(Vector3.Right, Mathf.DegToRad(_look.Y)), Vector3.Zero);
-
         // R3 changes the view when it's let go, unless L3 joined it for flares while it was down.
         if (Input.IsActionJustPressed(Controls.ChangeView))
             _flareChord = false;
@@ -68,11 +73,26 @@ public partial class ChaseCamera : Camera3D
             _noseView = !_noseView;
         Jet.Visible = !_noseView && !Jet.ShotDown;
 
+        // The right stick swings the camera around the jet, as far as it's pushed; let go and the
+        // view eases back behind the jet. Holding Triangle swings it onto the Target instead, a little
+        // quicker, both ways; the last angles to the Target are kept, so losing it eases back too.
+        var stick = new Vector2(-Input.GetAxis(Controls.LookLeft, Controls.LookRight), Input.GetAxis(Controls.LookDown, Controls.LookUp));
+        _look = _look.Lerp(stick * new Vector2(MaxLookSideways, MaxLookUpDown), catchUp);
+        var watched = _targeting.Watched;
+        _watch = Mathf.Lerp(_watch, watched != null ? 1 : 0, feel.CameraCatchUp(dt * WatchQuickness));
+        if (watched != null)
+            _watchLook = _noseView
+                ? LookAngles(Jet.GlobalBasis, (Jet.GlobalTransform * _nose).Origin, watched.GlobalPosition, 0)
+                : LookAngles(_turn, Jet.GlobalPosition, watched.GlobalPosition, _tilt);
+        var angles = _look.Lerp(_watchLook, _watch);
+        var look = new Transform3D(new Basis(Vector3.Up, Mathf.DegToRad(angles.X)) * new Basis(Vector3.Right, Mathf.DegToRad(angles.Y)), Vector3.Zero);
+
         // The chase view swings around the jet; the nose view turns in place, like a head.
         GlobalTransform = _noseView
             ? Jet.GlobalTransform * _nose * look
             : new Transform3D(_turn, Jet.GlobalPosition) * look * _offset;
-        Fov = _fov + feel.ExtraFieldOfView(Jet.Handling, Jet.Speed);
+        var fov = Mathf.DegToRad(_fov + feel.ExtraFieldOfView(Jet.Handling, Jet.Speed));
+        Fov = Mathf.RadToDeg(2 * Mathf.Atan(Mathf.Tan(fov / 2) / Mathf.Lerp(1, TargetZoom, _watch)));  // zoomed in on the Target
 
         // The wind streaks stream back along the jet's flight path at its speed: none up to their start
         // speed, then more of them the faster it flies, all of them at top speed.
@@ -88,5 +108,15 @@ public partial class ChaseCamera : Camera3D
         var shake = Mathf.DegToRad(feel.Shake(Jet.HighG, Jet.Handling.StallDepth(Jet.Speed)));
         RotateObjectLocal(Vector3.Right, shake * _noise.GetNoise2D(_time, 0));
         RotateObjectLocal(Vector3.Up, shake * _noise.GetNoise2D(_time, 100));
+    }
+
+    // Degrees left and up that turn a view facing along `frame`'s forward from `from` to look at
+    // `point`, with `tilt` added for a view that looks that far down, and no further up or down than
+    // the right stick goes.
+    static Vector2 LookAngles(Basis frame, Vector3 from, Vector3 point, float tilt)
+    {
+        var to = frame.Inverse() * (point - from);
+        var up = Mathf.RadToDeg(Mathf.Atan2(to.Y, new Vector2(to.X, to.Z).Length())) + tilt;
+        return new Vector2(Mathf.RadToDeg(Mathf.Atan2(-to.X, -to.Z)), Mathf.Clamp(up, -MaxLookUpDown, MaxLookUpDown));
     }
 }
