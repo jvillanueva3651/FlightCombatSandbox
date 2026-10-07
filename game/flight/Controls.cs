@@ -17,7 +17,7 @@ public partial class Controls : Node
         FireGun = "fire_gun", FireMissile = "fire_missile",
         SwitchWeapon = "switch_weapon", SwitchTarget = "switch_target",
         ChangeView = "change_view", Flare = "flare", RadarMap = "radar_map", Pause = "pause",
-        TuningPanel = "tuning_panel";
+        TuningPanel = "tuning_panel", DamageDummy = "damage_dummy";
 
     // L3 on its own does nothing; it only counts as half of the flare chord.
     static readonly StringName LeftStickClick = "left_stick_click";
@@ -52,6 +52,7 @@ public partial class Controls : Node
         Bind(RadarMap, PadButton(JoyButton.Touchpad), Keyboard(Key.M));
         Bind(Pause, PadButton(JoyButton.Start), Keyboard(Key.Escape));         // Options
         Bind(TuningPanel, Keyboard(Key.F1));                                   // developer tool, keyboard only
+        Bind(DamageDummy, Keyboard(Key.F2));                                   // developer tool, keyboard only
 
         // Godot's built-in menu actions have no controller buttons for confirm and back.
         InputMap.ActionAddEvent("ui_accept", PadButton(JoyButton.A));          // Cross confirms

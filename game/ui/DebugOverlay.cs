@@ -1,25 +1,38 @@
 using Godot;
 
 /// <summary>
-/// Shows the jet's flight numbers and what every control is doing right now, from the
-/// DualSense and the keyboard.
+/// Shows the jet's flight numbers, the dummy's health and what every control is doing right now,
+/// from the DualSense and the keyboard. F2 damages the dummy.
 /// </summary>
 public partial class DebugOverlay : CanvasLayer
 {
     /// <summary>The jet whose speed, altitude, throttle and G-load are shown.</summary>
     [Export] public Jet Jet { get; set; }
 
+    /// <summary>The test target that F2 damages.</summary>
+    [Export] public Unit Dummy { get; set; }
+
+    const int DebugDamage = 25;  // damage per press of F2
+
     Label _label;
 
     public override void _Ready() => _label = GetNode<Label>("Label");
 
+    public override void _UnhandledInput(InputEvent e)
+    {
+        if (e.IsActionPressed(Controls.DamageDummy) && IsInstanceValid(Dummy))
+            Dummy.Damage(DebugDamage);
+    }
+
     public override void _Process(double delta)
     {
+        var dummyHealth = IsInstanceValid(Dummy) ? $"{Dummy.Health,5}" : "destroyed";
         _label.Text = $"""
             Speed          {Jet.Speed,5:0} km/h
             Altitude       {Jet.GlobalPosition.Y,5:0} m
             Throttle       {Signed(Jet.Throttle)}
             G-load         {Jet.GLoad,5:0.0} G
+            Dummy health   {dummyHealth}
 
             Control        Value  DualSense              Keyboard
             Pitch          {Axis(Controls.PitchDown, Controls.PitchUp)}  Left stick up/down     W / S
@@ -37,6 +50,7 @@ public partial class DebugOverlay : CanvasLayer
             Flare          {Held(Controls.IsFlarePressed())}  L3 + R3                G
             Radar map      {Held(Controls.RadarMap)}  Touchpad               M
             Pause          {Held(Controls.Pause)}  Options                Esc
+            Damage dummy   {Held(Controls.DamageDummy)}  --                     F2
             """;
     }
 
