@@ -40,8 +40,8 @@ public partial class JetSound : Node
         _wind.PitchScale = 0.5f + wind;
         _wind.VolumeDb = Mathf.LinearToDb(WindLevel * wind);
 
-        // A crash silences the jet until it starts again.
-        _engine.StreamPaused = _wind.StreamPaused = _jet.Crashed;
+        // Being shot down silences the jet until it starts again.
+        _engine.StreamPaused = _wind.StreamPaused = _jet.ShotDown;
     }
 
     AudioStreamPlayer Play(AudioStream stream)

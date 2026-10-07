@@ -1,4 +1,5 @@
 using System;
+using Core;
 using Godot;
 
 /// <summary>
@@ -15,14 +16,16 @@ public partial class Unit : Node3D
     [Export] public int Team { get; set; } = 1;
 
     /// <summary>Damage the Unit can still take before it's destroyed.</summary>
-    public int Health { get; private set; }
+    public int Health { get; protected set; }
 
-    public override void _Ready() => Health = Packs.Base.UnitTypes[UnitTypeId].Health;
+    protected UnitType UnitType => Packs.Base.UnitTypes[UnitTypeId];
+
+    public override void _Ready() => Health = UnitType.Health;
 
     public void Damage(int amount)
     {
         if (Health == 0)
-            return;  // already destroyed this frame, so a second hit can't explode it twice
+            return;  // already destroyed, so a second hit can't explode it twice
         Health = Math.Max(Health - amount, 0);
         if (Health > 0)
             return;
@@ -30,6 +33,9 @@ public partial class Unit : Node3D
         var explosion = GD.Load<PackedScene>("res://combat/explosion.tscn").Instantiate<Node3D>();
         GetParent().AddChild(explosion);
         explosion.GlobalPosition = GlobalPosition;
-        QueueFree();
+        Destroyed();
     }
+
+    /// <summary>What happens after the Unit explodes: it disappears.</summary>
+    protected virtual void Destroyed() => QueueFree();
 }

@@ -66,7 +66,7 @@ public partial class ChaseCamera : Camera3D
         _flareChord |= Controls.IsFlarePressed();
         if (Input.IsActionJustReleased(Controls.ChangeView) && !_flareChord)
             _noseView = !_noseView;
-        Jet.Visible = !_noseView && !Jet.Crashed;
+        Jet.Visible = !_noseView && !Jet.ShotDown;
 
         // The chase view swings around the jet; the nose view turns in place, like a head.
         GlobalTransform = _noseView
@@ -80,7 +80,7 @@ public partial class ChaseCamera : Camera3D
         _streaks.SpeedScale = Jet.Speed / 3.6f / _streakSpeed;
         var streaks = (Jet.Speed - StreakStartSpeed) / (Jet.Handling.TopSpeed - StreakStartSpeed);
         _streaks.AmountRatio = Jet.Speed > StreakStartSpeed ? Mathf.Clamp(streaks, 0, 1) : 0;  // none even if top speed is below the start
-        _streaks.Visible = !Jet.Crashed;  // a crash stops them dead, so hide them rather than leave them hanging
+        _streaks.Visible = !Jet.ShotDown;  // being shot down stops them dead, so hide them rather than leave them hanging
 
         // The shake turns the view up to its amount up and down and side to side, on top of the follow,
         // which is set afresh every frame, so it never builds up.

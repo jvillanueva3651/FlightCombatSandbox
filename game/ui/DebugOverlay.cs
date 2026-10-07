@@ -1,19 +1,19 @@
 using Godot;
 
 /// <summary>
-/// Shows the jet's flight numbers, the dummy's health and what every control is doing right now,
-/// from the DualSense and the keyboard. F2 damages the dummy, and a destroyed dummy comes back,
-/// as it was at the start, a few seconds later.
+/// Shows the jet's flight numbers, its and the dummy's health and what every control is doing right
+/// now, from the DualSense and the keyboard. F2 damages the dummy, and a destroyed dummy comes back,
+/// as it was at the start, a few seconds later. F3 damages the jet.
 /// </summary>
 public partial class DebugOverlay : CanvasLayer
 {
-    /// <summary>The jet whose speed, altitude, throttle and G-load are shown.</summary>
+    /// <summary>The jet whose speed, altitude, throttle, G-load and health are shown, and that F3 damages.</summary>
     [Export] public Jet Jet { get; set; }
 
     /// <summary>The test target that F2 damages.</summary>
     [Export] public Unit Dummy { get; set; }
 
-    const int DebugDamage = 25;          // damage per press of F2
+    const int DebugDamage = 25;          // damage per press of F2 or F3
     const float DummyRespawnDelay = 5;   // seconds from the dummy's destruction to a fresh one
 
     Label _label;
@@ -34,6 +34,8 @@ public partial class DebugOverlay : CanvasLayer
     {
         if (e.IsActionPressed(Controls.DamageDummy) && IsInstanceValid(Dummy))
             Dummy.Damage(DebugDamage);
+        else if (e.IsActionPressed(Controls.DamageJet))
+            Jet.Damage(DebugDamage);
     }
 
     public override void _Process(double delta)
@@ -55,6 +57,7 @@ public partial class DebugOverlay : CanvasLayer
             Altitude       {Jet.GlobalPosition.Y,5:0} m
             Throttle       {Signed(Jet.Throttle)}
             G-load         {Jet.GLoad,5:0.0} G
+            Jet health     {Jet.Health,5}
             Dummy health   {dummyHealth}
 
             Control        Value  DualSense              Keyboard
@@ -74,6 +77,7 @@ public partial class DebugOverlay : CanvasLayer
             Radar map      {Held(Controls.RadarMap)}  Touchpad               M
             Pause          {Held(Controls.Pause)}  Options                Esc
             Damage dummy   {Held(Controls.DamageDummy)}  --                     F2
+            Damage jet     {Held(Controls.DamageJet)}  --                     F3
             """;
     }
 

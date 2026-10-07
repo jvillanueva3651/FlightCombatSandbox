@@ -49,7 +49,7 @@ public partial class Gun : Node3D
     {
         var dt = (float)delta;
         _cooldown -= dt;
-        if (Input.IsActionPressed(Controls.FireGun) && !_jet.Crashed)
+        if (Input.IsActionPressed(Controls.FireGun) && !_jet.ShotDown)
             for (; _cooldown <= 0; _cooldown += 1 / FireRate)
                 Fire();
         else
@@ -75,7 +75,7 @@ public partial class Gun : Node3D
         }
     }
 
-    // Tracers go in the jet's parent rather than under the jet, which the camera hides in the nose view and after a crash.
+    // Tracers go in the jet's parent rather than under the jet, which the camera hides in the nose view and while it's shot down.
     void Fire()
     {
         var tracer = new MeshInstance3D { Mesh = _tracerMesh, CastShadow = GeometryInstance3D.ShadowCastingSetting.Off };

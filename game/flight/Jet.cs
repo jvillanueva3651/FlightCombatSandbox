@@ -6,14 +6,12 @@ using Godot;
 /// and climbs bleed it, dives build it, and the stick (through the Feel Settings' response curve) and
 /// L1/R1 turn it at the Handling rates, strongest at corner speed and easing in and out over its
 /// response time. Below stall speed the nose falls toward the ground. Squeezing R2 and L2 together
-/// while pulling makes a high-G turn: tighter, and much costlier in speed. Hitting the ground crashes
-/// it, and after a short pause it starts again where it first started.
+/// while pulling makes a high-G turn: tighter, and much costlier in speed. It's a Unit: losing all its
+/// health or hitting the ground shoots it down, and after it explodes and a short pause it starts
+/// again where it first started, with full health.
 /// </summary>
-public partial class Jet : Node3D
+public partial class Jet : Unit
 {
-    /// <summary>The Unit Type whose Handling this jet flies with.</summary>
-    [Export] public string UnitTypeId { get; set; } = "light-fighter";
-
     /// <summary>Current speed in km/h.</summary>
     public float Speed { get; private set; }
 
@@ -29,10 +27,10 @@ public partial class Jet : Node3D
     /// <summary>How hard a high-G turn is pulling, from 0 to 1: the trigger squeeze times the pull squared, like its speed loss.</summary>
     public float HighG => _squeeze * _pitch * _pitch;
 
-    /// <summary>True from hitting the ground until the jet starts again.</summary>
-    public bool Crashed { get; private set; }
+    /// <summary>True from being shot down until the jet starts again.</summary>
+    public bool ShotDown { get; private set; }
 
-    const float RespawnDelay = 2;  // seconds from a crash to starting again
+    const float RespawnDelay = 2;  // seconds from being shot down to starting again
 
     // The ball swept along each frame's move to find the ground: about the jet's size, and swept rather
     // than checked where the move ends, so a fast frame can't skip through the ground.
@@ -40,7 +38,7 @@ public partial class Jet : Node3D
 
     Handling _handling;
     Transform3D _start;
-    float _sinceCrash;
+    float _sinceShotDown;
 
     // How much of each full turn rate the jet uses, from -1 to 1; follows the stick over the response time.
     float _pitch, _roll, _yaw;
@@ -50,7 +48,8 @@ public partial class Jet : Node3D
 
     public override void _Ready()
     {
-        _handling = Packs.Base.UnitTypes[UnitTypeId].Handling;
+        base._Ready();
+        _handling = UnitType.Handling;
         Handling = Packs.Base.Feel.Apply(_handling);
         Speed = Handling.CruiseSpeed;
         _start = Transform;
@@ -59,10 +58,10 @@ public partial class Jet : Node3D
     public override void _Process(double delta)
     {
         var dt = (float)delta;
-        if (Crashed)
+        if (ShotDown)
         {
-            _sinceCrash += dt;
-            if (_sinceCrash >= RespawnDelay)
+            _sinceShotDown += dt;
+            if (_sinceShotDown >= RespawnDelay)
                 Respawn();
             return;
         }
@@ -92,16 +91,14 @@ public partial class Jet : Node3D
             GlobalRotate(nose.Cross(Vector3.Down).Normalized(), drop);
         Transform = Transform.Orthonormalized(); // stops rounding errors slowly skewing the jet
 
-        // Move forward, as far as the ground allows; touching it is a crash.
+        // Move forward, as far as the ground allows; touching it shoots the jet down.
         var metersPerSecond = Speed / 3.6f;
         var move = GlobalBasis * Vector3.Forward * metersPerSecond * dt;
         var free = GetWorld3D().DirectSpaceState.CastMotion(new PhysicsShapeQueryParameters3D { Shape = _crashBall, Transform = GlobalTransform, Motion = move })[0];
         GlobalPosition += move * free;
         if (free < 1)
         {
-            Crashed = true;
-            _sinceCrash = 0;
-            Speed = 0;
+            Damage(Health);
             return;
         }
 
@@ -109,9 +106,18 @@ public partial class Jet : Node3D
         GLoad = metersPerSecond * pitchRate / 9.81f + GlobalTransform.Basis.Y.Y;
     }
 
+    // The jet stays in the scene, stopped and hidden by the camera, until it starts again.
+    protected override void Destroyed()
+    {
+        ShotDown = true;
+        _sinceShotDown = 0;
+        Speed = 0;
+    }
+
     void Respawn()
     {
-        Crashed = false;
+        ShotDown = false;
+        Health = UnitType.Health;
         Transform = _start;
         Speed = Handling.CruiseSpeed;
         _pitch = _roll = _yaw = _squeeze = 0;
