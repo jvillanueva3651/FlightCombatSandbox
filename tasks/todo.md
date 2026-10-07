@@ -98,9 +98,9 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
 - [x] **1.19 Speed cues** · S · after 1.6
   - Done when faint wind streaks around the camera grow with speed, so speed reads even high above the ground.
   - Verify: play. Files: `game/flight/wind_streaks.tscn`, `game/flight/ChaseCamera.cs`.
-- [ ] **1.20 Engine and wind sound** · S · after 1.8
-  - Done when placeholder CC0 engine and wind sounds play, with pitch and volume following throttle and speed, and their sources are listed in `packs/base/CREDITS.md`.
-  - Verify: play. Files: `game/flight/Jet.cs`, `packs/base/sounds/`, `packs/base/CREDITS.md`.
+- [x] **1.20 Engine and wind sound** · S · after 1.8
+  - Done when placeholder engine and wind sounds, generated in code (the user's pick over CC0 files), play with pitch and volume following throttle and speed.
+  - Verify: play. Files: `game/flight/JetSound.cs`, `game/flight/jet.tscn`.
 - [ ] **1.21 Generated test terrain** · M · after 1.6
   - Done when the flat ground is replaced by generated terrain about 16 km square, with hills and a winding canyon, and with collision.
   - Verify: godot, play. Files: `game/world/TestTerrain.cs`, `game/world/test_flight.tscn`.
