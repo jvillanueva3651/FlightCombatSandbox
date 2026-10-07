@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" path="res://ui/tuning_panel.tscn" id="4_tuning"]
 [ext_resource type="Script" path="res://flight/ChaseCamera.cs" id="5_chase"]
 [ext_resource type="PackedScene" path="res://flight/wind_streaks.tscn" id="6_streaks"]
+[ext_resource type="Script" path="res://world/TestTerrain.cs" id="7_terrain"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_sky"]
 ground_bottom_color = Color(0.6463, 0.6558, 0.6708, 1)
@@ -48,6 +49,9 @@ shader = SubResource("Shader_grid")
 material = SubResource("ShaderMaterial_grid")
 size = Vector2(100000, 100000)
 
+[sub_resource type="BoxShape3D" id="BoxShape3D_ground"]
+size = Vector3(100000, 10, 100000)
+
 [node name="TestFlight" type="Node3D"]
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
@@ -58,13 +62,24 @@ transform = Transform3D(-0.906308, -0.178606, 0.383022, 0, 0.906308, 0.422618, -
 shadow_enabled = true
 
 [node name="Ground" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0)
 mesh = SubResource("PlaneMesh_ground")
 
+[node name="Body" type="StaticBody3D" parent="Ground"]
+
+[node name="Shape" type="CollisionShape3D" parent="Ground/Body"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -5, 0)
+shape = SubResource("BoxShape3D_ground")
+
+[node name="TestTerrain" type="MeshInstance3D" parent="."]
+material_override = SubResource("ShaderMaterial_grid")
+script = ExtResource("7_terrain")
+
 [node name="Jet" parent="." instance=ExtResource("1_jet")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 300, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1000, 0)
 
 [node name="Camera" type="Camera3D" parent="." node_paths=PackedStringArray("Jet")]
-transform = Transform3D(1, 0, 0, 0, 0.997564, 0.069756, 0, -0.069756, 0.997564, 0, 304, 20)
+transform = Transform3D(1, 0, 0, 0, 0.997564, 0.069756, 0, -0.069756, 0.997564, 0, 1004, 20)
 far = 50000.0
 script = ExtResource("5_chase")
 Jet = NodePath("../Jet")
