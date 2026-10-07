@@ -4,6 +4,7 @@
 [ext_resource type="Script" path="res://ui/TargetMarker.cs" id="2_marker"]
 [ext_resource type="Script" path="res://ui/SpeedAltitude.cs" id="3_speed"]
 [ext_resource type="Script" path="res://ui/WeaponDisplay.cs" id="4_weapons"]
+[ext_resource type="Script" path="res://ui/StallWarning.cs" id="5_stall"]
 
 [node name="Hud" type="CanvasLayer"]
 script = ExtResource("1_hud")
@@ -19,3 +20,7 @@ script = ExtResource("3_speed")
 [node name="WeaponDisplay" type="Control" parent="."]
 mouse_filter = 2
 script = ExtResource("4_weapons")
+
+[node name="StallWarning" type="Control" parent="."]
+mouse_filter = 2
+script = ExtResource("5_stall")

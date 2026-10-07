@@ -152,9 +152,10 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
   - Done when a green Ace Combat-style HUD shows speed, altitude, damage %, the selected weapon and its count.
   - Verify: play. Files: `game/ui/hud.tscn`, `game/ui/Hud.cs`, `game/ui/SpeedAltitude.cs`, `game/ui/WeaponDisplay.cs`, `game/ui/TargetMarker.cs`, `game/combat/MissileLauncher.cs`, `game/combat/Unit.cs`, `game/flight/Controls.cs`, `game/ui/DebugOverlay.cs`, `game/ui/debug_overlay.tscn`.
   - Not played yet: committed 2026-10-07 while the user was away from the PC. Play it there: read the SPEED and ALT boxes while flying, fire with Circle and watch that wingtip's missile symbol refill over 3 s, press F3 for DMG 25%, and F4 to bring back the debug overlay.
-- [ ] **2.31 Stall warning** · XS · after 2.9, 1.13
-  - Done when the HUD flashes STALL while the jet is below stall speed, as in Ace Combat.
-  - Verify: play. Files: `game/ui/Hud.cs`.
+- [x] **2.31 Stall warning** · XS · after 2.9, 1.13
+  - Done when the HUD shows STALL in its green while the jet is below stall speed (steady, the user's pick over flashing), and a voice says "Stall warning" when a stall starts and every 3 s while it lasts, as in Ace Combat. The voice is Windows' Zira, through Godot's text-to-speech, until 6.26 brings recordings.
+  - Verify: play. Files: `game/ui/StallWarning.cs`, `game/ui/hud.tscn`, `game/project.godot`.
+  - Not played yet: committed 2026-10-07 while the user was away from the PC. Play it there: hold L2 to brake below 300 km/h, check that STALL shows and Zira says "Stall warning" every 3 s, and that throttling out of the stall clears both.
 - [ ] **2.10 Radar minimap** · M · after 2.5
   - Done when a heading-up radar shows hostile Units in red and allied Units in blue around the Player.
   - Verify: play. Files: `game/ui/Radar.cs`, `game/ui/hud.tscn`.
@@ -484,3 +485,4 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
   - Done when R3's views include a cockpit view with a simple cockpit model.
 - [ ] **6.26 Real sounds** · M · after 5.5, 2.24, 6.22
   - Done when the generated engine and wind sounds and the placeholder combat sounds are replaced with free CC0 or CC-BY recordings, credited in `packs/base/CREDITS.md`, with their volumes balanced against each other and the music.
+  - Note: the "Stall warning" voice (2.31) is Windows' text-to-speech for now, which plays outside the game's own audio mixing. A recording replaces it here.
