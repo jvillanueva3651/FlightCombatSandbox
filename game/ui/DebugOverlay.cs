@@ -4,9 +4,10 @@ using Godot;
 
 /// <summary>
 /// Shows the jet's flight numbers, its and its Target's health, its missile count and what every
-/// control is doing right now, from the DualSense and the keyboard. F2 damages the Target and F3 the
-/// jet. The test dummies, every Unit on another Team when the scene starts, each come back as they
-/// were placed a few seconds after being destroyed.
+/// control is doing right now, from the DualSense and the keyboard. It starts hidden, since the HUD
+/// shows what matters in flight, and F4 shows and hides it. F2 damages the Target and F3 the jet,
+/// shown or not. The test dummies, every Unit on another Team when the scene starts, each come back
+/// as they were placed a few seconds after being destroyed.
 /// </summary>
 public partial class DebugOverlay : CanvasLayer
 {
@@ -51,6 +52,8 @@ public partial class DebugOverlay : CanvasLayer
             _targeting.Target?.Damage(DebugDamage);
         else if (e.IsActionPressed(Controls.DamageJet))
             Jet.Damage(DebugDamage);
+        else if (e.IsActionPressed(Controls.DebugOverlay))
+            Visible = !Visible;
     }
 
     public override void _Process(double delta)
@@ -93,6 +96,7 @@ public partial class DebugOverlay : CanvasLayer
             Pause          {Held(Controls.Pause)}  Options                Esc
             Damage target  {Held(Controls.DamageTarget)}  --                     F2
             Damage jet     {Held(Controls.DamageJet)}  --                     F3
+            Debug overlay  {Held(Controls.DebugOverlay)}  --                     F4
             """;
     }
 

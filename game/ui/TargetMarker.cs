@@ -9,7 +9,6 @@ using Godot;
 /// </summary>
 public partial class TargetMarker : Control
 {
-    static readonly Color Green = new(0.35f, 1, 0.45f);  // Ace Combat's HUD green
     static readonly Color Red = new(1, 0.25f, 0.2f);
     const float BoxSize = 40;  // pixels
     const int FontSize = 16;
@@ -58,12 +57,9 @@ public partial class TargetMarker : Control
     // Drawn around the marker's position, which is the Target's spot on screen.
     public override void _Draw()
     {
-        var color = _targeting.Locked ? Red : Green;
+        var color = _targeting.Locked ? Red : Hud.Green;
         DrawRect(new Rect2(-Vector2.One * BoxSize / 2, Vector2.One * BoxSize), color, filled: false, width: 2);
-        var text = $"{_distance:0} m";
-        var at = new Vector2(-BoxSize / 2, BoxSize / 2 + FontSize + 2);
-        DrawStringOutline(ThemeDB.FallbackFont, at, text, fontSize: FontSize, size: 4, modulate: Colors.Black);
-        DrawString(ThemeDB.FallbackFont, at, text, fontSize: FontSize, modulate: color);
+        Hud.DrawText(this, new Vector2(-BoxSize / 2, BoxSize / 2 + FontSize + 2), $"{_distance:0} m", color, FontSize);
     }
 
     // One beep and the silence after it, looped.

@@ -2,6 +2,8 @@
 
 [ext_resource type="Script" path="res://ui/Hud.cs" id="1_hud"]
 [ext_resource type="Script" path="res://ui/TargetMarker.cs" id="2_marker"]
+[ext_resource type="Script" path="res://ui/SpeedAltitude.cs" id="3_speed"]
+[ext_resource type="Script" path="res://ui/WeaponDisplay.cs" id="4_weapons"]
 
 [node name="Hud" type="CanvasLayer"]
 script = ExtResource("1_hud")
@@ -9,3 +11,11 @@ script = ExtResource("1_hud")
 [node name="TargetMarker" type="Control" parent="."]
 mouse_filter = 2
 script = ExtResource("2_marker")
+
+[node name="SpeedAltitude" type="Control" parent="."]
+mouse_filter = 2
+script = ExtResource("3_speed")
+
+[node name="WeaponDisplay" type="Control" parent="."]
+mouse_filter = 2
+script = ExtResource("4_weapons")

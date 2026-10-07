@@ -6,6 +6,7 @@
 font_names = PackedStringArray("Consolas", "Courier New", "Monospace")
 
 [node name="DebugOverlay" type="CanvasLayer"]
+visible = false
 script = ExtResource("1_overlay")
 
 [node name="Label" type="Label" parent="."]

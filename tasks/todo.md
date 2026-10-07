@@ -148,9 +148,10 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
   - Done when two missiles are ready at a time, each reloads after a delay, and the count starts at 144 and runs down.
   - Verify: play. Files: `game/combat/MissileLauncher.cs`, `game/flight/jet.tscn`, `game/ui/DebugOverlay.cs`.
   - Not played yet: committed 2026-10-06 while the user was away from the PC. Play it there: fire a pair with Circle, watch both wingtip missiles go and come back 3 s later, and the overlay's Missiles count run down.
-- [ ] **2.9 HUD** · M · after 2.8
+- [x] **2.9 HUD** · M · after 2.8
   - Done when a green Ace Combat-style HUD shows speed, altitude, damage %, the selected weapon and its count.
-  - Verify: play. Files: `game/ui/hud.tscn`, `game/ui/Hud.cs`.
+  - Verify: play. Files: `game/ui/hud.tscn`, `game/ui/Hud.cs`, `game/ui/SpeedAltitude.cs`, `game/ui/WeaponDisplay.cs`, `game/ui/TargetMarker.cs`, `game/combat/MissileLauncher.cs`, `game/combat/Unit.cs`, `game/flight/Controls.cs`, `game/ui/DebugOverlay.cs`, `game/ui/debug_overlay.tscn`.
+  - Not played yet: committed 2026-10-07 while the user was away from the PC. Play it there: read the SPEED and ALT boxes while flying, fire with Circle and watch that wingtip's missile symbol refill over 3 s, press F3 for DMG 25%, and F4 to bring back the debug overlay.
 - [ ] **2.31 Stall warning** · XS · after 2.9, 1.13
   - Done when the HUD flashes STALL while the jet is below stall speed, as in Ace Combat.
   - Verify: play. Files: `game/ui/Hud.cs`.
@@ -192,6 +193,7 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
 - [ ] **2.30 Flares** · S · after 2.15, 2.9
   - Done when L3+R3 releases flares that can pull missiles tracking the Player off course, and the HUD shows how many flares are left.
   - Verify: play. Files: `game/combat/Flares.cs`, `game/combat/Missile.cs`, `game/ui/Hud.cs`.
+  - Note: the user's layout for the HUD's bottom-right block (`game/ui/WeaponDisplay.cs`, 2.9): a FLR row with the flares left, between the weapons and DMG, and little filled slots under the jet's silhouette that show each flare and refill as it recharges.
 
 **Checkpoint: 1v1.** The user dogfights one enemy jet and judges whether the AI is fun: neither helpless nor perfect.
 
@@ -201,6 +203,7 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
   - Done when Square cycles standard missile → Special Weapon 1 → Special Weapon 2, Special Weapons are defined in the base Pack, and the HUD shows the selected one and its count.
   - Verify: test (definitions load), play. Files: `core/WeaponType.cs`, `packs/base/weapons/`, `game/combat/WeaponSlots.cs`, `game/ui/Hud.cs`.
   - Note: Special Weapons reload at their own rates, so the reload time moves into the Weapon Type. It has been a 3 s constant in `MissileLauncher.cs` since 2.8.
+  - Note: in the HUD's bottom-right block (`game/ui/WeaponDisplay.cs`, 2.9), each Special Weapon gets a row with its count under MSL, and ">" moves to the selected weapon (the user's layout).
 - [ ] **2.18 Special: agile short-range missile** · S · after 2.17
   - Done when a missile with a much higher turn rate and shorter range works as a Special Weapon.
   - Verify: play. Files: `packs/base/weapons/agile-missile.json`, `game/combat/Missile.cs`.

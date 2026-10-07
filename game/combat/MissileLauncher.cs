@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using Godot;
 
@@ -18,6 +19,9 @@ public partial class MissileLauncher : Node3D
 
     /// <summary>Standard missiles left, including those loaded on the Hardpoints.</summary>
     public int Count { get; private set; }
+
+    /// <summary>The Hardpoints, each showing its missile while loaded.</summary>
+    public IReadOnlyList<Node3D> Hardpoints => _hardpoints;
 
     Jet _jet;
     Targeting _targeting;
@@ -47,8 +51,7 @@ public partial class MissileLauncher : Node3D
             if (_hardpoints[i].Visible)
                 continue;
             _reload[i] -= (float)delta;
-            // Loads only if the count has a missile for it besides those already loaded.
-            if (_reload[i] <= 0 && Count > _hardpoints.Count(hardpoint => hardpoint.Visible))
+            if (_reload[i] <= 0 && Count > Loaded)  // the count has a missile for it besides those already loaded
                 _hardpoints[i].Visible = true;
         }
 
@@ -67,6 +70,19 @@ public partial class MissileLauncher : Node3D
             return;
         }
     }
+
+    /// <summary>
+    /// How ready a Hardpoint is to fire, from 0 to 1: 1 while loaded, rising while it reloads, and 0
+    /// when the count has no missile left for it.
+    /// </summary>
+    public float Readiness(int hardpoint)
+    {
+        if (_hardpoints[hardpoint].Visible)
+            return 1;
+        return Count > Loaded ? Mathf.Clamp(1 - _reload[hardpoint] / ReloadTime, 0, 1) : 0;
+    }
+
+    int Loaded => _hardpoints.Count(hardpoint => hardpoint.Visible);
 
     void Rearm()
     {

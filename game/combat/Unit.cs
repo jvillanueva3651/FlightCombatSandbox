@@ -22,6 +22,9 @@ public partial class Unit : Node3D
     /// <summary>Damage the Unit can still take before it's destroyed.</summary>
     public int Health { get; protected set; }
 
+    /// <summary>The health it starts with: its Unit Type's.</summary>
+    public int MaxHealth => UnitType.Health;
+
     protected UnitType UnitType => Packs.Base.UnitTypes[UnitTypeId];
 
     /// <summary>
