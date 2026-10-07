@@ -9,6 +9,9 @@ public partial class Hud : CanvasLayer
     /// <summary>Ace Combat's HUD green.</summary>
     public static readonly Color Green = new(0.35f, 1, 0.45f);
 
+    /// <summary>The HUD's red, for a lock and for hostile Units.</summary>
+    public static readonly Color Red = new(1, 0.25f, 0.2f);
+
     /// <summary>The Player's jet.</summary>
     [Export] public Jet Jet { get; set; }
 

@@ -9,7 +9,6 @@ using Godot;
 /// </summary>
 public partial class TargetMarker : Control
 {
-    static readonly Color Red = new(1, 0.25f, 0.2f);
     const float BoxSize = 40;  // pixels
     const int FontSize = 16;
 
@@ -57,7 +56,7 @@ public partial class TargetMarker : Control
     // Drawn around the marker's position, which is the Target's spot on screen.
     public override void _Draw()
     {
-        var color = _targeting.Locked ? Red : Hud.Green;
+        var color = _targeting.Locked ? Hud.Red : Hud.Green;
         DrawRect(new Rect2(-Vector2.One * BoxSize / 2, Vector2.One * BoxSize), color, filled: false, width: 2);
         Hud.DrawText(this, new Vector2(-BoxSize / 2, BoxSize / 2 + FontSize + 2), $"{_distance:0} m", color, FontSize);
     }

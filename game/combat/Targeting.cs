@@ -23,8 +23,8 @@ public partial class Targeting : Node
     /// <summary>True while the Target is locked on.</summary>
     public bool Locked { get; private set; }
 
-    // The seeker locking on: the standard missile's, until task 2.17 makes it the selected weapon's.
-    static WeaponType Seeker => Packs.Base.WeaponTypes[MissileLauncher.WeaponTypeId];
+    /// <summary>The seeker locking on: the standard missile's, until task 2.17 makes it the selected weapon's.</summary>
+    public static WeaponType Seeker => Packs.Base.WeaponTypes[MissileLauncher.WeaponTypeId];
 
     public override void _Ready() => _jet = GetParent<Jet>();
 

@@ -156,9 +156,10 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
   - Done when the HUD shows STALL in its green while the jet is below stall speed (steady, the user's pick over flashing), and a voice says "Stall warning" when a stall starts and every 3 s while it lasts, as in Ace Combat. The voice is Windows' Zira, through Godot's text-to-speech, until 6.26 brings recordings.
   - Verify: play. Files: `game/ui/StallWarning.cs`, `game/ui/hud.tscn`, `game/project.godot`.
   - Not played yet: committed 2026-10-07 while the user was away from the PC. Play it there: hold L2 to brake below 300 km/h, check that STALL shows and Zira says "Stall warning" every 3 s, and that throttling out of the stall clears both.
-- [ ] **2.10 Radar minimap** · M · after 2.5
+- [x] **2.10 Radar minimap** · M · after 2.5
   - Done when a heading-up radar shows hostile Units in red and allied Units in blue around the Player.
-  - Verify: play. Files: `game/ui/Radar.cs`, `game/ui/hud.tscn`.
+  - Verify: play. Files: `game/ui/Radar.cs`, `game/ui/hud.tscn`, `game/ui/Hud.cs`, `game/ui/TargetMarker.cs`, `game/combat/Targeting.cs`.
+  - Not played yet: committed 2026-10-07 while the user was away from the PC. Play it there: turn and watch the dummies swing around the radar, check the boxed one is the Target, and that a Target inside the two lines and the ring locks.
 
 - [ ] **2.27 Look at the Target** · S · after 2.5, 1.17
   - Done when holding Triangle turns the camera to keep the current Target on screen and releasing it brings back the chase camera, while a tap still switches Targets.
