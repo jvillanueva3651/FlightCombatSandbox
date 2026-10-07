@@ -119,6 +119,8 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
 
 **Checkpoint: Step 1 done.** The user flies the test terrain and says the jet feels right.
 
+- Signed off 2026-10-06: the user flew the test terrain, tried the tuning panel's new tab and buttons, and said everything looks good. No values changed.
+
 ## Step 2: Fight
 
 - [ ] **2.1 Unit Types gain health, points and Role** · S · after 1.5
