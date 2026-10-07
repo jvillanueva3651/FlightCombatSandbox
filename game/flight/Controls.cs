@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Godot;
 
 /// <summary>
@@ -20,6 +21,8 @@ public partial class Controls : Node
 
     // L3 on its own does nothing; it only counts as half of the flare chord.
     static readonly StringName LeftStickClick = "left_stick_click";
+
+    static readonly List<StringName> Bound = new();  // every action bound here, all with the Feel Settings' dead zone
 
     public override void _EnterTree()
     {
@@ -59,12 +62,20 @@ public partial class Controls : Node
     public static bool IsFlarePressed() =>
         Input.IsActionPressed(Flare) || (Input.IsActionPressed(LeftStickClick) && Input.IsActionPressed(ChangeView));
 
+    /// <summary>Changes the stick and trigger dead zone of every action, which binding set from the Feel Settings at startup.</summary>
+    public static void SetDeadZone(float deadZone)
+    {
+        foreach (var action in Bound)
+            InputMap.ActionSetDeadzone(action, deadZone);
+    }
+
     // Stick and trigger travel inside the Feel Settings' dead zone is ignored.
     static void Bind(StringName action, params InputEvent[] events)
     {
         InputMap.AddAction(action, Packs.Base.Feel.DeadZone);
         foreach (var e in events)
             InputMap.ActionAddEvent(action, e);
+        Bound.Add(action);
     }
 
     // Device -1 matches every keyboard and controller.

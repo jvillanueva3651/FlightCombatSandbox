@@ -26,7 +26,16 @@ offset_bottom = 16.0
 grow_horizontal = 0
 theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
 
-[node name="Rows" type="GridContainer" parent="Panel"]
+[node name="Tabs" type="TabContainer" parent="Panel"]
+tab_focus_mode = 0
+
+[node name="Handling" type="GridContainer" parent="Panel/Tabs"]
+theme_override_constants/h_separation = 12
+theme_override_constants/v_separation = 2
+columns = 3
+
+[node name="Feel Settings" type="GridContainer" parent="Panel/Tabs"]
+visible = false
 theme_override_constants/h_separation = 12
 theme_override_constants/v_separation = 2
 columns = 3

@@ -110,7 +110,7 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
 - [x] **1.23 Tuning panel: Handling** · M · after 1.14
   - Done when a key toggles an in-game panel with a slider for every Handling value, built from the type's properties, and changes apply mid-flight.
   - Verify: play. Files: `game/ui/tuning_panel.tscn`, `game/ui/TuningPanel.cs`.
-- [ ] **1.24 Tuning panel: Feel Settings** · S · after 1.23, 1.18
+- [x] **1.24 Tuning panel: Feel Settings** · S · after 1.23, 1.18
   - Done when the panel also shows every feel setting and multiplier.
   - Verify: play. Files: `game/ui/TuningPanel.cs`.
 - [ ] **1.25 Tuning panel: save and reset** · S · after 1.24
