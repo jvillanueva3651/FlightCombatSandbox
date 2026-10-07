@@ -102,6 +102,10 @@ _Avoid_: Weapon class, Weapon stats, Loadout
 An extra weapon type a Player picks for a Mission, on top of standard missiles and the gun. Each aircraft offers several; the Ruleset says how many the Player takes.
 _Avoid_: Secondary weapon, SP weapon
 
+**Hardpoint**:
+A place on an aircraft where a weapon hangs, ready to fire. After firing, it loads the next one a few seconds later, while any are left.
+_Avoid_: Pylon, Rail, Station
+
 **Ruleset**:
 The Author's rules for how a Mission is flown: which aircraft the Player may choose (or one enforced jet), the missile count, whether the gun is available, and how many Special Weapons the Player takes. Defaults: any fighter, multirole or attacker; 144 missiles; gun; 2 Special Weapons.
 _Avoid_: Game mode, Loadout rules

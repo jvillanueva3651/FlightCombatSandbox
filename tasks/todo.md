@@ -144,9 +144,10 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
 - [x] **2.7 Standard missile** · M · after 2.6
   - Done when Circle fires a missile that homes on a locked Target with a limited turn rate (so tight turns can dodge it), explodes by proximity and deals damage, and flies straight without a lock. Its stats come from the base Pack.
   - Verify: test (weapon stats load), play. Files: `core/WeaponType.cs`, `core/Pack.cs`, `core/PackLoader.cs`, `packs/base/weapons/standard-missile.json`, `game/combat/Missile.cs`, `game/combat/missile.tscn`, `game/combat/MissileLauncher.cs`, `game/combat/Targeting.cs`, `game/combat/Unit.cs`, `game/content/Packs.cs`, `game/flight/jet.tscn`.
-- [ ] **2.8 Missile pylons and count** · S · after 2.7
+- [x] **2.8 Missile Hardpoints and count** · S · after 2.7
   - Done when two missiles are ready at a time, each reloads after a delay, and the count starts at 144 and runs down.
-  - Verify: play. Files: `game/combat/MissileLauncher.cs`.
+  - Verify: play. Files: `game/combat/MissileLauncher.cs`, `game/flight/jet.tscn`, `game/ui/DebugOverlay.cs`.
+  - Not played yet: committed 2026-10-06 while the user was away from the PC. Play it there: fire a pair with Circle, watch both wingtip missiles go and come back 3 s later, and the overlay's Missiles count run down.
 - [ ] **2.9 HUD** · M · after 2.8
   - Done when a green Ace Combat-style HUD shows speed, altitude, damage %, the selected weapon and its count.
   - Verify: play. Files: `game/ui/hud.tscn`, `game/ui/Hud.cs`.
@@ -199,6 +200,7 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
 - [ ] **2.17 Special Weapon slots** · M · after 2.8, 2.9
   - Done when Square cycles standard missile → Special Weapon 1 → Special Weapon 2, Special Weapons are defined in the base Pack, and the HUD shows the selected one and its count.
   - Verify: test (definitions load), play. Files: `core/WeaponType.cs`, `packs/base/weapons/`, `game/combat/WeaponSlots.cs`, `game/ui/Hud.cs`.
+  - Note: Special Weapons reload at their own rates, so the reload time moves into the Weapon Type. It has been a 3 s constant in `MissileLauncher.cs` since 2.8.
 - [ ] **2.18 Special: agile short-range missile** · S · after 2.17
   - Done when a missile with a much higher turn rate and shorter range works as a Special Weapon.
   - Verify: play. Files: `packs/base/weapons/agile-missile.json`, `game/combat/Missile.cs`.
@@ -411,6 +413,7 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
   - Done when the user can list, enable, disable and reorder Packs.
 - [ ] **5.4 glTF models from Packs** · M · after 5.1
   - Done when a Unit Type with a model shows it, loaded at runtime, instead of a gray box.
+  - Note: the gray-box jet's Hardpoints are nodes on its wingtips in `jet.tscn` (2.8, for now). With models, each Unit Type places its own Hardpoints where its model carries missiles (the user's plan).
 - [ ] **5.5 Images and sounds from Packs** · S · after 5.1
   - Done when Unit Types and weapons use images and sounds from their Pack.
 - [ ] **5.6 Catalog interfaces** · M · after 5.1
