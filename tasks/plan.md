@@ -44,7 +44,7 @@ Sizes are rough guesses at 10-20 hours a week; re-estimate after Milestone 1.
    **Milestone 2: the sandbox loop works.**
 
 5. **Packs** (5.x): extra Packs and Pack code. *Done when a second Pack adds a jet and a Trait without changing the game.* (~2-4 weeks)
-6. **Depth** (6.x): the real-terrain Map, all base Unit Types, the Commands menu, weather, music, Checkpoints, low-poly models and a cockpit view. Ongoing.
+6. **Depth** (6.x): the real-terrain Map, all base Unit Types, the Commands menu, weather, music, real sounds, Checkpoints, low-poly models and a cockpit view. Ongoing.
 
 ## Risks and mitigations
 

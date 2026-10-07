@@ -471,3 +471,5 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
   - Done when the base Unit Types use free CC0 or CC-BY models, credited in `packs/base/CREDITS.md`.
 - [ ] **6.25 Cockpit view** · M · after 6.24, 1.28
   - Done when R3's views include a cockpit view with a simple cockpit model.
+- [ ] **6.26 Real sounds** · M · after 5.5, 2.24, 6.22
+  - Done when the generated engine and wind sounds and the placeholder combat sounds are replaced with free CC0 or CC-BY recordings, credited in `packs/base/CREDITS.md`, with their volumes balanced against each other and the music.
