@@ -6,7 +6,8 @@ using Godot;
 /// and climbs bleed it, dives build it, and the stick (through the Feel Settings' response curve) and
 /// L1/R1 turn it at the Handling rates, strongest at corner speed and easing in and out over its
 /// response time. Below stall speed the nose falls toward the ground. Squeezing R2 and L2 together
-/// while pulling makes a high-G turn: tighter, and much costlier in speed.
+/// while pulling makes a high-G turn: tighter, and much costlier in speed. Hitting the ground crashes
+/// it, and after a short pause it starts again where it first started.
 /// </summary>
 public partial class Jet : Node3D
 {
@@ -28,7 +29,18 @@ public partial class Jet : Node3D
     /// <summary>How hard a high-G turn is pulling, from 0 to 1: the trigger squeeze times the pull squared, like its speed loss.</summary>
     public float HighG => _squeeze * _pitch * _pitch;
 
+    /// <summary>True from hitting the ground until the jet starts again.</summary>
+    public bool Crashed { get; private set; }
+
+    const float RespawnDelay = 2;  // seconds from a crash to starting again
+
+    // The ball swept along each frame's move to find the ground: about the jet's size, and swept rather
+    // than checked where the move ends, so a fast frame can't skip through the ground.
+    readonly SphereShape3D _crashBall = new() { Radius = 4 };
+
     Handling _handling;
+    Transform3D _start;
+    float _sinceCrash;
 
     // How much of each full turn rate the jet uses, from -1 to 1; follows the stick over the response time.
     float _pitch, _roll, _yaw;
@@ -41,11 +53,20 @@ public partial class Jet : Node3D
         _handling = Packs.Base.UnitTypes[UnitTypeId].Handling;
         Handling = Packs.Base.Feel.Apply(_handling);
         Speed = Handling.CruiseSpeed;
+        _start = Transform;
     }
 
     public override void _Process(double delta)
     {
         var dt = (float)delta;
+        if (Crashed)
+        {
+            _sinceCrash += dt;
+            if (_sinceCrash >= RespawnDelay)
+                Respawn();
+            return;
+        }
+
         Handling = Packs.Base.Feel.Apply(_handling);  // with the Feel Settings' multipliers on top
         _pitch = Handling.NextTurn(_pitch, Stick(Controls.PitchDown, Controls.PitchUp), dt);  // + = nose up
         _roll = Handling.NextTurn(_roll, Stick(Controls.RollLeft, Controls.RollRight), dt);    // + = right wing down
@@ -71,11 +92,29 @@ public partial class Jet : Node3D
             GlobalRotate(nose.Cross(Vector3.Down).Normalized(), drop);
         Transform = Transform.Orthonormalized(); // stops rounding errors slowly skewing the jet
 
+        // Move forward, as far as the ground allows; touching it is a crash.
         var metersPerSecond = Speed / 3.6f;
-        Translate(Vector3.Forward * metersPerSecond * dt);
+        var move = GlobalBasis * Vector3.Forward * metersPerSecond * dt;
+        var free = GetWorld3D().DirectSpaceState.CastMotion(new PhysicsShapeQueryParameters3D { Shape = _crashBall, Transform = GlobalTransform, Motion = move })[0];
+        GlobalPosition += move * free;
+        if (free < 1)
+        {
+            Crashed = true;
+            _sinceCrash = 0;
+            Speed = 0;
+            return;
+        }
 
         // Pitching bends the flight path toward the jet's top side; gravity adds its share along that axis.
         GLoad = metersPerSecond * pitchRate / 9.81f + GlobalTransform.Basis.Y.Y;
+    }
+
+    void Respawn()
+    {
+        Crashed = false;
+        Transform = _start;
+        Speed = Handling.CruiseSpeed;
+        _pitch = _roll = _yaw = _squeeze = 0;
     }
 
     // An axis's position after the Feel Settings' response curve.

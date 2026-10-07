@@ -104,7 +104,7 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
 - [x] **1.21 Generated test terrain** · M · after 1.6
   - Done when the flat ground is replaced by generated terrain about 16 km square, with hills and a winding canyon, and with collision.
   - Verify: godot, play. Files: `game/world/TestTerrain.cs`, `game/world/test_flight.tscn`.
-- [ ] **1.22 Crash and respawn** · S · after 1.21
+- [x] **1.22 Crash and respawn** · S · after 1.21
   - Done when hitting the terrain resets the jet to its start after a short pause. Step 2 turns this into being shot down.
   - Verify: play. Files: `game/flight/Jet.cs`.
 - [x] **1.23 Tuning panel: Handling** · M · after 1.14

@@ -39,6 +39,9 @@ public partial class JetSound : Node
         var wind = Mathf.Clamp(_jet.Speed / _jet.Handling.TopSpeed, 0, 1);
         _wind.PitchScale = 0.5f + wind;
         _wind.VolumeDb = Mathf.LinearToDb(WindLevel * wind);
+
+        // A crash silences the jet until it starts again.
+        _engine.StreamPaused = _wind.StreamPaused = _jet.Crashed;
     }
 
     AudioStreamPlayer Play(AudioStream stream)
