@@ -18,6 +18,9 @@ public partial class ChaseCamera : Camera3D
     // short of straight up or down, where the view would spin.
     const float MaxLookSideways = 180, MaxLookUpDown = 85;
 
+    // km/h at and below which there are no wind streaks.
+    const float StreakStartSpeed = 800;
+
     Transform3D _offset;  // the camera relative to the jet, as placed in the scene
     Transform3D _nose;    // the nose view relative to the jet: the jet's NoseView marker
     bool _noseView;       // looking from the nose instead of chasing the jet
@@ -71,11 +74,12 @@ public partial class ChaseCamera : Camera3D
             : new Transform3D(_turn, Jet.GlobalPosition) * look * _offset;
         Fov = _fov + feel.ExtraFieldOfView(Jet.Handling, Jet.Speed);
 
-        // The wind streaks stream back along the jet's flight path at its speed: more of them the faster
-        // it flies, all of them at top speed.
+        // The wind streaks stream back along the jet's flight path at its speed: none up to their start
+        // speed, then more of them the faster it flies, all of them at top speed.
         _streaks.GlobalTransform = new Transform3D(Jet.GlobalBasis, GlobalPosition);
         _streaks.SpeedScale = Jet.Speed / 3.6f / _streakSpeed;
-        _streaks.AmountRatio = Mathf.Min(Jet.Speed / Jet.Handling.TopSpeed, 1);
+        var streaks = (Jet.Speed - StreakStartSpeed) / (Jet.Handling.TopSpeed - StreakStartSpeed);
+        _streaks.AmountRatio = Jet.Speed > StreakStartSpeed ? Mathf.Clamp(streaks, 0, 1) : 0;  // none even if top speed is below the start
 
         // The shake turns the view up to its amount up and down and side to side, on top of the follow,
         // which is set afresh every frame, so it never builds up.
