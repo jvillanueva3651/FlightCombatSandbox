@@ -5,6 +5,7 @@
 [ext_resource type="PackedScene" path="res://ui/pause_menu.tscn" id="3_pause"]
 [ext_resource type="PackedScene" path="res://ui/tuning_panel.tscn" id="4_tuning"]
 [ext_resource type="Script" path="res://flight/ChaseCamera.cs" id="5_chase"]
+[ext_resource type="PackedScene" path="res://flight/wind_streaks.tscn" id="6_streaks"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_sky"]
 ground_bottom_color = Color(0.6463, 0.6558, 0.6708, 1)
@@ -67,6 +68,8 @@ transform = Transform3D(1, 0, 0, 0, 0.997564, 0.069756, 0, -0.069756, 0.997564, 
 far = 50000.0
 script = ExtResource("5_chase")
 Jet = NodePath("../Jet")
+
+[node name="WindStreaks" parent="Camera" instance=ExtResource("6_streaks")]
 
 [node name="DebugOverlay" parent="." node_paths=PackedStringArray("Jet") instance=ExtResource("2_overlay")]
 Jet = NodePath("../Jet")

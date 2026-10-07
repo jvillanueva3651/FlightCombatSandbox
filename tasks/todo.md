@@ -95,7 +95,7 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
 - [x] **1.28 Change view** · S · after 1.17
   - Done when R3 switches between the chase camera and a view from the jet's nose with the jet hidden, and L3+R3 for flares never switches the view, whichever stick is clicked first. A cockpit view comes with models in 6.25.
   - Verify: play. Files: `game/flight/ChaseCamera.cs`, `game/flight/jet.tscn`.
-- [ ] **1.19 Speed cues** · S · after 1.6
+- [x] **1.19 Speed cues** · S · after 1.6
   - Done when faint wind streaks around the camera grow with speed, so speed reads even high above the ground.
   - Verify: play. Files: `game/flight/wind_streaks.tscn`, `game/flight/ChaseCamera.cs`.
 - [ ] **1.20 Engine and wind sound** · S · after 1.8

@@ -6,7 +6,8 @@ using Godot;
 /// distance away. Where the camera sits relative to the jet in the scene sets how far behind and above
 /// it flies. The view widens with speed and shakes in high-G turns and stalls, by the Feel Settings'
 /// amounts, and the right stick swings the camera around the jet. R3 switches to a view from the jet's
-/// nose, fixed to the jet with the jet hidden, and back.
+/// nose, fixed to the jet with the jet hidden, and back. Wind streaks rush past the camera at the jet's
+/// speed, so speed reads even high above the ground.
 /// </summary>
 public partial class ChaseCamera : Camera3D
 {
@@ -25,6 +26,8 @@ public partial class ChaseCamera : Camera3D
     Vector2 _look;        // degrees the right stick has swung the view: to the left (X) and up (Y)
     float _fov;           // the field of view set in the scene, kept at cruise speed
     float _time;
+    GpuParticles3D _streaks;
+    float _streakSpeed;   // m/s the streaks fly at a speed scale of 1, as set in their scene
 
     // Smooth randomness for the shake, changing about 15 times a second.
     readonly FastNoiseLite _noise = new() { Frequency = 15, FractalType = FastNoiseLite.FractalTypeEnum.None };
@@ -35,6 +38,8 @@ public partial class ChaseCamera : Camera3D
         _nose = Jet.GetNode<Node3D>("NoseView").Transform;
         _turn = Jet.GlobalBasis;
         _fov = Fov;
+        _streaks = GetNode<GpuParticles3D>("WindStreaks");
+        _streakSpeed = ((ParticleProcessMaterial)_streaks.ProcessMaterial).InitialVelocityMin;
     }
 
     // Runs after the jet's own _Process, since the camera comes after the jet in the scene.
@@ -65,6 +70,12 @@ public partial class ChaseCamera : Camera3D
             ? Jet.GlobalTransform * _nose * look
             : new Transform3D(_turn, Jet.GlobalPosition) * look * _offset;
         Fov = _fov + feel.ExtraFieldOfView(Jet.Handling, Jet.Speed);
+
+        // The wind streaks stream back along the jet's flight path at its speed: more of them the faster
+        // it flies, all of them at top speed.
+        _streaks.GlobalTransform = new Transform3D(Jet.GlobalBasis, GlobalPosition);
+        _streaks.SpeedScale = Jet.Speed / 3.6f / _streakSpeed;
+        _streaks.AmountRatio = Mathf.Min(Jet.Speed / Jet.Handling.TopSpeed, 1);
 
         // The shake turns the view up to its amount up and down and side to side, on top of the follow,
         // which is set afresh every frame, so it never builds up.
