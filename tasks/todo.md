@@ -138,12 +138,13 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
 - [x] **2.5 Targeting** · M · after 2.2
   - Done when the nearest hostile Unit in front becomes the current Target (hostile means another Team until Alliances arrive in 3.4), Triangle cycles Targets, and a HUD box marks the Target with its distance.
   - Verify: play. Files: `game/combat/Targeting.cs`, `game/ui/hud.tscn`, `game/ui/Hud.cs`, `game/ui/TargetMarker.cs`, `game/combat/Unit.cs`, `game/ui/DebugOverlay.cs`, `game/flight/jet.tscn`, `game/world/test_flight.tscn`.
-- [ ] **2.6 Lock-on** · S · after 2.5
+- [x] **2.6 Lock-on** · S · after 2.5
   - Done when a Target inside the seeker cone and range locks after a short delay, its marker turns red, and a lock tone plays.
   - Verify: play. Files: `game/combat/Targeting.cs`, `game/ui/TargetMarker.cs`.
 - [ ] **2.7 Standard missile** · M · after 2.6
   - Done when Circle fires a missile that homes on a locked Target with a limited turn rate (so tight turns can dodge it), explodes by proximity and deals damage, and flies straight without a lock. Its stats come from the base Pack.
   - Verify: test (weapon stats load), play. Files: `core/WeaponType.cs`, `packs/base/weapons/standard-missile.json`, `game/combat/Missile.cs`, `game/combat/missile.tscn`.
+  - Note: the lock range, seeker cone and lock time from 2.6 move from constants in `Targeting.cs` into the standard missile's stats.
 - [ ] **2.8 Missile pylons and count** · S · after 2.7
   - Done when two missiles are ready at a time, each reloads after a delay, and the count starts at 144 and runs down.
   - Verify: play. Files: `game/combat/MissileLauncher.cs`.
