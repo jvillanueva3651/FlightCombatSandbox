@@ -129,12 +129,13 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
 - [x] **2.2 Health and destruction** · S · after 2.1
   - Done when placed Units have a Team and health; at zero health they explode (placeholder flash and debris) and disappear; a gray-box dummy on Team 2 sits in the test scene, and a debug key damages it.
   - Verify: play. Files: `game/combat/Unit.cs`, `game/combat/explosion.tscn`, `game/combat/Explosion.cs`, `game/world/test_flight.tscn`.
-- [ ] **2.3 Gun** · S · after 2.2
+- [x] **2.3 Gun** · S · after 2.2
   - Done when holding Cross fires tracer rounds that damage the Units they hit, and the dummy can be shot down.
   - Verify: play. Files: `game/combat/Gun.cs`, `game/flight/jet.tscn`.
 - [ ] **2.4 Player damage and being shot down** · S · after 2.2, 1.22
   - Done when the Player's jet has health and, at zero or on hitting terrain, is shot down: explosion, then respawn after a pause.
   - Verify: play. Files: `game/flight/Jet.cs`, `game/combat/Unit.cs`.
+  - Note: once the jet has a hit box, gun rounds must skip the shooter's own hit box and Team (the spec has no friendly fire).
 - [ ] **2.5 Targeting** · M · after 2.2
   - Done when the nearest hostile Unit in front becomes the current Target (hostile means another Team until Alliances arrive in 3.4), Triangle cycles Targets, and a HUD box marks the Target with its distance.
   - Verify: play. Files: `game/combat/Targeting.cs`, `game/ui/hud.tscn`, `game/ui/TargetMarker.cs`.

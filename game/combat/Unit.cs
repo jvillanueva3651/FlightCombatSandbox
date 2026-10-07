@@ -3,7 +3,8 @@ using Godot;
 
 /// <summary>
 /// A Unit placed in the scene. It belongs to a Team and starts with its Unit Type's health; when
-/// damage takes that to zero it explodes and disappears.
+/// damage takes that to zero it explodes and disappears. Its hit box, the Area3D that gun rounds
+/// hit, is its direct child.
 /// </summary>
 public partial class Unit : Node3D
 {

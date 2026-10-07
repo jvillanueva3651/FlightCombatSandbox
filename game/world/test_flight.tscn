@@ -56,6 +56,9 @@ size = Vector3(100000, 10, 100000)
 [sub_resource type="BoxMesh" id="BoxMesh_dummy"]
 size = Vector3(10, 3, 15)
 
+[sub_resource type="BoxShape3D" id="BoxShape3D_dummy"]
+size = Vector3(10, 3, 15)
+
 [node name="TestFlight" type="Node3D"]
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
@@ -89,6 +92,11 @@ Team = 2
 
 [node name="Box" type="MeshInstance3D" parent="Dummy"]
 mesh = SubResource("BoxMesh_dummy")
+
+[node name="HitBox" type="Area3D" parent="Dummy"]
+
+[node name="Shape" type="CollisionShape3D" parent="Dummy/HitBox"]
+shape = SubResource("BoxShape3D_dummy")
 
 [node name="Camera" type="Camera3D" parent="." node_paths=PackedStringArray("Jet")]
 transform = Transform3D(1, 0, 0, 0, 0.997564, 0.069756, 0, -0.069756, 0.997564, 0, 1004, 20)

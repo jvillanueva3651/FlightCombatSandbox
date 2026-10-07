@@ -2,7 +2,8 @@ using Godot;
 
 /// <summary>
 /// Shows the jet's flight numbers, the dummy's health and what every control is doing right now,
-/// from the DualSense and the keyboard. F2 damages the dummy.
+/// from the DualSense and the keyboard. F2 damages the dummy, and a destroyed dummy comes back,
+/// as it was at the start, a few seconds later.
 /// </summary>
 public partial class DebugOverlay : CanvasLayer
 {
@@ -12,11 +13,22 @@ public partial class DebugOverlay : CanvasLayer
     /// <summary>The test target that F2 damages.</summary>
     [Export] public Unit Dummy { get; set; }
 
-    const int DebugDamage = 25;  // damage per press of F2
+    const int DebugDamage = 25;          // damage per press of F2
+    const float DummyRespawnDelay = 5;   // seconds from the dummy's destruction to a fresh one
 
     Label _label;
+    Unit _freshDummy;  // a copy of the dummy as the scene placed it, kept out of the scene
+    Node _dummyParent;
+    float _sinceDummyDestroyed;
 
-    public override void _Ready() => _label = GetNode<Label>("Label");
+    public override void _Ready()
+    {
+        _label = GetNode<Label>("Label");
+        _freshDummy = (Unit)Dummy.Duplicate();
+        _dummyParent = Dummy.GetParent();
+    }
+
+    public override void _ExitTree() => _freshDummy.Free();  // never in the scene, so nothing else frees it
 
     public override void _UnhandledInput(InputEvent e)
     {
@@ -26,6 +38,17 @@ public partial class DebugOverlay : CanvasLayer
 
     public override void _Process(double delta)
     {
+        if (!IsInstanceValid(Dummy))
+        {
+            _sinceDummyDestroyed += (float)delta;
+            if (_sinceDummyDestroyed >= DummyRespawnDelay)
+            {
+                _sinceDummyDestroyed = 0;
+                Dummy = (Unit)_freshDummy.Duplicate();
+                _dummyParent.AddChild(Dummy);
+            }
+        }
+
         var dummyHealth = IsInstanceValid(Dummy) ? $"{Dummy.Health,5}" : "destroyed";
         _label.Text = $"""
             Speed          {Jet.Speed,5:0} km/h
