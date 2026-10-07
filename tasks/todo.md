@@ -113,7 +113,7 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
 - [x] **1.24 Tuning panel: Feel Settings** · S · after 1.23, 1.18
   - Done when the panel also shows every feel setting and multiplier.
   - Verify: play. Files: `game/ui/TuningPanel.cs`.
-- [ ] **1.25 Tuning panel: save and reset** · S · after 1.24
+- [x] **1.25 Tuning panel: save and reset** · S · after 1.24
   - Done when Save writes the current values back to the jet's file and `feel.json` in the same JSON shape, and Reset reloads them from disk.
   - Verify: test (save and reload round-trip), play. Files: `core/PackLoader.cs`, `core.tests/HandlingTests.cs`, `game/ui/TuningPanel.cs`.
 

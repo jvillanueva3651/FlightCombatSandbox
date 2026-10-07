@@ -26,16 +26,31 @@ offset_bottom = 16.0
 grow_horizontal = 0
 theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
 
-[node name="Tabs" type="TabContainer" parent="Panel"]
+[node name="Box" type="VBoxContainer" parent="Panel"]
+
+[node name="Tabs" type="TabContainer" parent="Panel/Box"]
 tab_focus_mode = 0
 
-[node name="Handling" type="GridContainer" parent="Panel/Tabs"]
+[node name="Handling" type="GridContainer" parent="Panel/Box/Tabs"]
 theme_override_constants/h_separation = 12
 theme_override_constants/v_separation = 2
 columns = 3
 
-[node name="Feel Settings" type="GridContainer" parent="Panel/Tabs"]
+[node name="Feel Settings" type="GridContainer" parent="Panel/Box/Tabs"]
 visible = false
 theme_override_constants/h_separation = 12
 theme_override_constants/v_separation = 2
 columns = 3
+
+[node name="Buttons" type="HBoxContainer" parent="Panel/Box"]
+
+[node name="Save" type="Button" parent="Panel/Box/Buttons"]
+focus_mode = 0
+text = "Save"
+
+[node name="Reset" type="Button" parent="Panel/Box/Buttons"]
+focus_mode = 0
+text = "Reset"
+
+[node name="Status" type="Label" parent="Panel/Box"]
+autowrap_mode = 3

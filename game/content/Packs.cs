@@ -20,8 +20,10 @@ public partial class Packs : Node
             GD.Print($"Pack '{Base.Id}' {Base.Version}: {id} {unitType.Handling}");
     }
 
-    // The base Pack sits beside game/ when run from the editor, and beside the .exe in exported builds.
-    static string BaseFolder()
+    /// <summary>
+    /// The base Pack's folder: beside game/ when run from the editor, and beside the .exe in exported builds.
+    /// </summary>
+    public static string BaseFolder()
     {
         var root = OS.HasFeature("editor")
             ? Path.Combine(ProjectSettings.GlobalizePath("res://"), "..")
