@@ -12,6 +12,9 @@ public sealed class Pack
     /// <summary>Unit Types by id, which is the file name in the Pack's unit-types folder.</summary>
     [JsonIgnore] public Dictionary<string, UnitType> UnitTypes { get; } = new();
 
+    /// <summary>Weapon Types by id, which is the file name in the Pack's weapons folder.</summary>
+    [JsonIgnore] public Dictionary<string, WeaponType> WeaponTypes { get; } = new();
+
     /// <summary>Feel Settings shared by every aircraft, from the Pack's feel.json; set by PackLoader.</summary>
     [JsonIgnore] public FeelSettings Feel { get; internal set; } = null!;
 }

@@ -4,8 +4,8 @@ using System.Text.Json.Serialization;
 namespace Core;
 
 /// <summary>
-/// Reads a Pack folder: pack.json, feel.json, and one file per Unit Type in unit-types/. Saves the
-/// Feel Settings and Unit Types back the same way.
+/// Reads a Pack folder: pack.json, feel.json, one file per Unit Type in unit-types/ and one per
+/// Weapon Type in weapons/. Saves the Feel Settings and Unit Types back the same way.
 /// </summary>
 public static class PackLoader
 {
@@ -25,6 +25,8 @@ public static class PackLoader
         pack.Feel = Read<FeelSettings>(File.ReadAllText(Path.Combine(folder, "feel.json")));
         foreach (var file in Directory.EnumerateFiles(Path.Combine(folder, "unit-types"), "*.json"))
             pack.UnitTypes[Path.GetFileNameWithoutExtension(file)] = Read<UnitType>(File.ReadAllText(file));
+        foreach (var file in Directory.EnumerateFiles(Path.Combine(folder, "weapons"), "*.json"))
+            pack.WeaponTypes[Path.GetFileNameWithoutExtension(file)] = Read<WeaponType>(File.ReadAllText(file));
         return pack;
     }
 

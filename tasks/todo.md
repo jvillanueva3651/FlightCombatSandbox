@@ -141,10 +141,9 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
 - [x] **2.6 Lock-on** · S · after 2.5
   - Done when a Target inside the seeker cone and range locks after a short delay, its marker turns red, and a lock tone plays.
   - Verify: play. Files: `game/combat/Targeting.cs`, `game/ui/TargetMarker.cs`.
-- [ ] **2.7 Standard missile** · M · after 2.6
+- [x] **2.7 Standard missile** · M · after 2.6
   - Done when Circle fires a missile that homes on a locked Target with a limited turn rate (so tight turns can dodge it), explodes by proximity and deals damage, and flies straight without a lock. Its stats come from the base Pack.
-  - Verify: test (weapon stats load), play. Files: `core/WeaponType.cs`, `packs/base/weapons/standard-missile.json`, `game/combat/Missile.cs`, `game/combat/missile.tscn`.
-  - Note: the lock range, seeker cone and lock time from 2.6 move from constants in `Targeting.cs` into the standard missile's stats.
+  - Verify: test (weapon stats load), play. Files: `core/WeaponType.cs`, `core/Pack.cs`, `core/PackLoader.cs`, `packs/base/weapons/standard-missile.json`, `game/combat/Missile.cs`, `game/combat/missile.tscn`, `game/combat/MissileLauncher.cs`, `game/combat/Targeting.cs`, `game/combat/Unit.cs`, `game/content/Packs.cs`, `game/flight/jet.tscn`.
 - [ ] **2.8 Missile pylons and count** · S · after 2.7
   - Done when two missiles are ready at a time, each reloads after a delay, and the count starts at 144 and runs down.
   - Verify: play. Files: `game/combat/MissileLauncher.cs`.
@@ -194,6 +193,8 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
   - Verify: play. Files: `game/combat/Flares.cs`, `game/combat/Missile.cs`, `game/ui/Hud.cs`.
 
 **Checkpoint: 1v1.** The user dogfights one enemy jet and judges whether the AI is fun: neither helpless nor perfect.
+
+- To tune here, against a moving jet: missile tracking. Since 2.7, missiles fly straight at where the Target is (pure pursuit, `game/combat/Missile.cs`) rather than leading it. One `seekerCone` (50°, the user's pick) sets both how wide lock-on is and how far off its nose a missile in flight can still see its Target; these may need to be split. The turn rate (50°/s) decides how easily a break turn dodges.
 
 - [ ] **2.17 Special Weapon slots** · M · after 2.8, 2.9
   - Done when Square cycles standard missile → Special Weapon 1 → Special Weapon 2, Special Weapons are defined in the base Pack, and the HUD shows the selected one and its count.

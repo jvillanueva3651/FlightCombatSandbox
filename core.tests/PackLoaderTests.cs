@@ -8,12 +8,13 @@ public class PackLoaderTests : IDisposable
     public void Dispose() => Directory.Delete(_copy, recursive: true);
 
     [Fact]
-    public void Loads_the_base_pack_with_the_light_fighter()
+    public void Loads_the_base_pack_with_the_light_fighter_and_standard_missile()
     {
         var pack = PackLoader.Load(BasePackFolder());
 
         Assert.Equal("base", pack.Id);
         Assert.Equal(Role.Fighter, pack.UnitTypes["light-fighter"].Role);
+        Assert.Equal(60, pack.WeaponTypes["standard-missile"].Damage);
         Assert.Equal(0.1f, pack.Feel.DeadZone);
     }
 

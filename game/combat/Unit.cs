@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Core;
 using Godot;
 
@@ -21,6 +23,13 @@ public partial class Unit : Node3D
     public int Health { get; protected set; }
 
     protected UnitType UnitType => Packs.Base.UnitTypes[UnitTypeId];
+
+    /// <summary>
+    /// The Units hostile to <paramref name="team"/> that aren't destroyed: those on every other Team,
+    /// until Alliances arrive.
+    /// </summary>
+    public static IEnumerable<Unit> Hostiles(SceneTree tree, int team) =>
+        tree.GetNodesInGroup(Group).Cast<Unit>().Where(unit => unit.Team != team && unit.Health > 0);
 
     public override void _Ready()
     {

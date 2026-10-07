@@ -1,0 +1,11 @@
+{
+  "damage": 60,
+  "speed": 2500,
+  "acceleration": 2000,
+  "turnRate": 50,
+  "lifetime": 6,
+  "blastRadius": 15,
+  "lockRange": 2000,
+  "seekerCone": 50,
+  "lockTime": 0.5
+}

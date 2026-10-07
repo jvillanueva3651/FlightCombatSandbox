@@ -4,6 +4,7 @@
 [ext_resource type="Script" path="res://flight/JetSound.cs" id="2_sound"]
 [ext_resource type="Script" path="res://combat/Gun.cs" id="3_gun"]
 [ext_resource type="Script" path="res://combat/Targeting.cs" id="4_targeting"]
+[ext_resource type="Script" path="res://combat/MissileLauncher.cs" id="5_launcher"]
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_fuselage"]
 top_radius = 0.8
@@ -59,3 +60,7 @@ script = ExtResource("3_gun")
 
 [node name="Targeting" type="Node" parent="."]
 script = ExtResource("4_targeting")
+
+[node name="MissileLauncher" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.2, 0)
+script = ExtResource("5_launcher")

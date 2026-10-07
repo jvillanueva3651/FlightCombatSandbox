@@ -18,6 +18,8 @@ public partial class Packs : Node
         GD.Print($"Pack '{Base.Id}' {Base.Version}: {Base.Feel}");
         foreach (var (id, unitType) in Base.UnitTypes)
             GD.Print($"Pack '{Base.Id}' {Base.Version}: {id} {unitType.Handling}");
+        foreach (var (id, weaponType) in Base.WeaponTypes)
+            GD.Print($"Pack '{Base.Id}' {Base.Version}: {id} {weaponType}");
     }
 
     /// <summary>

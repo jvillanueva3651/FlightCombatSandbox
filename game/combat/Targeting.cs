@@ -1,5 +1,5 @@
-using System.Collections.Generic;
 using System.Linq;
+using Core;
 using Godot;
 
 /// <summary>
@@ -12,11 +12,6 @@ using Godot;
 /// </summary>
 public partial class Targeting : Node
 {
-    // The standard missile's seeker. Task 2.7 moves these into the missile's stats in the base Pack.
-    const float LockRange = 2000;  // meters
-    const float SeekerCone = 30;   // degrees either side of the nose
-    const float LockTime = 0.5f;   // seconds the Target must stay in the seeker to lock
-
     Jet _jet;
     Unit _target;
     Unit _seeking;      // the Target the seeker was following last frame
@@ -28,18 +23,22 @@ public partial class Targeting : Node
     /// <summary>True while the Target is locked on.</summary>
     public bool Locked { get; private set; }
 
+    // The seeker locking on: the standard missile's, until task 2.17 makes it the selected weapon's.
+    static WeaponType Seeker => Packs.Base.WeaponTypes[MissileLauncher.WeaponTypeId];
+
     public override void _Ready() => _jet = GetParent<Jet>();
 
     public override void _Process(double delta)
     {
+        var hostiles = Unit.Hostiles(GetTree(), _jet.Team);
         if (Input.IsActionJustPressed(Controls.SwitchTarget))
         {
-            var byDistance = Hostiles().OrderBy(Distance).ToList();
+            var byDistance = hostiles.OrderBy(Distance).ToList();
             if (byDistance.Count > 0)
                 _target = byDistance[(byDistance.IndexOf(Target) + 1) % byDistance.Count];  // no Target: IndexOf is -1, so the nearest
         }
         else if (Target == null)
-            _target = Hostiles().Where(InFront).MinBy(Distance);
+            _target = hostiles.Where(InFront).MinBy(Distance);
 
         var target = Target;
         if (target == null || target != _seeking || _jet.ShotDown || !InSeeker(target))
@@ -47,11 +46,8 @@ public partial class Targeting : Node
         else
             _inSeeker += (float)delta;
         _seeking = target;
-        Locked = _inSeeker >= LockTime;
+        Locked = _inSeeker >= Seeker.LockTime;
     }
-
-    IEnumerable<Unit> Hostiles() =>
-        GetTree().GetNodesInGroup(Unit.Group).Cast<Unit>().Where(unit => unit.Team != _jet.Team && unit.Health > 0);
 
     float Distance(Unit unit) => _jet.GlobalPosition.DistanceTo(unit.GlobalPosition);
 
@@ -61,6 +57,6 @@ public partial class Targeting : Node
     bool InSeeker(Unit unit)
     {
         var toUnit = unit.GlobalPosition - _jet.GlobalPosition;
-        return toUnit.Length() <= LockRange && toUnit.AngleTo(-_jet.GlobalBasis.Z) <= Mathf.DegToRad(SeekerCone);
+        return toUnit.Length() <= Seeker.LockRange && toUnit.AngleTo(-_jet.GlobalBasis.Z) <= Mathf.DegToRad(Seeker.SeekerCone);
     }
 }

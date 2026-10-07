@@ -94,6 +94,10 @@ _Avoid_: Variables, Weights, Stats, Flight physics, Maneuverability
 The tunable numbers shared by every aircraft that shape how flying feels: stick response, camera behavior, and multipliers on every aircraft's Handling. Unlike Handling, they belong to no single aircraft.
 _Avoid_: Global Handling, Options, Sensitivity
 
+**Weapon Type**:
+What kind of weapon something is: its damage, how fast it flies and turns, and how its seeker locks on. Weapon Types come from Packs; the standard missile and every Special Weapon are Weapon Types.
+_Avoid_: Weapon class, Weapon stats, Loadout
+
 **Special Weapon**:
 An extra weapon type a Player picks for a Mission, on top of standard missiles and the gun. Each aircraft offers several; the Ruleset says how many the Player takes.
 _Avoid_: Secondary weapon, SP weapon
