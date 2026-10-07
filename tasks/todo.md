@@ -165,9 +165,10 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
   - Done when holding Triangle turns the camera to keep the current Target on screen and releasing it brings back the chase camera, while a tap still switches Targets.
   - Verify: play. Files: `game/flight/ChaseCamera.cs`, `game/combat/Targeting.cs`.
   - Not played yet: committed 2026-10-07 while the user was away from the PC. Play it there: tap Triangle to switch Targets (it switches when let go), hold it to swing the view onto the Target with a 1.25x zoom, and try it with the Target off to the side, behind, and in the nose view.
-- [ ] **2.28 Missile camera** · S · after 2.7, 1.17
+- [x] **2.28 Missile camera** · S · after 2.7, 1.17
   - Done when holding Circle while firing makes the camera follow the fired missile (or Special Weapon, once those exist) until Circle is released or about a second after it explodes, then brings back the chase camera.
-  - Verify: play. Files: `game/flight/ChaseCamera.cs`, `game/combat/Missile.cs`.
+  - Verify: play. Files: `game/flight/ChaseCamera.cs`, `game/combat/MissileLauncher.cs`, `game/combat/Missile.cs`.
+  - Not played yet: committed 2026-10-07 while the user was away from the PC. Play it there: lock a dummy, fire with Circle and keep holding to ride the missile, watch the fireball, and let go mid-flight to cut back. The view backing off 80 m to watch the fireball was added after the plan; check it reads well.
 - [ ] **2.29 Large radar map** · S · after 2.10
   - Done when the touchpad switches the radar between the minimap and a large map of the area around the Player.
   - Verify: play. Files: `game/ui/Radar.cs`, `game/ui/hud.tscn`.

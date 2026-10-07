@@ -24,6 +24,10 @@ public partial class Missile : Node3D
 
     float _age;  // seconds since launch
 
+    // Moves before everything else each frame, so the camera following it sits just behind where the
+    // missile is now, not a frame's flight behind.
+    public override void _Ready() => ProcessPriority = -1;
+
     public override void _Process(double delta)
     {
         var dt = (float)delta;

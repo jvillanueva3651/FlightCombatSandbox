@@ -7,7 +7,8 @@ using Godot;
 /// missile, shown while it's loaded. Each press of Circle fires a loaded one, the Hardpoints taking
 /// turns, and the missile homes on the Target if it's locked and flies straight if not. An empty
 /// Hardpoint loads again a few seconds after firing, while the count, which includes the loaded
-/// missiles, still has one for it. Being shot down refills the count and every Hardpoint.
+/// missiles, still has one for it. Being shot down refills the count and every Hardpoint. Holding
+/// Circle on after firing has the camera follow that missile.
 /// </summary>
 public partial class MissileLauncher : Node3D
 {
@@ -16,6 +17,7 @@ public partial class MissileLauncher : Node3D
 
     const int FullCount = 144;   // the Ruleset's default, until task 3.38 applies each Mission's
     const float ReloadTime = 3;  // seconds from a Hardpoint firing to its next missile
+    const float FollowTime = 0.3f;  // seconds Circle stays held after firing before the camera follows the missile
 
     /// <summary>Standard missiles left, including those loaded on the Hardpoints.</summary>
     public int Count { get; private set; }
@@ -23,11 +25,19 @@ public partial class MissileLauncher : Node3D
     /// <summary>The Hardpoints, each showing its missile while loaded.</summary>
     public IReadOnlyList<Node3D> Hardpoints => _hardpoints;
 
+    /// <summary>
+    /// The missile the camera follows while Circle stays held after firing it, or null. It may have
+    /// exploded since.
+    /// </summary>
+    public Missile Followed => _held >= FollowTime ? _fired : null;
+
     Jet _jet;
     Targeting _targeting;
     Node3D[] _hardpoints;  // each is loaded while it shows its missile
     float[] _reload;       // seconds until each empty Hardpoint loads again
     int _next;             // the Hardpoint whose turn it is to fire
+    Missile _fired;        // the missile this press of Circle fired, if it fired one
+    float _held;           // seconds Circle has been held
 
     public override void _Ready()
     {
@@ -40,6 +50,14 @@ public partial class MissileLauncher : Node3D
 
     public override void _Process(double delta)
     {
+        if (Input.IsActionPressed(Controls.FireMissile) && !_jet.ShotDown)
+            _held += (float)delta;
+        else
+        {
+            _held = 0;
+            _fired = null;
+        }
+
         if (_jet.ShotDown)
         {
             Rearm();  // the jet starts again with every missile, like its health
@@ -62,7 +80,7 @@ public partial class MissileLauncher : Node3D
             var i = (_next + turn) % _hardpoints.Length;
             if (!_hardpoints[i].Visible)
                 continue;
-            Launch(_hardpoints[i]);
+            _fired = Launch(_hardpoints[i]);
             _hardpoints[i].Visible = false;
             _reload[i] = ReloadTime;
             _next = (i + 1) % _hardpoints.Length;
@@ -91,7 +109,7 @@ public partial class MissileLauncher : Node3D
             hardpoint.Visible = true;
     }
 
-    void Launch(Node3D hardpoint)
+    Missile Launch(Node3D hardpoint)
     {
         var missile = GD.Load<PackedScene>("res://combat/missile.tscn").Instantiate<Missile>();
         missile.Type = Packs.Base.WeaponTypes[WeaponTypeId];
@@ -100,5 +118,6 @@ public partial class MissileLauncher : Node3D
         missile.Speed = _jet.Speed;
         _jet.GetParent().AddChild(missile);
         missile.GlobalTransform = new Transform3D(_jet.GlobalBasis, hardpoint.GlobalPosition);  // the Hardpoint's own basis is turned to lay its missile along the jet
+        return missile;
     }
 }
