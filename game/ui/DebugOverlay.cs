@@ -68,6 +68,8 @@ public partial class DebugOverlay : CanvasLayer
             dummy.Parent.AddChild(dummy.Live);
         }
 
+        if (!Visible)
+            return;  // nothing to show while hidden, though the dummies above still come back
         var targetHealth = _targeting.Target is { } target ? $"{target.Health,5}" : " none";
         _label.Text = $"""
             Speed          {Jet.Speed,5:0} km/h

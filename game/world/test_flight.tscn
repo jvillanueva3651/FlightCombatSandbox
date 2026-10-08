@@ -28,7 +28,7 @@ fog_sky_affect = 0.0
 [sub_resource type="Shader" id="Shader_grid"]
 code = "shader_type spatial;
 
-// Flat test ground: a line every cell_size meters, about a pixel wide,
+// The test ground and terrain: a line every cell_size meters, about a pixel wide,
 // fading out in the distance before the lines start to shimmer.
 uniform vec3 ground_color : source_color = vec3(0.33, 0.37, 0.3);
 uniform vec3 line_color : source_color = vec3(0.6, 0.64, 0.56);

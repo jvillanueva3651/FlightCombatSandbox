@@ -36,7 +36,6 @@ public partial class Jet : Unit
     // than checked where the move ends, so a fast frame can't skip through the ground.
     readonly SphereShape3D _crashBall = new() { Radius = 4 };
 
-    Handling _handling;
     Transform3D _start;
     float _sinceShotDown;
 
@@ -49,8 +48,7 @@ public partial class Jet : Unit
     public override void _Ready()
     {
         base._Ready();
-        _handling = UnitType.Handling;
-        Handling = Packs.Base.Feel.Apply(_handling);
+        Handling = Packs.Base.Feel.Apply(UnitType.Handling);
         Speed = Handling.CruiseSpeed;
         _start = Transform;
     }
@@ -66,7 +64,7 @@ public partial class Jet : Unit
             return;
         }
 
-        Handling = Packs.Base.Feel.Apply(_handling);  // with the Feel Settings' multipliers on top
+        Handling = Packs.Base.Feel.Apply(UnitType.Handling);  // with the Feel Settings' multipliers on top
         _pitch = Handling.NextTurn(_pitch, Stick(Controls.PitchDown, Controls.PitchUp), dt);  // + = nose up
         _roll = Handling.NextTurn(_roll, Stick(Controls.RollLeft, Controls.RollRight), dt);    // + = right wing down
         _yaw = Handling.NextTurn(_yaw, Stick(Controls.YawLeft, Controls.YawRight), dt);        // + = nose right

@@ -4,6 +4,8 @@ namespace Core.Tests;
 
 public class HandlingTests
 {
+    // The light fighter as it was before the flight model checkpoint retuned it. The tests' expected
+    // numbers are worked out from these values, so they stay put when packs/base changes.
     // One key per line, so a test can drop or add a key with a plain Replace.
     internal const string LightFighterJson = """
         {
