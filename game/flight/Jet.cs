@@ -27,8 +27,14 @@ public partial class Jet : Unit
     /// <summary>How hard a high-G turn is pulling, from 0 to 1: the trigger squeeze times the pull squared, like its speed loss.</summary>
     public float HighG => _squeeze * _pitch * _pitch;
 
-    /// <summary>True from being shot down until the jet starts again.</summary>
-    public bool ShotDown { get; private set; }
+    /// <summary>True from being shot down until the jet starts again: while its health is zero.</summary>
+    public bool ShotDown => Health == 0;
+
+    /// <summary>The jet's Targeting, one of its parts in jet.tscn.</summary>
+    public Targeting Targeting => GetNode<Targeting>("Targeting");
+
+    /// <summary>The jet's missile launcher, one of its parts in jet.tscn.</summary>
+    public MissileLauncher MissileLauncher => GetNode<MissileLauncher>("MissileLauncher");
 
     const float RespawnDelay = 2;  // seconds from being shot down to starting again
 
@@ -107,14 +113,12 @@ public partial class Jet : Unit
     // The jet stays in the scene, stopped and hidden by the camera, until it starts again.
     protected override void Destroyed()
     {
-        ShotDown = true;
         _sinceShotDown = 0;
         Speed = 0;
     }
 
     void Respawn()
     {
-        ShotDown = false;
         Health = UnitType.Health;
         Transform = _start;
         Speed = Handling.CruiseSpeed;

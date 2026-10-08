@@ -37,7 +37,7 @@ public partial class WeaponDisplay : Control
     public override void _Ready()
     {
         _jet = ((Hud)Owner).Jet;
-        _launcher = _jet.GetNode<MissileLauncher>("MissileLauncher");
+        _launcher = _jet.MissileLauncher;
     }
 
     public override void _Process(double delta) => QueueRedraw();

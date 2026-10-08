@@ -42,7 +42,7 @@ public partial class MissileLauncher : Node3D
     public override void _Ready()
     {
         _jet = GetParent<Jet>();
-        _targeting = _jet.GetNode<Targeting>("Targeting");
+        _targeting = _jet.Targeting;
         _hardpoints = GetChildren().Cast<Node3D>().ToArray();
         _reload = new float[_hardpoints.Length];
         Rearm();

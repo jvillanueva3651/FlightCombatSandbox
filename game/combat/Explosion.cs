@@ -9,6 +9,14 @@ public partial class Explosion : Node3D
     const float FlashTime = 0.6f;  // seconds for the fireball and its light to fade out
     const float FlashGrowth = 3;   // how many times its starting size the fireball swells to
 
+    /// <summary>Starts an explosion at <paramref name="at"/>, added as a child of <paramref name="parent"/>.</summary>
+    public static void Spawn(Node parent, Vector3 at)
+    {
+        var explosion = GD.Load<PackedScene>("res://combat/explosion.tscn").Instantiate<Explosion>();
+        parent.AddChild(explosion);
+        explosion.GlobalPosition = at;
+    }
+
     public override void _Ready()
     {
         var flash = GetNode("Flash");

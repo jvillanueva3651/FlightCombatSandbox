@@ -76,9 +76,7 @@ public partial class Missile : Node3D
             if (unit.GlobalPosition.DistanceTo(at) <= Type.BlastRadius)
                 unit.Damage(Type.Damage);
 
-        var explosion = GD.Load<PackedScene>("res://combat/explosion.tscn").Instantiate<Node3D>();
-        GetParent().AddChild(explosion);
-        explosion.GlobalPosition = at;
+        Explosion.Spawn(GetParent(), at);
 
         // The trail stays in the sky after the missile is gone, then fades and is freed.
         var trail = GetNode<GpuParticles3D>("Trail");

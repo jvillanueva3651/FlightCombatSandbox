@@ -57,8 +57,8 @@ public partial class ChaseCamera : Camera3D
         _offset = Jet.GlobalTransform.AffineInverse() * GlobalTransform;
         _nose = Jet.GetNode<Node3D>("NoseView").Transform;
         _tilt = Mathf.RadToDeg(Mathf.Asin(-(_offset.Basis * Vector3.Forward).Y));
-        _targeting = Jet.GetNode<Targeting>("Targeting");
-        _launcher = Jet.GetNode<MissileLauncher>("MissileLauncher");
+        _targeting = Jet.Targeting;
+        _launcher = Jet.MissileLauncher;
         _turn = Jet.GlobalBasis;
         _fov = Fov;
         _streaks = GetNode<GpuParticles3D>("WindStreaks");

@@ -179,6 +179,7 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
 - [ ] **2.11 AI pilot flies to a point** · M · after 2.4
   - Done when the flight model takes its inputs from either the controller or an AI pilot, and an enemy jet (same Unit Type, Team 2) flies to a given point with it.
   - Verify: play. Files: `game/flight/FlightInput.cs`, `game/flight/Jet.cs`, `game/ai/AiPilot.cs`.
+  - Note (from the Step 2 review): `jet.tscn` still assumes it's the Player's. An enemy jet built from it would fire its gun and missiles and switch Targets on the Player's buttons (`Gun`, `MissileLauncher` and `Targeting` read the controller directly), play its engine and wind at full volume wherever it is (`JetSound` isn't placed in 3D space), start again where it began 2 s after being shot down (`Jet.Destroyed`), and be copied by the debug overlay as a test dummy (every Unit on another Team at startup).
 - [ ] **2.12 AI terrain avoidance** · S · after 2.11, 1.21
   - Done when AI jets pull up before terrain ahead and don't crash in normal flight; watch one fly the canyon area for a few minutes.
   - Verify: play. Files: `game/ai/AiPilot.cs`.
@@ -192,6 +193,7 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
 - [ ] **2.15 Missile warning** · S · after 2.14
   - Done when a "MISSILE" warning and alarm tone appear while a missile tracks the Player.
   - Verify: play. Files: `game/ui/Hud.cs`, `game/combat/Missile.cs`.
+  - Note (from the Step 2 review): the alarm tone is the third sound made in code, after `JetSound`'s and the lock tone in `TargetMarker`, which pack their samples into a looping WAV the same way. Share that code here.
 - [ ] **2.16 AI defense** · S · after 2.14
   - Done when AI jets break hard when a missile closes on them or a hostile sits on their tail.
   - Verify: play. Files: `game/ai/AiPilot.cs`.

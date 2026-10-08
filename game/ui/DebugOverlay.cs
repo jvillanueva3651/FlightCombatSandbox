@@ -30,13 +30,13 @@ public partial class DebugOverlay : CanvasLayer
     Targeting _targeting;
     MissileLauncher _launcher;
 
-    // The dummies come before this overlay in the scene, so they're ready and in the Unit group by now.
+    // The dummies come before this overlay in the scene, so they're ready and listed by Unit.All by now.
     public override void _Ready()
     {
         _label = GetNode<Label>("Label");
-        _targeting = Jet.GetNode<Targeting>("Targeting");
-        _launcher = Jet.GetNode<MissileLauncher>("MissileLauncher");
-        foreach (var unit in GetTree().GetNodesInGroup(Unit.Group).Cast<Unit>().Where(unit => unit.Team != Jet.Team))
+        _targeting = Jet.Targeting;
+        _launcher = Jet.MissileLauncher;
+        foreach (var unit in Unit.All(GetTree()).Where(unit => unit.Team != Jet.Team))
             _dummies.Add(new Dummy { Live = unit, Fresh = (Unit)unit.Duplicate(), Parent = unit.GetParent() });
     }
 

@@ -39,7 +39,7 @@ public partial class Radar : Control
     public override void _Ready()
     {
         _jet = ((Hud)Owner).Jet;
-        _targeting = _jet.GetNode<Targeting>("Targeting");
+        _targeting = _jet.Targeting;
     }
 
     public override void _Process(double delta)
@@ -58,8 +58,8 @@ public partial class Radar : Control
         QueueRedraw();
     }
 
-    /// <summary>Where a point in the world shows on the screen, in the radar's view as it is now.</summary>
-    public Vector2 ToScreen(Vector3 world)
+    // Where a point in the world shows on the screen, in the radar's view as it is now.
+    Vector2 ToScreen(Vector3 world)
     {
         var box = Box();
         var spin = Spin();
@@ -127,7 +127,7 @@ public partial class Radar : Control
 
         var inside = box.Grow(-6);
         var hostiles = Unit.Hostiles(GetTree(), _jet.Team).ToHashSet();
-        foreach (var unit in GetTree().GetNodesInGroup(Unit.Group).Cast<Unit>())
+        foreach (var unit in Unit.All(GetTree()))
         {
             if (unit == _jet || unit.Health == 0)
                 continue;

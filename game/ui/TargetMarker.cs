@@ -28,7 +28,7 @@ public partial class TargetMarker : Control
     public override void _Ready()
     {
         _jet = ((Hud)Owner).Jet;
-        _targeting = _jet.GetNode<Targeting>("Targeting");
+        _targeting = _jet.Targeting;
         _tone = new AudioStreamPlayer { Stream = LockTone() };
         AddChild(_tone);
     }
