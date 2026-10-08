@@ -68,19 +68,34 @@ public partial class ChaseCamera : Camera3D
     // Runs after the jet's own _Process, since the camera comes after the jet in the scene.
     public override void _Process(double delta)
     {
-        var feel = Packs.Base.Feel;
         var dt = (float)delta;
-        var catchUp = feel.CameraCatchUp(dt);
-        // Orthonormalized stops rounding errors building up until Slerp refuses _turn, which froze the camera.
-        _turn = _turn.Slerp(Jet.GlobalBasis, catchUp).Orthonormalized();
+        ChangeView();
+        Follow(dt);
+        if (RideMissile(dt))
+            return;
+        StreamWind();
+        Shake(dt);
+    }
 
-        // R3 changes the view when it's let go, unless L3 joined it for flares while it was down.
+    // R3 changes the view when it's let go, unless L3 joined it for flares while it was down.
+    void ChangeView()
+    {
         if (Input.IsActionJustPressed(Controls.ChangeView))
             _flareChord = false;
         _flareChord |= Controls.IsFlarePressed();
         if (Input.IsActionJustReleased(Controls.ChangeView) && !_flareChord)
             _noseView = !_noseView;
         Jet.Visible = !_noseView && !Jet.ShotDown;
+    }
+
+    // The chase or nose view: turning after the jet with the camera lag, swung by the right stick or
+    // onto the Target, and widened with speed or zoomed in on the Target.
+    void Follow(float dt)
+    {
+        var feel = Packs.Base.Feel;
+        var catchUp = feel.CameraCatchUp(dt);
+        // Orthonormalized stops rounding errors building up until Slerp refuses _turn, which froze the camera.
+        _turn = _turn.Slerp(Jet.GlobalBasis, catchUp).Orthonormalized();
 
         // The right stick swings the camera around the jet, as far as it's pushed; let go and the
         // view eases back behind the jet. Holding Triangle swings it onto the Target instead, a little
@@ -102,10 +117,14 @@ public partial class ChaseCamera : Camera3D
             : new Transform3D(_turn, Jet.GlobalPosition) * look * _offset;
         var fov = Mathf.DegToRad(_fov + feel.ExtraFieldOfView(Jet.Handling, Jet.Speed));
         Fov = Mathf.RadToDeg(2 * Mathf.Atan(Mathf.Tan(fov / 2) / Mathf.Lerp(1, TargetZoom, _watch)));  // zoomed in on the Target
+    }
 
-        // Holding Circle after firing cuts to a view just behind and above the missile, looking where
-        // it flies, level with the horizon rather than rolled with the missile. Once it explodes, the
-        // view backs off to watch the fireball for a moment; letting go of Circle cuts back at once.
+    // Holding Circle after firing cuts to a view just behind and above the missile, looking where
+    // it flies, level with the horizon rather than rolled with the missile. Once it explodes, the
+    // view backs off to watch the fireball for a moment; letting go of Circle cuts back at once.
+    // True while it shows the missile, which leaves out the jet's wind streaks and shake.
+    bool RideMissile(float dt)
+    {
         var missile = _launcher.Followed;
         if (missile == null)
             _sinceExploded = 0;
@@ -125,21 +144,28 @@ public partial class ChaseCamera : Camera3D
         {
             GlobalTransform = _missileView;
             _streaks.Visible = false;  // they stream at the jet's speed, not the missile's
-            return;
+            return true;
         }
+        return false;
+    }
 
-        // The wind streaks stream back along the jet's flight path at its speed: none up to their start
-        // speed, then more of them the faster it flies, all of them at top speed.
+    // The wind streaks stream back along the jet's flight path at its speed: none up to their start
+    // speed, then more of them the faster it flies, all of them at top speed.
+    void StreamWind()
+    {
         _streaks.GlobalTransform = new Transform3D(Jet.GlobalBasis, GlobalPosition);
         _streaks.SpeedScale = Jet.Speed / 3.6f / _streakSpeed;
         var streaks = (Jet.Speed - StreakStartSpeed) / (Jet.Handling.TopSpeed - StreakStartSpeed);
         _streaks.AmountRatio = Jet.Speed > StreakStartSpeed ? Mathf.Clamp(streaks, 0, 1) : 0;  // none even if top speed is below the start
         _streaks.Visible = !Jet.ShotDown;  // being shot down stops them dead, so hide them rather than leave them hanging
+    }
 
-        // The shake turns the view up to its amount up and down and side to side, on top of the follow,
-        // which is set afresh every frame, so it never builds up.
+    // The shake turns the view up to its amount up and down and side to side, on top of the follow,
+    // which is set afresh every frame, so it never builds up.
+    void Shake(float dt)
+    {
         _time += dt;
-        var shake = Mathf.DegToRad(feel.Shake(Jet.HighG, Jet.Handling.StallDepth(Jet.Speed)));
+        var shake = Mathf.DegToRad(Packs.Base.Feel.Shake(Jet.HighG, Jet.Handling.StallDepth(Jet.Speed)));
         RotateObjectLocal(Vector3.Right, shake * _noise.GetNoise2D(_time, 0));
         RotateObjectLocal(Vector3.Up, shake * _noise.GetNoise2D(_time, 100));
     }
