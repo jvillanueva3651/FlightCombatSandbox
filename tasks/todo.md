@@ -147,34 +147,58 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
 - [x] **2.8 Missile Hardpoints and count** · S · after 2.7
   - Done when two missiles are ready at a time, each reloads after a delay, and the count starts at 144 and runs down.
   - Verify: play. Files: `game/combat/MissileLauncher.cs`, `game/flight/jet.tscn`, `game/ui/DebugOverlay.cs`.
-  - Not played yet: committed 2026-10-06 while the user was away from the PC. Play it there: fire a pair with Circle, watch both wingtip missiles go and come back 3 s later, and the overlay's Missiles count run down.
+  - Played 2026-10-08 at the armed checkpoint: passed, the wingtip missiles' look included. The reload goes from 3 s to 6 s in 2.32.
 - [x] **2.9 HUD** · M · after 2.8
   - Done when a green Ace Combat-style HUD shows speed, altitude, damage %, the selected weapon and its count.
   - Verify: play. Files: `game/ui/hud.tscn`, `game/ui/Hud.cs`, `game/ui/SpeedAltitude.cs`, `game/ui/WeaponDisplay.cs`, `game/ui/TargetMarker.cs`, `game/combat/MissileLauncher.cs`, `game/combat/Unit.cs`, `game/flight/Controls.cs`, `game/ui/DebugOverlay.cs`, `game/ui/debug_overlay.tscn`.
-  - Not played yet: committed 2026-10-07 while the user was away from the PC. Play it there: read the SPEED and ALT boxes while flying, fire with Circle and watch that wingtip's missile symbol refill over 3 s, press F3 for DMG 25%, and F4 to bring back the debug overlay.
+  - Played 2026-10-08 at the armed checkpoint: passed.
 - [x] **2.31 Stall warning** · XS · after 2.9, 1.13
   - Done when the HUD shows STALL in its green while the jet is below stall speed (steady, the user's pick over flashing), and a voice says "Stall warning" when a stall starts and every 3 s while it lasts, as in Ace Combat. The voice is Windows' Zira, through Godot's text-to-speech, until 6.26 brings recordings.
   - Verify: play. Files: `game/ui/StallWarning.cs`, `game/ui/hud.tscn`, `game/project.godot`.
-  - Not played yet: committed 2026-10-07 while the user was away from the PC. Play it there: hold L2 to brake below 300 km/h, check that STALL shows and Zira says "Stall warning" every 3 s, and that throttling out of the stall clears both.
+  - Played 2026-10-08 at the armed checkpoint: passed, with the game's own Zira voice and the voice finishing its phrase when paused.
 - [x] **2.10 Radar minimap** · M · after 2.5
   - Done when a heading-up radar shows hostile Units in red and allied Units in blue around the Player.
   - Verify: play. Files: `game/ui/Radar.cs`, `game/ui/hud.tscn`, `game/ui/Hud.cs`, `game/ui/TargetMarker.cs`, `game/combat/Targeting.cs`.
-  - Not played yet: committed 2026-10-07 while the user was away from the PC. Play it there: turn and watch the dummies swing around the radar, check the boxed one is the Target, and that a Target inside the two lines and the ring locks.
+  - Played 2026-10-08 at the armed checkpoint: passed.
 
 - [x] **2.27 Look at the Target** · S · after 2.5, 1.17
   - Done when holding Triangle turns the camera to keep the current Target on screen and releasing it brings back the chase camera, while a tap still switches Targets.
   - Verify: play. Files: `game/flight/ChaseCamera.cs`, `game/combat/Targeting.cs`.
-  - Not played yet: committed 2026-10-07 while the user was away from the PC. Play it there: tap Triangle to switch Targets (it switches when let go), hold it to swing the view onto the Target with a 1.25x zoom, and try it with the Target off to the side, behind, and in the nose view.
+  - Played 2026-10-08 at the armed checkpoint: holding Triangle passed, and a tap switching when let go is fine. The order a tap switches in changes to on-the-nose in 2.34.
 - [x] **2.28 Missile camera** · S · after 2.7, 1.17
   - Done when holding Circle while firing makes the camera follow the fired missile (or Special Weapon, once those exist) until Circle is released or about a second after it explodes, then brings back the chase camera.
   - Verify: play. Files: `game/flight/ChaseCamera.cs`, `game/combat/MissileLauncher.cs`, `game/combat/Missile.cs`.
-  - Not played yet: committed 2026-10-07 while the user was away from the PC. Play it there: lock a dummy, fire with Circle and keep holding to ride the missile, watch the fireball, and let go mid-flight to cut back. The view backing off 80 m to watch the fireball was added after the plan; check it reads well.
+  - Played 2026-10-08 at the armed checkpoint: passed, keeping the 80 m back-off from the fireball and the missile's smoke in the ride view as they are. Holding Circle with every Hardpoint empty follows the last missile in 2.33.
 - [x] **2.29 Large radar map** · S · after 2.10
   - Done when each touchpad press cycles the radar through default, zoomed out (3x the range) and whole map (the box grows as far as it can without covering the SPEED box, north-up, showing the whole terrain), easing between them (the user's design).
   - Verify: play. Files: `game/ui/Radar.cs`, `game/world/TestTerrain.cs`, `game/ui/SpeedAltitude.cs`.
-  - Not played yet: committed 2026-10-07 while the user was away from the PC (they approved it from screenshots). Play it there: press the touchpad (or M) three times to go through zoomed out and the whole map and back, while flying and turning.
+  - Played 2026-10-08 at the armed checkpoint: passed, with the whole map at 292 px.
 
 **Checkpoint: armed.** The user shoots dummies with the gun and missiles, reads the HUD and the large radar map, and tries the Target and missile cameras.
+
+- Flown 2026-10-08, together with tasks 2.8, 2.9, 2.31, 2.10, 2.27, 2.28 and 2.29, and the Step 1 and Step 2 clean-ups. Passed: the HUD, the radar and its three modes, lock-on, holding Triangle to watch the Target, firing, reloading and riding missiles, shooting dummies down, damage, and the stall warning and voice. Kept as they are: the Target zoom (1.25×), how quickly the view swings to the Target (1.5×), the radar's range (4 km, ×3 zoomed out) and the stall voice's repeat (3 s).
+- Changes asked for, in tasks 2.32 to 2.37, for a session of fixes before 2.11: a longer missile reload, the missile camera with every Hardpoint empty, on-the-nose Target switching, and a more forgiving gun (more rounds, near misses counting, and a gun reticle).
+
+- [ ] **2.32 Longer missile reload** · XS · after 2.8
+  - Done when an empty Hardpoint loads its next missile 6 s after firing instead of 3 s (the user's pick, "for now").
+  - Verify: play. Files: `game/combat/MissileLauncher.cs`.
+- [ ] **2.33 Missile camera with every Hardpoint empty** · XS · after 2.28
+  - Done when holding Circle while every Hardpoint is empty (all reloading, or the count spent) follows the last missile fired, if it's still flying, the same way holding Circle after firing does. Today that press fires nothing, so the camera follows nothing. A press that fires a missile still follows the new one.
+  - Verify: play. Files: `game/combat/MissileLauncher.cs`.
+- [ ] **2.34 On-the-nose Target switching** · S · after 2.27
+  - Done when a tap of Triangle switches first to the hostile Unit most on the jet's nose, judged by both its distance and how far it sits from the middle of the HUD, and each further tap moves to the next one out. The order follows the nose as the jet turns, so the Player switches by pointing at what they want (the user's design). Holding Triangle stays as it is.
+  - To settle when planning: how distance and angle weigh against each other (the user's example: a Target in the middle of the HUD but 10 km away, against one a little off the middle at 3 km); how quick taps go through an order that keeps changing without repeating or skipping Targets; and whether the automatic first Target (today the nearest hostile in front) uses the same order.
+  - Verify: play. Files: `game/combat/Targeting.cs`.
+- [ ] **2.35 Gun fire rate** · S · after 2.3
+  - Done when the gun puts a dense, easily followed stream of tracers down range, more like Project Wingman's minigun than Ace Combat's machine gun (the user's design).
+  - To settle when planning: the rate. The user asked for 150 rounds a minute, but the gun already fires 20 a second (1,200 a minute), so the unit needs confirming.
+  - Verify: play. Files: `game/combat/Gun.cs`.
+- [ ] **2.36 Forgiving gun hits** · XS · after 2.3
+  - Done when a round passing within about 1 m of a Unit's hit box counts as a hit, so the stream needn't land exactly on it.
+  - Verify: play. Files: `game/combat/Gun.cs`.
+- [ ] **2.37 Gun reticle** · M · after 2.35, 2.9
+  - Done when a small reticle shows on the HUD while a hostile Unit is in gun range, marking where the rounds will be at its distance. It stays still when flying straight at the Unit, and drops down the HUD in a pull-up, furthest in a high-G turn, since rounds fired mid-turn end up below where the nose now points (the user's design).
+  - Verify: play. Files: `game/ui/GunReticle.cs`, `game/ui/hud.tscn`, `game/combat/Gun.cs`.
 
 - [ ] **2.11 AI pilot flies to a point** · M · after 2.4
   - Done when the flight model takes its inputs from either the controller or an AI pilot, and an enemy jet (same Unit Type, Team 2) flies to a given point with it.
@@ -209,7 +233,7 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
 - [ ] **2.17 Special Weapon slots** · M · after 2.8, 2.9
   - Done when Square cycles standard missile → Special Weapon 1 → Special Weapon 2, Special Weapons are defined in the base Pack, and the HUD shows the selected one and its count.
   - Verify: test (definitions load), play. Files: `core/WeaponType.cs`, `packs/base/weapons/`, `game/combat/WeaponSlots.cs`, `game/ui/Hud.cs`.
-  - Note: Special Weapons reload at their own rates, so the reload time moves into the Weapon Type. It has been a 3 s constant in `MissileLauncher.cs` since 2.8.
+  - Note: Special Weapons reload at their own rates, so the reload time moves into the Weapon Type. It has been a constant in `MissileLauncher.cs` since 2.8.
   - Note: in the HUD's bottom-right block (`game/ui/WeaponDisplay.cs`, 2.9), each Special Weapon gets a row with its count under MSL, and ">" moves to the selected weapon (the user's layout).
 - [ ] **2.18 Special: agile short-range missile** · S · after 2.17
   - Done when a missile with a much higher turn rate and shorter range works as a Special Weapon.
