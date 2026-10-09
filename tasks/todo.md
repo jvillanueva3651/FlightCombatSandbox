@@ -184,9 +184,10 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
   - Done when an empty Hardpoint loads its next missile 5 s after firing instead of 3 s (the user's pick, "for now").
   - Verify: play. Files: `game/combat/MissileLauncher.cs`.
   - Played 2026-10-08: tried at 6 s first, then the user turned it down to 5 s.
-- [ ] **2.33 Missile camera with every Hardpoint empty** · XS · after 2.28
+- [x] **2.33 Missile camera with every Hardpoint empty** · XS · after 2.28
   - Done when holding Circle while every Hardpoint is empty (all reloading, or the count spent) follows the last missile fired, if it's still flying, the same way holding Circle after firing does. Today that press fires nothing, so the camera follows nothing. A press that fires a missile still follows the new one.
-  - Verify: play. Files: `game/combat/MissileLauncher.cs`.
+  - Verify: play. Files: `game/combat/MissileLauncher.cs`, `game/flight/ChaseCamera.cs`.
+  - Not played yet: committed 2026-10-09 while the user couldn't play. Play it: fire both missiles, then hold Circle (the view rides the second one after a moment); let go and hold Circle again just as it hits (the view stays on the jet, no flicker); hold Circle once both have exploded while still reloading (nothing happens); and with a missile loaded, holding Circle still fires and rides the new one. Also fixed: the camera no longer jumps for a second when the followed missile explodes before the view picks it up.
 - [ ] **2.34 On-the-nose Target switching** · S · after 2.27
   - Done when a tap of Triangle switches first to the hostile Unit most on the jet's nose, judged by both its distance and how far it sits from the middle of the HUD, and each further tap moves to the next one out. The order follows the nose as the jet turns, so the Player switches by pointing at what they want (the user's design). Holding Triangle stays as it is.
   - To settle when planning: how distance and angle weigh against each other (the user's example: a Target in the middle of the HUD but 10 km away, against one a little off the middle at 3 km); how quick taps go through an order that keeps changing without repeating or skipping Targets; and whether the automatic first Target (today the nearest hostile in front) uses the same order.

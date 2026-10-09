@@ -8,7 +8,8 @@ using Godot;
 /// turns, and the missile homes on the Target if it's locked and flies straight if not. An empty
 /// Hardpoint loads again a few seconds after firing, while the count, which includes the loaded
 /// missiles, still has one for it. Being shot down refills the count and every Hardpoint. Holding
-/// Circle on after firing has the camera follow that missile.
+/// Circle on after firing has the camera follow that missile; holding it with every Hardpoint empty
+/// follows the last missile fired, while it still flies.
 /// </summary>
 public partial class MissileLauncher : Node3D
 {
@@ -17,7 +18,7 @@ public partial class MissileLauncher : Node3D
 
     const int FullCount = 144;   // the Ruleset's default, until task 3.38 applies each Mission's
     const float ReloadTime = 5;  // seconds from a Hardpoint firing to its next missile
-    const float FollowTime = 0.3f;  // seconds Circle stays held after firing before the camera follows the missile
+    const float FollowTime = 0.3f;  // seconds Circle stays held before the camera follows the missile
 
     /// <summary>Standard missiles left, including those loaded on the Hardpoints.</summary>
     public int Count { get; private set; }
@@ -26,17 +27,18 @@ public partial class MissileLauncher : Node3D
     public IReadOnlyList<Node3D> Hardpoints => _hardpoints;
 
     /// <summary>
-    /// The missile the camera follows while Circle stays held after firing it, or null. It may have
-    /// exploded since.
+    /// The missile the camera follows while Circle stays held, or null: the one the press fired or,
+    /// with every Hardpoint empty, the last one fired if it was still flying. It may have exploded since.
     /// </summary>
-    public Missile Followed => _held >= FollowTime ? _fired : null;
+    public Missile Followed => _held >= FollowTime ? _toFollow : null;
 
     Jet _jet;
     Targeting _targeting;
     Node3D[] _hardpoints;  // each is loaded while it shows its missile
     float[] _reload;       // seconds until each empty Hardpoint loads again
     int _next;             // the Hardpoint whose turn it is to fire
-    Missile _fired;        // the missile this press of Circle fired, if it fired one
+    Missile _toFollow;     // the missile to follow while this press of Circle is held, if any
+    Missile _last;         // the last missile launched
     float _held;           // seconds Circle has been held
 
     public override void _Ready()
@@ -55,7 +57,7 @@ public partial class MissileLauncher : Node3D
         else
         {
             _held = 0;
-            _fired = null;
+            _toFollow = null;
         }
 
         if (_jet.ShotDown)
@@ -80,13 +82,14 @@ public partial class MissileLauncher : Node3D
             var i = (_next + turn) % _hardpoints.Length;
             if (!_hardpoints[i].Visible)
                 continue;
-            _fired = Launch(_hardpoints[i]);
+            _toFollow = _last = Launch(_hardpoints[i]);
             _hardpoints[i].Visible = false;
             _reload[i] = ReloadTime;
             _next = (i + 1) % _hardpoints.Length;
             Count--;
             return;
         }
+        _toFollow = IsInstanceValid(_last) ? _last : null;  // nothing loaded: follow the last missile while it flies
     }
 
     /// <summary>

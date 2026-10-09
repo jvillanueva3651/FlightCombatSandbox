@@ -6,8 +6,8 @@ using Godot;
 /// distance away. Where the camera sits relative to the jet in the scene sets how far behind and above
 /// it flies. The view widens with speed and shakes in high-G turns and stalls, by the Feel Settings'
 /// amounts, and the right stick swings the camera around the jet. Holding Triangle swings it onto the
-/// current Target instead, a little quicker, and zooms in. Holding Circle after firing cuts to a view
-/// riding just behind the missile, until Circle is let go or a second after the missile explodes. R3
+/// current Target instead, a little quicker, and zooms in. Holding Circle cuts to a view riding just
+/// behind the missile the launcher follows, until Circle is let go or a second after the missile explodes. R3
 /// switches to a view from the jet's nose, fixed to the jet with the jet hidden, and back. Wind
 /// streaks rush past the camera at the jet's speed, so speed reads even high above the ground.
 /// </summary>
@@ -43,6 +43,7 @@ public partial class ChaseCamera : Camera3D
     Vector2 _watchLook;   // degrees left and up that put the Target in the middle of the view
     MissileLauncher _launcher;
     Transform3D _missileView;  // the view behind the followed missile, kept once it explodes
+    bool _sawMissile;          // the view has shown the followed missile flying, so it has a view to back off from
     float _sinceExploded;      // seconds since the followed missile exploded
     float _fov;           // the field of view set in the scene, kept at cruise speed
     float _time;
@@ -121,26 +122,31 @@ public partial class ChaseCamera : Camera3D
 
     // Holding Circle after firing cuts to a view just behind and above the missile, looking where
     // it flies, level with the horizon rather than rolled with the missile. Once it explodes, the
-    // view backs off to watch the fireball for a moment; letting go of Circle cuts back at once.
+    // view backs off to watch the fireball for a moment; letting go of Circle cuts back at once. A
+    // missile that explodes before the view picks it up leaves the view on the jet.
     // True while it shows the missile, which leaves out the jet's wind streaks and shake.
     bool RideMissile(float dt)
     {
         var missile = _launcher.Followed;
         if (missile == null)
+        {
+            _sawMissile = false;
             _sinceExploded = 0;
+        }
         else if (IsInstanceValid(missile))
         {
+            _sawMissile = true;
             var ahead = -missile.GlobalBasis.Z;
             var up = Mathf.Abs(ahead.Y) < 0.99f ? Vector3.Up : missile.GlobalBasis.Y;  // flying straight up or down, the horizon has no level
             _missileView = new Transform3D(Basis.LookingAt(ahead, up), missile.GlobalPosition - ahead * MissileViewBehind + up * MissileViewAbove);
         }
-        else
+        else if (_sawMissile)
         {
             if (_sinceExploded == 0)
                 _missileView.Origin += _missileView.Basis.Z * ExplosionViewBack;  // the fireball swells too big to watch from 8 m
             _sinceExploded += dt;
         }
-        if (missile != null && _sinceExploded < WatchExplosion)
+        if (_sawMissile && _sinceExploded < WatchExplosion)
         {
             GlobalTransform = _missileView;
             _streaks.Visible = false;  // they stream at the jet's speed, not the missile's
