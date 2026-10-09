@@ -147,7 +147,7 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
 - [x] **2.8 Missile Hardpoints and count** · S · after 2.7
   - Done when two missiles are ready at a time, each reloads after a delay, and the count starts at 144 and runs down.
   - Verify: play. Files: `game/combat/MissileLauncher.cs`, `game/flight/jet.tscn`, `game/ui/DebugOverlay.cs`.
-  - Played 2026-10-08 at the armed checkpoint: passed, the wingtip missiles' look included. The reload goes from 3 s to 6 s in 2.32.
+  - Played 2026-10-08 at the armed checkpoint: passed, the wingtip missiles' look included. The reload goes from 3 s to 5 s in 2.32.
 - [x] **2.9 HUD** · M · after 2.8
   - Done when a green Ace Combat-style HUD shows speed, altitude, damage %, the selected weapon and its count.
   - Verify: play. Files: `game/ui/hud.tscn`, `game/ui/Hud.cs`, `game/ui/SpeedAltitude.cs`, `game/ui/WeaponDisplay.cs`, `game/ui/TargetMarker.cs`, `game/combat/MissileLauncher.cs`, `game/combat/Unit.cs`, `game/flight/Controls.cs`, `game/ui/DebugOverlay.cs`, `game/ui/debug_overlay.tscn`.
@@ -180,9 +180,10 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
 - Changed in `light-fighter.json`, from the user's tuning panel changes during the checkpoint: `cruiseReturnStrength` 60 → 25.8 (letting go of the triggers drifts back to cruise speed more slowly), `yawRate` 20 → 18, `turnSpeedLoss` 100 → 75.
 - Changes asked for, in tasks 2.32 to 2.37, for a session of fixes before 2.11: a longer missile reload, the missile camera with every Hardpoint empty, on-the-nose Target switching, and a more forgiving gun (more rounds, near misses counting, and a gun reticle). 2.38 cleans up the numbers the tuning panel saved.
 
-- [ ] **2.32 Longer missile reload** · XS · after 2.8
-  - Done when an empty Hardpoint loads its next missile 6 s after firing instead of 3 s (the user's pick, "for now").
+- [x] **2.32 Longer missile reload** · XS · after 2.8
+  - Done when an empty Hardpoint loads its next missile 5 s after firing instead of 3 s (the user's pick, "for now").
   - Verify: play. Files: `game/combat/MissileLauncher.cs`.
+  - Played 2026-10-08: tried at 6 s first, then the user turned it down to 5 s.
 - [ ] **2.33 Missile camera with every Hardpoint empty** · XS · after 2.28
   - Done when holding Circle while every Hardpoint is empty (all reloading, or the count spent) follows the last missile fired, if it's still flying, the same way holding Circle after firing does. Today that press fires nothing, so the camera follows nothing. A press that fires a missile still follows the new one.
   - Verify: play. Files: `game/combat/MissileLauncher.cs`.

@@ -16,7 +16,7 @@ public partial class MissileLauncher : Node3D
     public const string WeaponTypeId = "standard-missile";
 
     const int FullCount = 144;   // the Ruleset's default, until task 3.38 applies each Mission's
-    const float ReloadTime = 3;  // seconds from a Hardpoint firing to its next missile
+    const float ReloadTime = 5;  // seconds from a Hardpoint firing to its next missile
     const float FollowTime = 0.3f;  // seconds Circle stays held after firing before the camera follows the missile
 
     /// <summary>Standard missiles left, including those loaded on the Hardpoints.</summary>
