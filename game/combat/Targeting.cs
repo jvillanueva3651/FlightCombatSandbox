@@ -1,22 +1,29 @@
+using System.Collections.Generic;
 using System.Linq;
 using Core;
 using Godot;
 
 /// <summary>
 /// The jet's current Target, among the hostile Units: those on another Team (every other Team is
-/// hostile until Alliances arrive). With no Target, the nearest hostile Unit in front of the jet
-/// becomes it. A tap of Triangle switches to the next one out by distance, and from the farthest back
-/// to the nearest, when it's let go; held longer, Triangle turns the camera to the Target instead. A
-/// Target stays until it's destroyed or switched, even once the jet flies past it. A Target that
-/// stays inside the missile seeker's cone and range for the lock time is locked; leaving the seeker,
-/// switching Targets or being shot down breaks the lock.
+/// hostile until Alliances arrive). Hostiles rank by how close they are to being on the jet's nose,
+/// judged by both how far they sit off the nose and how far away they are. With no Target, the
+/// hostile Unit in front of the jet most on its nose becomes it. A tap of Triangle, when it's let go,
+/// switches to the hostile most on the nose, or the next one if that's already the Target; taps
+/// soon after each other step on through the same lineup and back to the start. Held longer,
+/// Triangle turns the camera to the Target instead. A Target stays until it's destroyed or switched,
+/// even once the jet flies past it. A Target that stays inside the missile seeker's cone and range
+/// for the lock time is locked; leaving the seeker, switching Targets or being shot down breaks the lock.
 /// </summary>
 public partial class Targeting : Node
 {
     const float TapTime = 0.3f;  // seconds: Triangle let go sooner switches Targets, held longer it looks at the Target
+    const float DegreesPerKm = 2;  // on the nose: how many degrees off the nose each km away counts as
+    const float TapRun = 2;      // seconds: a tap this soon after the last steps on through the same lineup
 
     Jet _jet;
     Unit _target;
+    List<Unit> _lineup = new();  // the hostiles in on-the-nose order, as the first of a run of taps found them
+    float _sinceTap = TapRun;    // seconds since the last tap; starts as long ago
     Unit _seeking;      // the Target the seeker was following last frame
     float _inSeeker;    // seconds it has stayed in the seeker
     float _held;        // seconds Triangle has been held down
@@ -42,6 +49,7 @@ public partial class Targeting : Node
     public override void _Process(double delta)
     {
         var hostiles = Unit.Hostiles(GetTree(), _jet.Team);
+        _sinceTap += (float)delta;
         if (Input.IsActionPressed(Controls.SwitchTarget))
         {
             _held += (float)delta;
@@ -51,16 +59,12 @@ public partial class Targeting : Node
         else
         {
             if (Input.IsActionJustReleased(Controls.SwitchTarget) && _held < TapTime)
-            {
-                var byDistance = hostiles.OrderBy(Distance).ToList();
-                if (byDistance.Count > 0)
-                    _target = byDistance[(byDistance.IndexOf(Target) + 1) % byDistance.Count];  // no Target: IndexOf is -1, so the nearest
-            }
+                SwitchTarget(hostiles);
             _held = 0;
             _watched = null;
         }
         if (Target == null)
-            _target = hostiles.Where(InFront).MinBy(Distance);
+            _target = hostiles.Where(InFront).MinBy(OffNose);
 
         var target = Target;
         if (target == null || target != _seeking || _jet.ShotDown || !InSeeker(target))
@@ -71,7 +75,25 @@ public partial class Targeting : Node
         Locked = _inSeeker >= Seeker.LockTime;
     }
 
-    float Distance(Unit unit) => _jet.GlobalPosition.DistanceTo(unit.GlobalPosition);
+    // A tap after a pause goes to the hostile most on the nose, or the next one if that's already the
+    // Target: the lineup starts with the Target. Quicker taps step on through that lineup, so turning
+    // between taps neither repeats nor skips a hostile; after the last one it comes back to the first.
+    void SwitchTarget(IEnumerable<Unit> hostiles)
+    {
+        if (_sinceTap >= TapRun)
+            _lineup = hostiles.OrderBy(unit => unit == Target ? -1 : OffNose(unit)).ToList();
+        _sinceTap = 0;
+        _lineup.RemoveAll(unit => !IsInstanceValid(unit) || unit.Health <= 0);  // destroyed since the lineup was taken
+        if (_lineup.Count > 0)
+            _target = _lineup[(_lineup.IndexOf(Target) + 1) % _lineup.Count];  // no Target: IndexOf is -1, so the first
+    }
+
+    // How far a hostile is from being on the nose: degrees off the nose plus DegreesPerKm for each km away.
+    float OffNose(Unit unit)
+    {
+        var toUnit = unit.GlobalPosition - _jet.GlobalPosition;
+        return Mathf.RadToDeg(toUnit.AngleTo(-_jet.GlobalBasis.Z)) + toUnit.Length() / 1000 * DegreesPerKm;
+    }
 
     // In the half of the sky the jet's nose points into.
     bool InFront(Unit unit) => (unit.GlobalPosition - _jet.GlobalPosition).Dot(-_jet.GlobalBasis.Z) > 0;
