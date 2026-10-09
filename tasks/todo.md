@@ -178,7 +178,7 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
 
 - Flown 2026-10-08, together with tasks 2.8, 2.9, 2.31, 2.10, 2.27, 2.28 and 2.29, and the Step 1 and Step 2 clean-ups. Passed: the HUD, the radar and its three modes, lock-on, holding Triangle to watch the Target, firing, reloading and riding missiles, shooting dummies down, damage, and the stall warning and voice. Kept as they are: the Target zoom (1.25×), how quickly the view swings to the Target (1.5×), the radar's range (4 km, ×3 zoomed out) and the stall voice's repeat (3 s).
 - Changed in `light-fighter.json`, from the user's tuning panel changes during the checkpoint: `cruiseReturnStrength` 60 → 25.8 (letting go of the triggers drifts back to cruise speed more slowly), `yawRate` 20 → 18, `turnSpeedLoss` 100 → 75.
-- Changes asked for, in tasks 2.32 to 2.37, for a session of fixes before 2.11: a longer missile reload, the missile camera with every Hardpoint empty, on-the-nose Target switching, and a more forgiving gun (more rounds, near misses counting, and a gun reticle).
+- Changes asked for, in tasks 2.32 to 2.37, for a session of fixes before 2.11: a longer missile reload, the missile camera with every Hardpoint empty, on-the-nose Target switching, and a more forgiving gun (more rounds, near misses counting, and a gun reticle). 2.38 cleans up the numbers the tuning panel saved.
 
 - [ ] **2.32 Longer missile reload** · XS · after 2.8
   - Done when an empty Hardpoint loads its next missile 6 s after firing instead of 3 s (the user's pick, "for now").
@@ -199,6 +199,9 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
 - [ ] **2.37 Gun reticle** · M · after 2.35, 2.9
   - Done when a small reticle shows on the HUD while a hostile Unit is in gun range, marking where the rounds will be at its distance. It stays still when flying straight at the Unit, and drops down the HUD in a pull-up, furthest in a high-G turn, since rounds fired mid-turn end up below where the nose now points (the user's design).
   - Verify: play. Files: `game/ui/GunReticle.cs`, `game/ui/hud.tscn`, `game/combat/Gun.cs`.
+- [ ] **2.38 Clean numbers from the tuning panel** · XS · after 1.25
+  - Done when Save writes the values the sliders were set to without rounding leftovers (25.8, not 25.800001; 0.245, not 0.24499999), and the number beside each slider shows the value Save will write. Sliders move in steps, and the leftovers of the step's rounding went into `light-fighter.json` at the armed checkpoint. The number beside each slider shows two decimals, so the 0.24499999 saved for the response time showed as 0.24.
+  - Verify: play (save, then read the file). Files: `game/ui/TuningPanel.cs`.
 
 - [ ] **2.11 AI pilot flies to a point** · M · after 2.4
   - Done when the flight model takes its inputs from either the controller or an AI pilot, and an enemy jet (same Unit Type, Team 2) flies to a given point with it.
