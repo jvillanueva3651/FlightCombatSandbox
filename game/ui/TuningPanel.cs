@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text.Json;
 using Core;
 using Godot;
@@ -74,11 +75,14 @@ public partial class TuningPanel : CanvasLayer
             var start = (float)property.GetValue(values);
             // ponytail: each slider spans 0 to twice its starting value; give each value its own range if that's too narrow.
             var max = Mathf.Max(2 * start, 1);
+            // The step is the power of ten just below 1/200 of the range, so every value is a round number.
+            var power = (int)Math.Floor(Math.Log10(max / 200.0));
+            var decimals = Math.Max(0, -power);
             var shown = new Label { Text = Format(start), CustomMinimumSize = new Vector2(60, 0) };
             var slider = new HSlider
             {
                 MaxValue = max,
-                Step = max / 200,
+                Step = Math.Pow(10, power),
                 Value = start,
                 CustomMinimumSize = new Vector2(150, 0),
                 SizeFlagsVertical = Control.SizeFlags.ShrinkCenter,
@@ -86,10 +90,11 @@ public partial class TuningPanel : CanvasLayer
             };
             slider.ValueChanged += value =>
             {
-                property.SetValue(values, (float)value);
-                shown.Text = Format((float)value);
+                var rounded = (float)Math.Round(value, decimals);  // without the step's leftovers, which Save would write
+                property.SetValue(values, rounded);
+                shown.Text = Format(rounded);
                 if (property.Name == nameof(FeelSettings.DeadZone))
-                    Controls.SetDeadZone((float)value);  // the controls only read it at startup
+                    Controls.SetDeadZone(rounded);  // the controls only read it at startup
             };
             rows.AddChild(new Label { Text = JsonNamingPolicy.CamelCase.ConvertName(property.Name) }); // as in the file
             rows.AddChild(slider);
@@ -106,5 +111,6 @@ public partial class TuningPanel : CanvasLayer
         }
     }
 
-    static string Format(float value) => value.ToString("0.##");
+    // Every decimal, written the way the Pack's files write it, so the number shown is the number Save writes.
+    static string Format(float value) => value.ToString(CultureInfo.InvariantCulture);
 }
