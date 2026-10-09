@@ -88,15 +88,18 @@ public partial class Targeting : Node
             _target = _lineup[(_lineup.IndexOf(Target) + 1) % _lineup.Count];  // no Target: IndexOf is -1, so the first
     }
 
-    // How far a hostile is from being on the nose: degrees off the nose plus DegreesPerKm for each km away.
-    float OffNose(Unit unit)
+    /// <summary>
+    /// How far a hostile is from being on the jet's nose, lowest first: degrees off the nose plus
+    /// DegreesPerKm for each km away.
+    /// </summary>
+    public float OffNose(Unit unit)
     {
         var toUnit = unit.GlobalPosition - _jet.GlobalPosition;
         return Mathf.RadToDeg(toUnit.AngleTo(-_jet.GlobalBasis.Z)) + toUnit.Length() / 1000 * DegreesPerKm;
     }
 
-    // In the half of the sky the jet's nose points into.
-    bool InFront(Unit unit) => (unit.GlobalPosition - _jet.GlobalPosition).Dot(-_jet.GlobalBasis.Z) > 0;
+    /// <summary>True for a Unit in the half of the sky the jet's nose points into.</summary>
+    public bool InFront(Unit unit) => (unit.GlobalPosition - _jet.GlobalPosition).Dot(-_jet.GlobalBasis.Z) > 0;
 
     bool InSeeker(Unit unit)
     {

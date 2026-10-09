@@ -36,6 +36,9 @@ public partial class Jet : Unit
     /// <summary>The jet's missile launcher, one of its parts in jet.tscn.</summary>
     public MissileLauncher MissileLauncher => GetNode<MissileLauncher>("MissileLauncher");
 
+    /// <summary>The jet's gun, one of its parts in jet.tscn.</summary>
+    public Gun Gun => GetNode<Gun>("Gun");
+
     const float RespawnDelay = 2;  // seconds from being shot down to starting again
 
     // The ball swept along each frame's move to find the ground: about the jet's size, and swept rather

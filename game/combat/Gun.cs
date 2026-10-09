@@ -43,14 +43,58 @@ public partial class Gun : Node3D
     };
 
     Jet _jet;
-    float _cooldown;  // seconds until the next round can fire
+    float _cooldown;     // seconds until the next round can fire
+    Basis _lastBasis;    // the jet's orientation last frame
+    bool _wasShotDown;   // the jet was shot down last frame
+    Vector3 _turn;       // how fast the jet is turning about its own axes: the axis, as long as the radians per second
 
-    public override void _Ready() => _jet = GetParent<Jet>();
+    public override void _Ready()
+    {
+        _jet = GetParent<Jet>();
+        _lastBasis = _jet.GlobalBasis;
+    }
+
+    /// <summary>
+    /// Where a round fired now will sit from the jet once it's <paramref name="distance"/> meters out, if
+    /// the jet keeps turning as it is, placed the same way from the jet as it is now: on the nose line
+    /// in straight flight, and below it in a pull-up, since the round flies straight on while the jet
+    /// turns away. The gun reticle shows it on the HUD.
+    /// </summary>
+    public Vector3 AimPoint(float distance)
+    {
+        const int Steps = 10;
+        var speed = _jet.Speed / 3.6f;
+        var flight = distance / MuzzleSpeed;  // seconds: the round pulls away from the jet at the muzzle speed
+        var step = flight / Steps;
+        var spin = _turn.Length();
+        var stepTurn = spin > 0 ? new Basis(_turn / spin, spin * step) : Basis.Identity;
+        var halfTurn = spin > 0 ? new Basis(_turn / spin, spin * step / 2) : Basis.Identity;
+
+        // Fly the jet on in steps, each along its heading halfway through the step, measured from the jet as it is now.
+        var basis = Basis.Identity;
+        var at = Vector3.Zero;
+        for (var i = 0; i < Steps; i++)
+        {
+            at += basis * halfTurn * Vector3.Forward * speed * step;
+            basis *= stepTurn;
+        }
+        var round = Transform * (Vector3.Forward * (speed + MuzzleSpeed) * flight);  // fired from the gun, straight along the nose
+        return _jet.GlobalTransform * (basis.Inverse() * (round - at));
+    }
 
     // Runs after the jet's own _Process, since the gun is the jet's child, so rounds leave from where the jet is now.
     public override void _Process(double delta)
     {
         var dt = (float)delta;
+
+        // How fast the jet is turning, from how far it turned since last frame; not the jump back to
+        // where it began when it starts again after being shot down.
+        var turned = (_lastBasis.Inverse() * _jet.GlobalBasis).GetRotationQuaternion();
+        var axis = new Vector3(turned.X, turned.Y, turned.Z);  // the turn's axis, as long as the sine of half its angle
+        _turn = _wasShotDown || axis.IsZeroApprox() ? Vector3.Zero : axis.Normalized() * 2 * Mathf.Atan2(axis.Length(), turned.W) / dt;
+        _lastBasis = _jet.GlobalBasis;
+        _wasShotDown = _jet.ShotDown;
+
         _cooldown -= dt;
         if (Input.IsActionPressed(Controls.FireGun) && !_jet.ShotDown)
             for (; _cooldown <= 0; _cooldown += 1 / FireRate)
