@@ -11,8 +11,8 @@ public partial class Gun : Node3D
 {
     const float FireRate = 80;       // rounds per second
     const int RoundDamage = 4;       // damage per hit: 25 hits destroy a light fighter
-    const float MuzzleSpeed = 1000;  // m/s on top of the jet's speed
-    const float RoundLife = 1.2f;    // seconds before a round vanishes: about 1.4 km at cruise speed
+    const float MuzzleSpeed = 2500;  // m/s on top of the jet's speed
+    const float RoundLife = 1;       // seconds before a round vanishes: 2.5 km ahead of the jet
     const float HitRadius = 1;       // m: a round passing this close to a hit box hits it
 
     sealed class Round
