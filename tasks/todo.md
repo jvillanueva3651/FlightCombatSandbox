@@ -177,6 +177,7 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
 **Checkpoint: armed.** The user shoots dummies with the gun and missiles, reads the HUD and the large radar map, and tries the Target and missile cameras.
 
 - Flown 2026-10-08, together with tasks 2.8, 2.9, 2.31, 2.10, 2.27, 2.28 and 2.29, and the Step 1 and Step 2 clean-ups. Passed: the HUD, the radar and its three modes, lock-on, holding Triangle to watch the Target, firing, reloading and riding missiles, shooting dummies down, damage, and the stall warning and voice. Kept as they are: the Target zoom (1.25×), how quickly the view swings to the Target (1.5×), the radar's range (4 km, ×3 zoomed out) and the stall voice's repeat (3 s).
+- Changed in `light-fighter.json`, from the user's tuning panel changes during the checkpoint: `cruiseReturnStrength` 60 → 25.8 (letting go of the triggers drifts back to cruise speed more slowly), `yawRate` 20 → 18, `turnSpeedLoss` 100 → 75.
 - Changes asked for, in tasks 2.32 to 2.37, for a session of fixes before 2.11: a longer missile reload, the missile camera with every Hardpoint empty, on-the-nose Target switching, and a more forgiving gun (more rounds, near misses counting, and a gun reticle).
 
 - [ ] **2.32 Longer missile reload** · XS · after 2.8
@@ -190,8 +191,7 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
   - To settle when planning: how distance and angle weigh against each other (the user's example: a Target in the middle of the HUD but 10 km away, against one a little off the middle at 3 km); how quick taps go through an order that keeps changing without repeating or skipping Targets; and whether the automatic first Target (today the nearest hostile in front) uses the same order.
   - Verify: play. Files: `game/combat/Targeting.cs`.
 - [ ] **2.35 Gun fire rate** · S · after 2.3
-  - Done when the gun puts a dense, easily followed stream of tracers down range, more like Project Wingman's minigun than Ace Combat's machine gun (the user's design).
-  - To settle when planning: the rate. The user asked for 150 rounds a minute, but the gun already fires 20 a second (1,200 a minute), so the unit needs confirming.
+  - Done when the gun fires 80 rounds a second instead of 20 (the user's pick), a dense, easily followed stream of tracers down range, more like Project Wingman's minigun than Ace Combat's machine gun (the user's design).
   - Verify: play. Files: `game/combat/Gun.cs`.
 - [ ] **2.36 Forgiving gun hits** · XS · after 2.3
   - Done when a round passing within about 1 m of a Unit's hit box counts as a hit, so the stream needn't land exactly on it.
