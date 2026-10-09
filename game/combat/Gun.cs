@@ -8,7 +8,7 @@ using Godot;
 /// </summary>
 public partial class Gun : Node3D
 {
-    const float FireRate = 20;       // rounds per second
+    const float FireRate = 80;       // rounds per second
     const int RoundDamage = 4;       // damage per hit: 25 hits destroy a light fighter
     const float MuzzleSpeed = 1000;  // m/s on top of the jet's speed
     const float RoundLife = 1.2f;    // seconds before a round vanishes: about 1.4 km at cruise speed
@@ -51,7 +51,7 @@ public partial class Gun : Node3D
         _cooldown -= dt;
         if (Input.IsActionPressed(Controls.FireGun) && !_jet.ShotDown)
             for (; _cooldown <= 0; _cooldown += 1 / FireRate)
-                Fire();
+                Fire(-_cooldown);
         else
             _cooldown = Mathf.Max(_cooldown, 0);
 
@@ -76,11 +76,14 @@ public partial class Gun : Node3D
     }
 
     // Tracers go in the jet's parent rather than under the jet, which the camera hides in the nose view and while it's shot down.
-    void Fire()
+    // late: seconds ago the round was due; at this fire rate a frame often fires two. It leaves as far
+    // ahead of the gun as it has flown since, so the stream stays evenly spaced rather than in pairs.
+    void Fire(float late)
     {
         var tracer = new MeshInstance3D { Mesh = _tracerMesh, CastShadow = GeometryInstance3D.ShadowCastingSetting.Off };
         _jet.GetParent().AddChild(tracer);
         tracer.GlobalTransform = GlobalTransform;
+        tracer.GlobalPosition -= GlobalBasis.Z * MuzzleSpeed * late;  // the jet carries it at the jet's speed, so only the muzzle speed puts it ahead
         _rounds.Add(new Round { Tracer = tracer, Velocity = -GlobalBasis.Z * (_jet.Speed / 3.6f + MuzzleSpeed) });
     }
 }

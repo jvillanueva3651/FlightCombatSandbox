@@ -193,9 +193,11 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
   - Settled when planning (the user's picks): a hostile's score is its degrees off the jet's nose plus 2° for each km away, lowest first (`DegreesPerKm`, to tune by flying), so the example's 3 km one (11) comes before the 10 km one (20). The first tap after a pause takes a lineup starting with the current Target, then every other hostile by score; taps within 2 s of each other step on through it and back to the start (`TapRun`), so turning between taps neither repeats nor skips one. The automatic first Target is the hostile in front with the lowest score.
   - Verify: play. Files: `game/combat/Targeting.cs`.
   - Not played yet: committed 2026-10-09 while the user couldn't play. Play it: check the first Target at the start is the dummy closest to the nose, not just the nearest; point the nose at a dummy and tap Triangle (it switches to that one); tap quickly a few times, also while turning (every dummy once, then back to the start); try a far dummy in the middle of the HUD against a near one a little off, to judge the 2° per km; and hold Triangle (the view still swings onto the Target).
-- [ ] **2.35 Gun fire rate** · S · after 2.3
+- [x] **2.35 Gun fire rate** · S · after 2.3
   - Done when the gun fires 80 rounds a second instead of 20 (the user's pick), a dense, easily followed stream of tracers down range, more like Project Wingman's minigun than Ace Combat's machine gun (the user's design).
   - Verify: play. Files: `game/combat/Gun.cs`.
+  - Settled when planning (the user's pick, "let's see how it feels for now"): each round still does 4 damage, so the gun does four times the damage per second, and a light fighter goes down after about a quarter second of hits instead of a second. Rounds fired within one frame leave spaced along their path by how late in the frame each was due, so the stream is even (12.5 m apart) rather than in pairs.
+  - Not played yet: committed 2026-10-09 while the user couldn't play. Play it: hold Cross and check the stream is dense and even with no gaps or pairs, easy to follow down range; hit a dummy and judge whether it goes down too fast (lower damage per round if so); turn while firing and watch the stream bend away smoothly.
 - [ ] **2.36 Forgiving gun hits** · XS · after 2.3
   - Done when a round passing within about 1 m of a Unit's hit box counts as a hit, so the stream needn't land exactly on it.
   - Verify: play. Files: `game/combat/Gun.cs`.
