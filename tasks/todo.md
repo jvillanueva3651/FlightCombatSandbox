@@ -198,9 +198,11 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
   - Verify: play. Files: `game/combat/Gun.cs`.
   - Settled when planning (the user's pick, "let's see how it feels for now"): each round still does 4 damage, so the gun does four times the damage per second, and a light fighter goes down after about a quarter second of hits instead of a second. Rounds fired within one frame leave spaced along their path by how late in the frame each was due, so the stream is even (12.5 m apart) rather than in pairs.
   - Not played yet: committed 2026-10-09 while the user couldn't play. Play it: hold Cross and check the stream is dense and even with no gaps or pairs, easy to follow down range; hit a dummy and judge whether it goes down too fast (lower damage per round if so); turn while firing and watch the stream bend away smoothly.
-- [ ] **2.36 Forgiving gun hits** · XS · after 2.3
+- [x] **2.36 Forgiving gun hits** · XS · after 2.3
   - Done when a round passing within about 1 m of a Unit's hit box counts as a hit, so the stream needn't land exactly on it.
   - Verify: play. Files: `game/combat/Gun.cs`.
+  - Settled when planning (the user's pick): a fixed 1 m (`HitRadius`), to fine-tune later by playing. Each round sweeps a 1 m ball along its path instead of a line, so terrain still stops it, up to 1 m short of the ground.
+  - Not played yet: committed 2026-10-09 while the user couldn't play. Play it: fire just beside a dummy (rounds grazing within about a meter hit it), fire clearly past it (no hits), and judge whether 1 m is the right forgiveness together with 2.35's damage.
 - [ ] **2.37 Gun reticle** · M · after 2.35, 2.9
   - Done when a small reticle shows on the HUD while a hostile Unit is in gun range, marking where the rounds will be at its distance. It stays still when flying straight at the Unit, and drops down the HUD in a pull-up, furthest in a high-G turn, since rounds fired mid-turn end up below where the nose now points (the user's design).
   - Verify: play. Files: `game/ui/GunReticle.cs`, `game/ui/hud.tscn`, `game/combat/Gun.cs`.

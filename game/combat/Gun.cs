@@ -1,10 +1,11 @@
 using System.Collections.Generic;
+using System.Linq;
 using Godot;
 
 /// <summary>
 /// The jet's gun: holding Cross fires tracer rounds straight ahead from where the gun sits on the jet.
 /// Each round flies in a straight line at the jet's speed plus the muzzle speed and damages the Unit
-/// whose hit box it reaches; terrain stops it, and it vanishes at the end of its range.
+/// whose hit box it passes within a meter of; terrain stops it, and it vanishes at the end of its range.
 /// </summary>
 public partial class Gun : Node3D
 {
@@ -12,6 +13,7 @@ public partial class Gun : Node3D
     const int RoundDamage = 4;       // damage per hit: 25 hits destroy a light fighter
     const float MuzzleSpeed = 1000;  // m/s on top of the jet's speed
     const float RoundLife = 1.2f;    // seconds before a round vanishes: about 1.4 km at cruise speed
+    const float HitRadius = 1;       // m: a round passing this close to a hit box hits it
 
     sealed class Round
     {
@@ -21,6 +23,7 @@ public partial class Gun : Node3D
     }
 
     readonly List<Round> _rounds = new();
+    readonly SphereShape3D _hitBall = new() { Radius = HitRadius };  // swept along each round's path
 
     // Seen from the chase camera the rounds fly almost straight away from it, so a real-sized tracer
     // shrinks to nothing within a few hundred meters. Instead each one is a dot facing the camera that
@@ -60,16 +63,21 @@ public partial class Gun : Node3D
         {
             var round = _rounds[i];
             var from = round.Tracer.GlobalPosition;
-            var to = from + round.Velocity * dt;
-            var hit = space.IntersectRay(new PhysicsRayQueryParameters3D { From = from, To = to, CollideWithAreas = true });
+            var move = round.Velocity * dt;
+            var query = new PhysicsShapeQueryParameters3D { Shape = _hitBall, Transform = new Transform3D(Basis.Identity, from), Motion = move, CollideWithAreas = true };
+            var reached = space.CastMotion(query)[1];  // how far along the move the ball first touches something: 1 for nothing
             round.Age += dt;
-            if (hit.Count == 0 && round.Age < RoundLife)
+            if (reached >= 1 && round.Age < RoundLife)
             {
-                round.Tracer.GlobalPosition = to;
+                round.Tracer.GlobalPosition = from + move;
                 continue;
             }
-            if (hit.Count > 0)
-                (hit["collider"].As<Node>().GetParent() as Unit)?.Damage(RoundDamage);  // terrain just stops it
+            if (reached < 1)
+            {
+                query.Transform = new Transform3D(Basis.Identity, from + move * reached);
+                query.Motion = Vector3.Zero;
+                space.IntersectShape(query).Select(hit => hit["collider"].As<Node>().GetParent()).OfType<Unit>().FirstOrDefault()?.Damage(RoundDamage);  // terrain just stops it
+            }
             round.Tracer.QueueFree();
             _rounds.RemoveAt(i);
         }
