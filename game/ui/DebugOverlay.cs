@@ -5,14 +5,17 @@ using Godot;
 /// <summary>
 /// Shows the jet's flight numbers, its and its Target's health and what every control is doing right
 /// now, from the DualSense and the keyboard. It starts hidden, since the HUD shows what matters in
-/// flight, and F4 shows and hides it. F2 damages the Target and F3 the jet, shown or not. The test
-/// dummies, every Unit on another Team when the scene starts, each come back as they were placed a
-/// few seconds after being destroyed.
+/// flight, and F4 shows and hides it. F2 damages the Target and F3 the jet, shown or not, and F5 moves
+/// the test scene's AI point to the jet. The test dummies, every Unit on another Team when the scene
+/// starts (AI jets too), each come back as they were placed a few seconds after being destroyed.
 /// </summary>
 public partial class DebugOverlay : CanvasLayer
 {
     /// <summary>The jet whose speed, altitude, throttle, G-load and health are shown, and that F3 damages.</summary>
     [Export] public Jet Jet { get; set; }
+
+    /// <summary>The point the test scene's AI Pilots fly to, which F5 moves to the jet.</summary>
+    [Export] public Node3D AiPoint { get; set; }
 
     const int DebugDamage = 25;          // damage per press of F2 or F3
     const float DummyRespawnDelay = 5;   // seconds from a dummy's destruction to a fresh one
@@ -52,6 +55,8 @@ public partial class DebugOverlay : CanvasLayer
             Jet.Damage(DebugDamage);
         else if (e.IsActionPressed(Controls.DebugOverlay))
             Visible = !Visible;
+        else if (e.IsActionPressed(Controls.MoveAiPoint))
+            AiPoint.GlobalPosition = Jet.GlobalPosition;
     }
 
     public override void _Process(double delta)
@@ -96,6 +101,7 @@ public partial class DebugOverlay : CanvasLayer
             Damage target  {Held(Controls.DamageTarget)}  --                     F2
             Damage jet     {Held(Controls.DamageJet)}  --                     F3
             Debug overlay  {Held(Controls.DebugOverlay)}  --                     F4
+            Move AI point  {Held(Controls.MoveAiPoint)}  --                     F5
             """;
     }
 

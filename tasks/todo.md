@@ -219,10 +219,13 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
   - Settled when planning (the user's picks): 2500 m/s, a middle ground between 2000 and 3000; 2.5 km of range ("bullets can go beyond that"); no smoothing on the reticle until faster rounds have been flown; the gun's damage and 1 m forgiveness (2.35, 2.36) judged after this change. The reticle now drops about 2.5 times less: 9° below the nose at 500 m in a half-stick pull, 15° at full stick.
   - Not played yet: committed 2026-10-09 while the user couldn't play. Play it: pull up with a dummy within 1.5 km (the reticle moves with the jet, not springy; in hard pulls it sits over the jet's body, judge whether that reads well); roll while pulling (it barely swings sideways); fire with nothing ahead (tracers carry well past 1.5 km; at 80 rounds a second they're now 31 m apart, so judge whether the stream still reads); and hit a dummy, now with less lead, to judge whether the gun is too deadly (2.35, 2.36).
 
-- [ ] **2.11 AI pilot flies to a point** · M · after 2.4
-  - Done when the flight model takes its inputs from either the controller or an AI pilot, and an enemy jet (same Unit Type, Team 2) flies to a given point with it.
-  - Verify: play. Files: `game/flight/FlightInput.cs`, `game/flight/Jet.cs`, `game/ai/AiPilot.cs`.
-  - Note (from the Step 2 review): `jet.tscn` still assumes it's the Player's. An enemy jet built from it would fire its gun and missiles and switch Targets on the Player's buttons (`Gun`, `MissileLauncher` and `Targeting` read the controller directly), play its engine and wind at full volume wherever it is (`JetSound` isn't placed in 3D space), start again where it began 2 s after being shot down (`Jet.Destroyed`), and be copied by the debug overlay as a test dummy (every Unit on another Team at startup).
+- [x] **2.11 AI Pilot flies to a point** · M · after 2.4
+  - Done when the flight model takes its inputs from either the controller or an AI Pilot, and an enemy jet (same Unit Type, Team 2) flies to a given point with it.
+  - Verify: play. Files: `game/flight/FlightInput.cs`, `game/flight/Jet.cs`, `game/flight/jet.tscn`, `game/flight/player_jet.tscn`, `game/ai/AiPilot.cs`, `game/ai/ai_jet.tscn`, `game/world/test_flight.tscn`, `game/flight/Controls.cs`, `game/ui/DebugOverlay.cs`, `GLOSSARY.md`.
+  - Settled when planning (the user's picks): the term AI Pilot, added to the glossary ("Pilot" stays banned as a word for the Player); one point in the test scene shown by an orange marker, which F5 moves to the Player's jet; cruise speed only (the AI leaves the throttle alone); a hit box, so the gun and missiles can shoot it down, after which it comes back at its start 5 s later through the debug overlay, like the dummies; the same gray model as the Player's jet, silent.
+  - How it flies: each frame the jet takes a `FlightInput` from its AI Pilot if it has one, otherwise from the controller. The AI Pilot rolls to put the point above the canopy and pulls, levels the wings within 15° of the nose, and nudges L1/R1 for the last few degrees. Changed while building: within 150 m it flies straight on through the point and turns back 1 km past it, because flying at the point all the time left it orbiting 100-180 m around it in a full pull, at stall speed.
+  - What happened to the Step 2 review's note on `jet.tscn` assuming it's the Player's: `jet.tscn` is now the shared airframe (the `Jet` script, the model, `NoseView`). `player_jet.tscn` adds the Player's `Sound`, `Gun`, `Targeting` and `MissileLauncher`, and `ai/ai_jet.tscn` adds the AI Pilot and a hit box, so an AI jet has no controller-reading parts and no sound. An AI Pilot's jet disappears when shot down instead of starting again (`Jet.Destroyed`), and the debug overlay's copying of every other-Team Unit is what brings it back.
+  - Played 2026-10-09: passed, watched in flight.
 - [ ] **2.12 AI terrain avoidance** · S · after 2.11, 1.21
   - Done when AI jets pull up before terrain ahead and don't crash in normal flight; watch one fly the canyon area for a few minutes.
   - Verify: play. Files: `game/ai/AiPilot.cs`.
@@ -232,7 +235,7 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
 - [ ] **2.14 AI attacks** · S · after 2.13, 2.7, 2.3
   - Done when AI jets fire the gun and missiles when their Target is in range and in front.
   - Verify: play. Files: `game/ai/AiPilot.cs`.
-  - Note: jets get a hit box here, the first time anything shoots at them. Gun rounds must then skip the shooter's own hit box and Team (the spec has no friendly fire).
+  - Note: AI jets got their hit box in 2.11 (`game/ai/ai_jet.tscn`). Once they fire, gun rounds must skip the shooter's own hit box and Team (the spec has no friendly fire). Their gun and launcher go in `ai_jet.tscn` and need the AI Pilot to pull the trigger instead of the controller, the way `FlightInput` does for flying.
 - [ ] **2.15 Missile warning** · S · after 2.14
   - Done when a "MISSILE" warning and alarm tone appear while a missile tracks the Player.
   - Verify: play. Files: `game/ui/Hud.cs`, `game/combat/Missile.cs`.

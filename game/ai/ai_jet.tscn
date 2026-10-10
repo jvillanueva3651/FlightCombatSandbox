@@ -1,0 +1,18 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://flight/jet.tscn" id="1_jet"]
+[ext_resource type="Script" path="res://ai/AiPilot.cs" id="2_pilot"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_hit"]
+size = Vector3(10, 3, 15)
+
+[node name="Jet" instance=ExtResource("1_jet")]
+
+[node name="AiPilot" type="Node" parent="."]
+script = ExtResource("2_pilot")
+
+[node name="HitBox" type="Area3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1.5)
+
+[node name="Shape" type="CollisionShape3D" parent="HitBox"]
+shape = SubResource("BoxShape3D_hit")

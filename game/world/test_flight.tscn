@@ -1,6 +1,6 @@
 [gd_scene format=3]
 
-[ext_resource type="PackedScene" path="res://flight/jet.tscn" id="1_jet"]
+[ext_resource type="PackedScene" path="res://flight/player_jet.tscn" id="1_jet"]
 [ext_resource type="PackedScene" path="res://ui/debug_overlay.tscn" id="2_overlay"]
 [ext_resource type="PackedScene" path="res://ui/pause_menu.tscn" id="3_pause"]
 [ext_resource type="PackedScene" path="res://ui/tuning_panel.tscn" id="4_tuning"]
@@ -9,6 +9,7 @@
 [ext_resource type="Script" path="res://world/TestTerrain.cs" id="7_terrain"]
 [ext_resource type="Script" path="res://combat/Unit.cs" id="8_unit"]
 [ext_resource type="PackedScene" path="res://ui/hud.tscn" id="9_hud"]
+[ext_resource type="PackedScene" path="res://ai/ai_jet.tscn" id="10_ai_jet"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_sky"]
 ground_bottom_color = Color(0.6463, 0.6558, 0.6708, 1)
@@ -59,6 +60,17 @@ size = Vector3(10, 3, 15)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_dummy"]
 size = Vector3(10, 3, 15)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ai_point"]
+no_depth_test = true
+shading_mode = 0
+albedo_color = Color(1, 0.5, 0, 1)
+billboard_mode = 1
+fixed_size = true
+
+[sub_resource type="QuadMesh" id="QuadMesh_ai_point"]
+material = SubResource("StandardMaterial3D_ai_point")
+size = Vector2(0.03, 0.03)
 
 [node name="TestFlight" type="Node3D"]
 
@@ -125,6 +137,18 @@ mesh = SubResource("BoxMesh_dummy")
 [node name="Shape" type="CollisionShape3D" parent="Dummy3/HitBox"]
 shape = SubResource("BoxShape3D_dummy")
 
+[node name="AiPoint" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1500, -3000)
+cast_shadow = 0
+mesh = SubResource("QuadMesh_ai_point")
+
+[node name="AiJet" parent="." instance=ExtResource("10_ai_jet")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2500, 1500, -5000)
+Team = 2
+
+[node name="AiPilot" parent="AiJet" node_paths=PackedStringArray("Point")]
+Point = NodePath("../../AiPoint")
+
 [node name="Camera" type="Camera3D" parent="." node_paths=PackedStringArray("Jet")]
 transform = Transform3D(1, 0, 0, 0, 0.997564, 0.069756, 0, -0.069756, 0.997564, 0, 1004, 20)
 far = 50000.0
@@ -136,8 +160,9 @@ Jet = NodePath("../Jet")
 [node name="Hud" parent="." node_paths=PackedStringArray("Jet") instance=ExtResource("9_hud")]
 Jet = NodePath("../Jet")
 
-[node name="DebugOverlay" parent="." node_paths=PackedStringArray("Jet") instance=ExtResource("2_overlay")]
+[node name="DebugOverlay" parent="." node_paths=PackedStringArray("Jet", "AiPoint") instance=ExtResource("2_overlay")]
 Jet = NodePath("../Jet")
+AiPoint = NodePath("../AiPoint")
 
 [node name="PauseMenu" parent="." instance=ExtResource("3_pause")]
 

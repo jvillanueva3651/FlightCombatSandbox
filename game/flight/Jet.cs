@@ -2,13 +2,14 @@ using Core;
 using Godot;
 
 /// <summary>
-/// Flies a jet straight from its Handling, with no aerodynamics: R2 and L2 set its speed, hard pulls
-/// and climbs bleed it, dives build it, and the stick (through the Feel Settings' response curve) and
-/// L1/R1 turn it at the Handling rates, strongest at corner speed and easing in and out over its
-/// response time. Below stall speed the nose falls toward the ground. Squeezing R2 and L2 together
-/// while pulling makes a high-G turn: tighter, and much costlier in speed. It's a Unit: losing all its
-/// health or hitting the ground shoots it down, and after it explodes and a short pause it starts
-/// again where it first started, with full health.
+/// Flies a jet straight from its Handling, with no aerodynamics, on the controls set each frame by
+/// whoever flies it: the AI Pilot among its parts if it has one, otherwise the Player's controller.
+/// R2 and L2 set its speed, hard pulls and climbs bleed it, dives build it, and the stick and L1/R1
+/// turn it at the Handling rates, strongest at corner speed and easing in and out over its response
+/// time. Below stall speed the nose falls toward the ground. Squeezing R2 and L2 together while
+/// pulling makes a high-G turn: tighter, and much costlier in speed. It's a Unit: losing all its
+/// health or hitting the ground shoots it down. After it explodes the Player's jet starts again, a
+/// short pause later, where it first started and with full health; an AI Pilot's jet disappears.
 /// </summary>
 public partial class Jet : Unit
 {
@@ -30,13 +31,13 @@ public partial class Jet : Unit
     /// <summary>True from being shot down until the jet starts again: while its health is zero.</summary>
     public bool ShotDown => Health == 0;
 
-    /// <summary>The jet's Targeting, one of its parts in jet.tscn.</summary>
+    /// <summary>The jet's Targeting, one of its parts in player_jet.tscn.</summary>
     public Targeting Targeting => GetNode<Targeting>("Targeting");
 
-    /// <summary>The jet's missile launcher, one of its parts in jet.tscn.</summary>
+    /// <summary>The jet's missile launcher, one of its parts in player_jet.tscn.</summary>
     public MissileLauncher MissileLauncher => GetNode<MissileLauncher>("MissileLauncher");
 
-    /// <summary>The jet's gun, one of its parts in jet.tscn.</summary>
+    /// <summary>The jet's gun, one of its parts in player_jet.tscn.</summary>
     public Gun Gun => GetNode<Gun>("Gun");
 
     const float RespawnDelay = 2;  // seconds from being shot down to starting again
@@ -45,6 +46,7 @@ public partial class Jet : Unit
     // than checked where the move ends, so a fast frame can't skip through the ground.
     readonly SphereShape3D _crashBall = new() { Radius = 4 };
 
+    AiPilot _aiPilot;  // flies the jet if it has one; null for the Player's
     Transform3D _start;
     float _sinceShotDown;
 
@@ -60,6 +62,7 @@ public partial class Jet : Unit
         Handling = Packs.Base.Feel.Apply(UnitType.Handling);
         Speed = Handling.CruiseSpeed;
         _start = Transform;
+        _aiPilot = GetNodeOrNull<AiPilot>("AiPilot");
     }
 
     public override void _Process(double delta)
@@ -74,12 +77,12 @@ public partial class Jet : Unit
         }
 
         Handling = Packs.Base.Feel.Apply(UnitType.Handling);  // with the Feel Settings' multipliers on top
-        _pitch = Handling.NextTurn(_pitch, Stick(Controls.PitchDown, Controls.PitchUp), dt);  // + = nose up
-        _roll = Handling.NextTurn(_roll, Stick(Controls.RollLeft, Controls.RollRight), dt);    // + = right wing down
-        _yaw = Handling.NextTurn(_yaw, Stick(Controls.YawLeft, Controls.YawRight), dt);        // + = nose right
-        Throttle = Input.GetAxis(Controls.Brake, Controls.Throttle);
-        var squeeze = Mathf.Min(Input.GetActionStrength(Controls.Brake), Input.GetActionStrength(Controls.Throttle));
-        _squeeze = Handling.NextTurn(_squeeze, squeeze, dt);
+        var input = _aiPilot?.Fly() ?? FlightInput.FromController();
+        _pitch = Handling.NextTurn(_pitch, input.Pitch, dt);
+        _roll = Handling.NextTurn(_roll, input.Roll, dt);
+        _yaw = Handling.NextTurn(_yaw, input.Yaw, dt);
+        Throttle = input.Throttle;
+        _squeeze = Handling.NextTurn(_squeeze, input.Squeeze, dt);
         Speed = Handling.NextSpeed(Speed, Throttle, dt);
         Speed = Handling.SpeedAfterTurn(Speed, _pitch, dt);
         Speed = Handling.SpeedAfterHighG(Speed, _pitch, _squeeze, dt);
@@ -113,9 +116,14 @@ public partial class Jet : Unit
         GLoad = metersPerSecond * pitchRate / 9.81f + GlobalTransform.Basis.Y.Y;
     }
 
-    // The jet stays in the scene, stopped and hidden by the camera, until it starts again.
+    // The Player's jet stays in the scene, stopped and hidden by the camera, until it starts again.
     protected override void Destroyed()
     {
+        if (_aiPilot != null)
+        {
+            base.Destroyed();
+            return;
+        }
         _sinceShotDown = 0;
         Speed = 0;
     }
@@ -127,7 +135,4 @@ public partial class Jet : Unit
         Speed = Handling.CruiseSpeed;
         _pitch = _roll = _yaw = _squeeze = 0;
     }
-
-    // An axis's position after the Feel Settings' response curve.
-    static float Stick(StringName negative, StringName positive) => Packs.Base.Feel.Curve(Input.GetAxis(negative, positive));
 }

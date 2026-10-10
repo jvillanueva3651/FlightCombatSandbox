@@ -80,6 +80,10 @@ _Avoid_: Game mode rules, Allegiance
 Anything that can be locked on to and attacked: every Unit, and every piece of Scenery, that belongs to a hostile Team. Giving Scenery to a Team, or taking it back, changes what is a Target during a Mission.
 _Avoid_: TGT (Ace Combat's marker for objective targets is a different idea)
 
+**AI Pilot**:
+What flies a Unit that isn't the Player's: it reads the situation and works the same controls a Player does, so it can't do anything a Player couldn't. Not a word for the Player.
+_Avoid_: Bot, Brain, Controller
+
 ### Flying
 
 **Role**:
