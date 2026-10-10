@@ -44,6 +44,15 @@ public sealed record Handling
     };
 
     /// <summary>
+    /// The throttle (R2 +, L2 -) that settles the jet at <paramref name="speed"/>: the reverse of
+    /// <see cref="NextSpeed"/>. Cruise speed itself gets a touch of R2, so the jet comes back to it at
+    /// throttle strength rather than drifting back.
+    /// </summary>
+    public float ThrottleFor(float speed) => speed >= CruiseSpeed
+        ? Math.Clamp((speed - CruiseSpeed) / (TopSpeed - CruiseSpeed), 0.001f, 1)
+        : Math.Max((speed - CruiseSpeed) / (CruiseSpeed - MinSpeed), -1);
+
+    /// <summary>
     /// How much of its full turn rate one axis uses after <paramref name="seconds"/>, from -1 to 1 like
     /// the stick it follows. It moves toward the stick at a steady pace that takes the response time to
     /// go from no turn to a full one, so turns ease in and out and small corrections arrive sooner.

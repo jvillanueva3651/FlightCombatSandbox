@@ -5,9 +5,10 @@ using Godot;
 /// <summary>
 /// Shows the jet's flight numbers, its and its Target's health and what every control is doing right
 /// now, from the DualSense and the keyboard. It starts hidden, since the HUD shows what matters in
-/// flight, and F4 shows and hides it. F2 damages the Target and F3 the jet, shown or not, and F5 moves
-/// the test scene's AI point to the jet. The test dummies, every Unit on another Team when the scene
-/// starts (AI jets too), each come back as they were placed a few seconds after being destroyed.
+/// flight, and F4 shows and hides it. F2 damages the Target and F3 the jet, shown or not, F5 moves
+/// the test scene's AI point to the jet, and F6 switches the AI Pilots between chasing their Target
+/// and flying to that point. The test dummies, every Unit on another Team when the scene starts (AI
+/// jets too), each come back as they were placed a few seconds after being destroyed.
 /// </summary>
 public partial class DebugOverlay : CanvasLayer
 {
@@ -57,6 +58,8 @@ public partial class DebugOverlay : CanvasLayer
             Visible = !Visible;
         else if (e.IsActionPressed(Controls.MoveAiPoint))
             AiPoint.GlobalPosition = Jet.GlobalPosition;
+        else if (e.IsActionPressed(Controls.ToggleAiChase))
+            AiPilot.Chasing = !AiPilot.Chasing;
     }
 
     public override void _Process(double delta)
@@ -102,6 +105,7 @@ public partial class DebugOverlay : CanvasLayer
             Damage jet     {Held(Controls.DamageJet)}  --                     F3
             Debug overlay  {Held(Controls.DebugOverlay)}  --                     F4
             Move AI point  {Held(Controls.MoveAiPoint)}  --                     F5
+            AI chase       {Held(AiPilot.Chasing)}  --                     F6
             """;
     }
 

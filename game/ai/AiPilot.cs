@@ -1,20 +1,26 @@
+using System.Linq;
 using Godot;
 
 /// <summary>
-/// Flies its jet, its parent, to a point through the same controls the Player uses: it rolls to put
-/// the point straight above the canopy and pulls toward it, the way an Ace Combat turn goes, and near
-/// the nose it levels the wings and finishes with small stick and L1/R1 corrections. It holds R2 only
-/// to get back up to cruise speed. Close to the point it flies on level through it, and some way past
-/// it turns back for another pass, rather than circling it in a tight turn that bleeds the jet down
-/// to stall speed. The ground comes before all of that: it looks a few seconds along its nose, and
-/// while the ground is in the way it rolls the sky above its canopy and pulls up; it heads for the
-/// point level while the straight way there runs through the ground; and it climbs for room before
-/// turning hard close to the ground.
+/// Flies its jet, its parent, through the same controls the Player uses. It chases its Target, the
+/// nearest hostile jet: it aims ahead of it, at where it will be by the time the jet could get there,
+/// so it cuts inside the Target's turn, and it works the triggers to sit a set way behind at the
+/// Target's speed. With no Target it flies to its point at cruise speed instead: close to the point it
+/// flies on level through it, and some way past it turns back for another pass, rather than circling
+/// it in a tight turn. Either way it rolls to put where it's headed straight above the canopy and
+/// pulls, the way an Ace Combat turn goes, and near the nose it levels the wings and finishes with
+/// small stick and L1/R1 corrections. The ground comes before all of that: it looks a few seconds
+/// along its nose, and while the ground is in the way it rolls the sky above its canopy and pulls up;
+/// it heads for its goal level while the straight way there runs through the ground; and it climbs
+/// for room before turning hard close to the ground.
 /// </summary>
 public partial class AiPilot : Node
 {
-    /// <summary>The point the jet flies to.</summary>
+    /// <summary>The point the jet flies to while it has no Target.</summary>
     [Export] public Node3D Point { get; set; }
+
+    /// <summary>The test scene's switch (F6): off, every AI Pilot flies to its point rather than chase a Target.</summary>
+    public static bool Chasing { get; set; } = true;
 
     const float NearNose = 15;        // degrees off the nose inside which it eases toward wings level instead of banking at the point
     const float RollGain = 2;         // roll stick per radian of bank still to go
@@ -27,6 +33,10 @@ public partial class AiPilot : Node
     const float HardTurn = 45;        // degrees off the nose beyond which a turn needs TurnRoom
     const float TurnRoom = 300;       // meters of clear air around it that a hard turn needs
     const float ClimbOut = 30;        // degrees it climbs at, straight ahead, to get that room
+    const float MaxLead = 3;          // seconds ahead of its Target it aims, at most
+    const float TrailDistance = 600;  // meters behind its Target it tries to sit
+    const float CloseRate = 0.25f;    // km/h faster than its Target it flies for each meter further back than that, and slower for each meter closer
+    const float StallMargin = 50;     // km/h above stall speed it stays when slowing down for its Target
 
     readonly SphereShape3D _clearBall = new() { Radius = Clearance };  // swept along a path to find ground on it
     readonly SphereShape3D _turnBall = new() { Radius = TurnRoom };    // around the jet, to find ground near it
@@ -41,22 +51,23 @@ public partial class AiPilot : Node
     {
         var fromJet = _jet.GlobalBasis.Inverse();
         var sky = fromJet * Vector3.Up;
-        var throttle = _jet.Speed < _jet.Handling.CruiseSpeed ? 1 : 0;
-        var offset = Point.GlobalPosition - _jet.GlobalPosition;
+        var target = Chasing ? Unit.Hostiles(GetTree(), _jet.Team).OfType<Jet>().MinBy(DistanceTo) : null;
+        var offset = (target != null ? LeadPoint(target) : Point.GlobalPosition) - _jet.GlobalPosition;
+        var throttle = _jet.Handling.ThrottleFor(target != null ? ChaseSpeed(target) : _jet.Handling.CruiseSpeed);
 
         // Ground ahead: roll the sky above the canopy and pull, once the canopy isn't facing the ground,
-        // until the way is clear. This close to the point, that ends the pass.
+        // until the way is clear. This close to its point, that ends the pass.
         var nose = -_jet.GlobalBasis.Z;
         if (GroundAlong(nose))
         {
-            _passing |= offset.Length() < TurnBackRange;
+            _passing |= target == null && offset.Length() < TurnBackRange;
             return new FlightInput(Pitch: sky.Y > -0.2f ? 1 : 0, Roll: Mathf.Clamp(Mathf.Atan2(sky.X, sky.Y) * RollGain, -1, 1), Yaw: 0, throttle, Squeeze: 0);
         }
 
-        // Where it heads: the point; level toward it while the straight way there runs through the
-        // ground, so it doesn't dive at what the pull-up would only haul it back from; and level along
-        // its heading while passing.
-        _passing = offset.Length() < PassRange || (_passing && offset.Length() < TurnBackRange);
+        // Where it heads: its goal, the Target's lead point or its own point; level toward that while
+        // the straight way there runs through the ground, so it doesn't dive at what the pull-up would
+        // only haul it back from; and level along its heading while passing its point.
+        _passing = target == null && (offset.Length() < PassRange || (_passing && offset.Length() < TurnBackRange));
         var heading = _passing ? nose with { Y = 0 } : GroundAlong(offset.Normalized()) ? offset with { Y = 0 } : offset;
         var to = (fromJet * heading).Normalized();  // seen from the jet: -Z ahead, +Y above, +X right
 
@@ -74,6 +85,25 @@ public partial class AiPilot : Node
             throttle,
             Squeeze: 0);
     }
+
+    float DistanceTo(Unit unit) => _jet.GlobalPosition.DistanceTo(unit.GlobalPosition);
+
+    // Where its Target will be by the time the jet could make up the distance to its place behind it,
+    // MaxLead ahead at most: ahead of the Target while it's further back than TrailDistance, to cut
+    // the corner, and the Target itself once it's there. Leading by the whole distance would be a
+    // collision course.
+    Vector3 LeadPoint(Jet target)
+    {
+        var lead = Mathf.Clamp((DistanceTo(target) - TrailDistance) / (_jet.Speed / 3.6f), 0, MaxLead);
+        return target.GlobalPosition - target.GlobalBasis.Z * target.Speed / 3.6f * lead;
+    }
+
+    // The speed, in km/h, that brings it to TrailDistance behind its Target and holds it there: the
+    // Target's own, faster the further back it is and slower when it's too close.
+    float ChaseSpeed(Jet target) => Mathf.Clamp(
+        target.Speed + (DistanceTo(target) - TrailDistance) * CloseRate,
+        _jet.Handling.StallSpeed + StallMargin,
+        _jet.Handling.TopSpeed);
 
     // True when a ball Clearance wide, swept from the jet along a direction as far as it flies in LookAhead, meets the ground.
     bool GroundAlong(Vector3 direction)

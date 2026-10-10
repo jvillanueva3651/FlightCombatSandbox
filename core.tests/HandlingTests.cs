@@ -97,6 +97,33 @@ public class HandlingTests
     }
 
     [Fact]
+    public void Throttle_for_a_speed_is_R2_above_cruise_speed_and_L2_below_it()
+    {
+        Assert.Equal(0.5f, LightFighter.ThrottleFor(925));   // halfway from cruise speed to top speed
+        Assert.Equal(1f, LightFighter.ThrottleFor(1300));
+        Assert.Equal(-0.5f, LightFighter.ThrottleFor(375));  // halfway from cruise speed down to minimum speed
+        Assert.Equal(-1f, LightFighter.ThrottleFor(200));
+    }
+
+    [Fact]
+    public void Holding_the_throttle_for_a_speed_settles_the_jet_there()
+    {
+        foreach (var (wanted, from) in new[] { (925f, 600f), (925f, 1200f), (375f, 500f), (375f, 250f), (550f, 400f), (550f, 700f) })
+        {
+            var speed = from;
+            for (var frame = 0; frame < 600; frame++)  // ten seconds
+                speed = LightFighter.NextSpeed(speed, LightFighter.ThrottleFor(wanted), 1 / 60f);
+            Assert.InRange(speed, wanted - 1, wanted + 1);
+        }
+    }
+
+    [Fact]
+    public void Throttle_for_cruise_speed_gets_back_to_it_at_throttle_strength_rather_than_drifting()
+    {
+        Assert.Equal(450f, LightFighter.NextSpeed(350, LightFighter.ThrottleFor(550), seconds: 1));
+    }
+
+    [Fact]
     public void Full_stick_turns_in_at_a_steady_pace_over_the_response_time()
     {
         Assert.Equal(0.5f, LightFighter.NextTurn(0, stick: 1, seconds: 0.125f));
