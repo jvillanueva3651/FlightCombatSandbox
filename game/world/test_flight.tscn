@@ -138,7 +138,7 @@ mesh = SubResource("BoxMesh_dummy")
 shape = SubResource("BoxShape3D_dummy")
 
 [node name="AiPoint" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1500, -3000)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -970, 180, -3000)
 cast_shadow = 0
 mesh = SubResource("QuadMesh_ai_point")
 
