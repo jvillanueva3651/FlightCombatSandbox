@@ -246,10 +246,25 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
   - How it chases, in `AiPilot.cs`: the Target's lead point takes the place of its own point as where it heads, so the bank-and-pull steering and 2.12's ground rules apply unchanged. Its speed is the Target's plus 0.25 km/h for each meter further back than 600 m (`CloseRate`), set through `Handling.ThrottleFor`, new in Core: the trigger position that settles the jet at a speed, the reverse of `NextSpeed`. Changed while building: it leads by the time it needs to make up the distance to its place 600 m behind, not by the time to reach the Target, which is a collision course (it closed to 47 m in a turn). In a tight turn it can't hold 600 m: a half-stick turn's circle is about 390 m across, and it settles about 170 m away on a slower circle inside it, its nose 16° behind the Target.
   - Checked by probe: it catches a straight-flying Player up in a minute and sits 576 m behind at its speed; follows full throttle and hard braking without overrunning; obeys F6 both ways; follows a Player at 60 m over flat ground; and chases a Player on rails through the canyon for five minutes from five starts without a crash.
   - Played 2026-10-09: it chases, but far too well. The user couldn't stay behind it, found it more maneuverable than their own jet, and its braking "psychic". The causes: it read the Player's exact speed every frame, its throttle made up the speed its turns cost, and it used the full stick at once. 2.41 gives AI Pilots a Skill.
+- [x] **2.41 AI Skill** · S · after 2.13
+  - Done when every AI Pilot has a Skill (Rookie, Regular, Veteran or Ace; Regular unless set) that limits how well it flies, and F7 cycles the test scene's AI jets through the four. A change to the confirmed design, the user's decision after playing 2.13: Ace was a Trait, and is now the top Skill.
+  - Verify: play. Files: `game/ai/Skill.cs`, `game/ai/AiPilot.cs`, `game/flight/Jet.cs`, `game/flight/Controls.cs`, `game/ui/DebugOverlay.cs`, `docs/SPEC.md`, `GLOSSARY.md`, `tasks/plan.md`.
+  - Settled when planning (the user's picks): Ace becomes the top Skill and stops being a Trait (Traits are now Stealth and Invulnerable; an Ace still shows its name on the HUD); every Unit has a Skill, set by the Mission's Author, Regular by default; the word is Skill, not Difficulty or Rank; all four levels built now with F7 to cycle them, final tuning at the 1v1 checkpoint.
+  - What a Skill comes to, a table in `AiPilot.cs`, Rookie / Regular / Veteran / Ace: it notices its Target's speed changing over 2 / 1 / 0.5 / 0.2 s; it pulls at most 60 / 75 / 90 / 100% of the stick (the terrain pull-up keeps the full stick for all of them); and a hard turn (over half stick) may slow it to 65% / 75% of corner speed before it works the triggers again, while Veterans and Aces never let go of them. Changed while building: that last one was "doesn't use the throttle in hard turns" for Rookie and Regular, which bled a Regular down to stall speed in a lazy half-stick turn and left it a sitting duck. Measured: the nose swings at most 54 / 68 / 79 / 88°/s; when the Player brakes hard for 6 s they close to 483 / 532 / 563 / 580 m, so braking is still a weak counter with the 600 m gap they keep.
+  - Also fixed here: the AI Pilot and the jet made a new physics query object every frame, and about one probe run in six crashed while quitting, .NET cleaning those up as Godot shut down. Each now reuses one. `Gun.cs` still makes one per round per frame.
+  - Played 2026-10-09: every level is too hard to beat. The user could shoot a Rookie down after some effort and a Regular with a little more, and practically never a Veteran or an Ace without luck. Being hunted down is tedious and not fun. 2.42 rethinks it.
+- [ ] **2.42 An AI that's fun to fight** · M · after 2.41
+  - Done when the user can beat a Rookie comfortably, a Regular with some work, and a Veteran or an Ace with skill rather than luck, and fighting them is fun rather than a chore. To design in its own session before any code: grill the idea, and try the candidates with a prototype.
+  - Verify: play. Files: `game/ai/AiPilot.cs`.
+  - The problem, from playing 2.41: the AI only knows how to hunt. From anywhere it turns onto the Player at once and never lets up, and it reverses the moment the Player gets behind it, so there is no stretch of the fight where the Player has the upper hand. The Skill numbers make it turn and react a little worse, not behave differently.
+  - The user's ideas: flight patterns (the AI flies set maneuvers and tracks, which the Player can read and get behind, rather than chasing all the time), and G-limits (a cap on how hard each Skill may turn, lower than 2.41's shares of the stick).
+  - Other things to weigh then: how long it holds a chase before breaking off; how soon it notices the Player behind it and what it does about it (2.16, AI defense, asks for a hard break); a longer reaction to everything the Player does, not just speed; whether a Rookie should see the Player at all from behind; and that Ace Combat's ordinary enemies mostly fly patterns and only its aces dogfight.
+  - Decide here too whether this comes before 2.14: an AI that already wins too often will be worse once it shoots.
 - [ ] **2.14 AI attacks** · S · after 2.13, 2.7, 2.3
   - Done when AI jets fire the gun and missiles when their Target is in range and in front.
   - Verify: play. Files: `game/ai/AiPilot.cs`.
   - Note: AI jets got their hit box in 2.11 (`game/ai/ai_jet.tscn`). Once they fire, gun rounds must skip the shooter's own hit box and Team (the spec has no friendly fire). Their gun and launcher go in `ai_jet.tscn` and need the AI Pilot to pull the trigger instead of the controller, the way `FlightInput` does for flying. Within gun range it should aim by the rounds' flight time (`Gun.AimPoint`), where 2.13 leads only to close the distance; and in a sustained turn its nose trails its Target by about 16°, which the gun can't hit from.
+  - Note (from 2.41): how soon and how accurately it fires are numbers for each Skill; add them to the Skill table in `AiPilot.cs`. Read 2.42 first: the AI already wins too often without weapons.
 - [ ] **2.15 Missile warning** · S · after 2.14
   - Done when a "MISSILE" warning and alarm tone appear while a missile tracks the Player.
   - Verify: play. Files: `game/ui/Hud.cs`, `game/combat/Missile.cs`.
@@ -257,6 +272,7 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
 - [ ] **2.16 AI defense** · S · after 2.14
   - Done when AI jets break hard when a missile closes on them or a hostile sits on their tail.
   - Verify: play. Files: `game/ai/AiPilot.cs`.
+  - Note (from 2.41): how soon it notices a missile or a hostile on its tail is a number for each Skill. What it does about a hostile on its tail is part of 2.42: today it reverses at once, which is what makes it so hard to stay behind.
 - [ ] **2.30 Flares** · S · after 2.15, 2.9
   - Done when L3+R3 releases flares that can pull missiles tracking the Player off course, and the HUD shows how many flares are left.
   - Verify: play. Files: `game/combat/Flares.cs`, `game/combat/Missile.cs`, `game/ui/Hud.cs`.
@@ -298,6 +314,7 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
 - [ ] **2.26 Dogfight test scene** · XS · after 2.16, 2.22
   - Done when the test scene has four enemy jets, an AA gun and two tanks. It's a throwaway dev scene, not a Mission, so [ADR 0002](../docs/adr/0002-every-mission-built-in-the-editor.md) still holds; task 3.5 replaces it.
   - Verify: play. Files: `game/world/test_flight.tscn`.
+  - Note (from 2.41): give the four enemy jets a mix of Skills (`AiPilot.Skill`).
 
 **Checkpoint: Milestone 1, is it fun?** The user fights four enemy jets and says it's fun. Re-estimate the remaining steps in [plan.md](plan.md).
 
@@ -387,8 +404,8 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
   - Done when Invulnerable Units take no damage.
 - [ ] **3.42 Trait: Stealth** · XS · after 3.15
   - Done when Stealth Units are spotted at a much shorter range.
-- [ ] **3.43 Trait: Ace** · S · after 3.5
-  - Done when Ace Units fly and shoot better and show their name on the HUD.
+- [ ] **3.43 Skill in Missions** · S · after 3.5
+  - Done when a Mission sets each Unit's Skill (Regular unless set), its AI flies and shoots by it, and an Ace shows its name on the HUD. Until 2.41 this was "Trait: Ace"; Ace is now the top Skill. The `Skill` enum moves from `game/ai/Skill.cs` into Core with the Mission model.
 - [ ] **3.44 Actions: set Stance, add or remove Trait** · XS · after 3.16, 3.41
   - Done when actions change a Group's Stance and add or remove Traits.
 - [ ] **3.45 Stances: Aggressive and Covering** · S · after 3.9, 3.11

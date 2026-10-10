@@ -44,7 +44,8 @@ public partial class Jet : Unit
 
     // The ball swept along each frame's move to find the ground: about the jet's size, and swept rather
     // than checked where the move ends, so a fast frame can't skip through the ground.
-    readonly SphereShape3D _crashBall = new() { Radius = 4 };
+    // Asked every frame with the same query rather than a new one.
+    readonly PhysicsShapeQueryParameters3D _crashSweep = new() { Shape = new SphereShape3D { Radius = 4 } };
 
     AiPilot _aiPilot;  // flies the jet if it has one; null for the Player's
     Transform3D _start;
@@ -77,7 +78,7 @@ public partial class Jet : Unit
         }
 
         Handling = Packs.Base.Feel.Apply(UnitType.Handling);  // with the Feel Settings' multipliers on top
-        var input = _aiPilot?.Fly() ?? FlightInput.FromController();
+        var input = _aiPilot?.Fly(dt) ?? FlightInput.FromController();
         _pitch = Handling.NextTurn(_pitch, input.Pitch, dt);
         _roll = Handling.NextTurn(_roll, input.Roll, dt);
         _yaw = Handling.NextTurn(_yaw, input.Yaw, dt);
@@ -104,7 +105,9 @@ public partial class Jet : Unit
         // Move forward, as far as the ground allows; touching it shoots the jet down.
         var metersPerSecond = Speed / 3.6f;
         var move = GlobalBasis * Vector3.Forward * metersPerSecond * dt;
-        var free = GetWorld3D().DirectSpaceState.CastMotion(new PhysicsShapeQueryParameters3D { Shape = _crashBall, Transform = GlobalTransform, Motion = move })[0];
+        _crashSweep.Transform = GlobalTransform;
+        _crashSweep.Motion = move;
+        var free = GetWorld3D().DirectSpaceState.CastMotion(_crashSweep)[0];
         GlobalPosition += move * free;
         if (free < 1)
         {

@@ -2,10 +2,12 @@ using System.Linq;
 using Godot;
 
 /// <summary>
-/// Flies its jet, its parent, through the same controls the Player uses. It chases its Target, the
-/// nearest hostile jet: it aims ahead of it, at where it will be by the time the jet could get there,
-/// so it cuts inside the Target's turn, and it works the triggers to sit a set way behind at the
-/// Target's speed. With no Target it flies to its point at cruise speed instead: close to the point it
+/// Flies its jet, its parent, through the same controls the Player uses, as well as its Skill allows:
+/// the Skill sets how quickly it notices its Target's speed changing, how much of the stick it pulls,
+/// and how slow it lets a hard turn make it before it works the triggers again. It chases its Target, the
+/// nearest hostile jet: it aims ahead of it while it's further back than its place behind it, so it
+/// cuts inside the Target's turn, and it works the triggers to sit there at the Target's speed. With
+/// no Target it flies to its point at cruise speed instead: close to the point it
 /// flies on level through it, and some way past it turns back for another pass, rather than circling
 /// it in a tight turn. Either way it rolls to put where it's headed straight above the canopy and
 /// pulls, the way an Ace Combat turn goes, and near the nose it levels the wings and finishes with
@@ -18,6 +20,9 @@ public partial class AiPilot : Node
 {
     /// <summary>The point the jet flies to while it has no Target.</summary>
     [Export] public Node3D Point { get; set; }
+
+    /// <summary>How good it is.</summary>
+    [Export] public Skill Skill { get; set; } = Skill.Regular;
 
     /// <summary>The test scene's switch (F6): off, every AI Pilot flies to its point rather than chase a Target.</summary>
     public static bool Chasing { get; set; } = true;
@@ -37,21 +42,36 @@ public partial class AiPilot : Node
     const float TrailDistance = 600;  // meters behind its Target it tries to sit
     const float CloseRate = 0.25f;    // km/h faster than its Target it flies for each meter further back than that, and slower for each meter closer
     const float StallMargin = 50;     // km/h above stall speed it stays when slowing down for its Target
+    const float HardPull = 0.5f;      // stick beyond which a Skill that lets its turns cost it speed lets go of the triggers
 
-    readonly SphereShape3D _clearBall = new() { Radius = Clearance };  // swept along a path to find ground on it
-    readonly SphereShape3D _turnBall = new() { Radius = TurnRoom };    // around the jet, to find ground near it
+    // What each Skill comes to, Rookie to Ace: the seconds it takes to notice its Target's speed changing;
+    // the most stick it pulls; and how slow it lets a hard turn make it, as a share of corner speed, before
+    // it works the triggers again. Veterans and Aces never let go of them.
+    static readonly (float SpeedReaction, float MaxStick, float TurnFloor)[] Skills =
+        { (2, 0.6f, 0.65f), (1, 0.75f, 0.75f), (0.5f, 0.9f, float.PositiveInfinity), (0.2f, 1, float.PositiveInfinity) };
+
+    // The two ground checks, each asked every frame with the same query rather than a new one: a ball
+    // swept along a path, and a ball around the jet.
+    readonly PhysicsShapeQueryParameters3D _alongPath = new() { Shape = new SphereShape3D { Radius = Clearance } };
+    readonly PhysicsShapeQueryParameters3D _around = new() { Shape = new SphereShape3D { Radius = TurnRoom } };
 
     Jet _jet;
     bool _passing;  // flying on level through the point until TurnBackRange past it
+    Jet _seen;         // the Target it chased last frame
+    float _seenSpeed;  // the speed, in km/h, it has seen that Target doing: it trails the real one by its Skill's reaction
 
     public override void _Ready() => _jet = GetParent<Jet>();
 
-    /// <summary>Where it puts the controls this frame. Its jet asks once a frame, before moving.</summary>
-    public FlightInput Fly()
+    /// <summary>Where it puts the controls for a frame <paramref name="seconds"/> long. Its jet asks once a frame, before moving.</summary>
+    public FlightInput Fly(float seconds)
     {
         var fromJet = _jet.GlobalBasis.Inverse();
         var sky = fromJet * Vector3.Up;
+        var skill = Skills[(int)Skill];
         var target = Chasing ? Unit.Hostiles(GetTree(), _jet.Team).OfType<Jet>().MinBy(DistanceTo) : null;
+        if (target != null)
+            _seenSpeed = target == _seen ? Mathf.Lerp(_seenSpeed, target.Speed, 1 - Mathf.Exp(-seconds / skill.SpeedReaction)) : target.Speed;
+        _seen = target;
         var offset = (target != null ? LeadPoint(target) : Point.GlobalPosition) - _jet.GlobalPosition;
         var throttle = _jet.Handling.ThrottleFor(target != null ? ChaseSpeed(target) : _jet.Handling.CruiseSpeed);
 
@@ -78,11 +98,13 @@ public partial class AiPilot : Node
 
         var far = Mathf.Min(Vector3.Forward.AngleTo(to) / Mathf.DegToRad(NearNose), 1);  // 0 on the nose, 1 from NearNose out
         var bank = Mathf.LerpAngle(Mathf.Atan2(sky.X, sky.Y), Mathf.Atan2(to.X, to.Y), far);  // roll still to go: to wings level on the nose, to the point above the canopy further out
+        var pitch = Mathf.Clamp(Mathf.Atan2(to.Y, -to.Z) * PitchGain, far - 1, skill.MaxStick);  // pushes only near the nose
+        var coasting = Mathf.Abs(pitch) > HardPull && _jet.Speed > _jet.Handling.CornerSpeed * skill.TurnFloor;  // a hard pull costs it speed, as it costs the Player, down to its floor
         return new FlightInput(
-            Pitch: Mathf.Clamp(Mathf.Atan2(to.Y, -to.Z) * PitchGain, far - 1, 1),  // pushes only near the nose
+            pitch,
             Roll: Mathf.Clamp(bank * RollGain, -1, 1),
             Yaw: Mathf.Clamp(Mathf.Atan2(to.X, -to.Z) * YawGain, -1, 1) * (1 - far),
-            throttle,
+            Throttle: coasting ? 0 : throttle,
             Squeeze: 0);
     }
 
@@ -99,24 +121,25 @@ public partial class AiPilot : Node
     }
 
     // The speed, in km/h, that brings it to TrailDistance behind its Target and holds it there: the
-    // Target's own, faster the further back it is and slower when it's too close.
+    // Target's own as far as it has noticed, faster the further back it is and slower when it's too close.
     float ChaseSpeed(Jet target) => Mathf.Clamp(
-        target.Speed + (DistanceTo(target) - TrailDistance) * CloseRate,
+        _seenSpeed + (DistanceTo(target) - TrailDistance) * CloseRate,
         _jet.Handling.StallSpeed + StallMargin,
         _jet.Handling.TopSpeed);
 
     // True when a ball Clearance wide, swept from the jet along a direction as far as it flies in LookAhead, meets the ground.
     bool GroundAlong(Vector3 direction)
     {
-        var path = direction * _jet.Speed / 3.6f * LookAhead;
-        var query = new PhysicsShapeQueryParameters3D { Shape = _clearBall, Transform = _jet.GlobalTransform, Motion = path };
-        return _jet.GetWorld3D().DirectSpaceState.CastMotion(query)[1] < 1;
+        _alongPath.Transform = _jet.GlobalTransform;
+        _alongPath.Motion = direction * _jet.Speed / 3.6f * LookAhead;
+        return _jet.GetWorld3D().DirectSpaceState.CastMotion(_alongPath)[1] < 1;
     }
 
     // True when the ground is within TurnRoom of the jet, in any direction.
     bool GroundNear()
     {
-        var query = new PhysicsShapeQueryParameters3D { Shape = _turnBall, Transform = _jet.GlobalTransform };
-        return _jet.GetWorld3D().DirectSpaceState.IntersectShape(query, 1).Count > 0;
+        _around.Transform = _jet.GlobalTransform;
+        using var touching = _jet.GetWorld3D().DirectSpaceState.GetRestInfo(_around);  // empty when the ball touches nothing
+        return touching.Count > 0;
     }
 }

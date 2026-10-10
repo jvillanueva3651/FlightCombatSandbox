@@ -51,7 +51,7 @@ Sizes are rough guesses at 10-20 hours a week; re-estimate after Milestone 1.
 | Risk | Impact | Mitigation |
 |---|---|---|
 | Flight never feels right | High | Every Handling value is a knob with a live tuning panel; first flight lands at 1.6; the user signs off feel before combat work. |
-| Dogfight AI is helpless or perfect | High | AI flies the same flight model through synthesized inputs; a 1v1 checkpoint comes before adding more enemies; Ace and Stances tune it later. |
+| Dogfight AI is helpless or perfect | High | AI flies the same flight model through synthesized inputs; a 1v1 checkpoint comes before adding more enemies; Skill and Stances tune it later. |
 | The editor (step 4) balloons | High | The Mission file format is proven by hand in step 3 first; editor tasks are small and each one is usable on its own. |
 | Learning curve: the user is new to game engines | Medium | Small tasks; Godot concepts explained in plain words; the user plays every visible change. |
 | Godot only loads mod C# as plain classes | Medium | Pack code registers catalog entries through Core interfaces; Pack scenes carry no C# scripts ([ADR 0007](../docs/adr/0007-packs-and-mission-files.md)). |

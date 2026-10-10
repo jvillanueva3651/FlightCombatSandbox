@@ -29,7 +29,7 @@ A single-player arcade flight combat game in the spirit of Ace Combat, where Aut
 
 ## Missions
 
-- **Contents:** a Map; Teams grouped into Alliances (new Missions start as Team 1, the Player's, against Team 2); Groups of Units, each with an Order, a Stance and Traits; Routes; Zones, optionally limited to an altitude band; Objectives; Triggers; Variables; weather and time of day; music.
+- **Contents:** a Map; Teams grouped into Alliances (new Missions start as Team 1, the Player's, against Team 2); Groups of Units, each with an Order, a Stance and Traits, and every Unit with a Skill; Routes; Zones, optionally limited to an altitude band; Objectives; Triggers; Variables; weather and time of day; music.
 - **Phases** ([ADR 0006](adr/0006-phases-not-a-clock.md)) run in a straight line. A Phase ends when its Objectives are done, when its time limit runs out (the Mission moves on), or when a Trigger ends it. Objectives and Triggers belong to one Phase or to the whole Mission. Units from earlier Phases stay unless told to leave.
 - **Winning and losing:** win when the last Phase ends; lose when a required Objective fails or the Player is shot down. Optional Objectives from a finished Phase are missed. An Objective checks the world when it activates, so a convoy destroyed early completes a later "destroy the convoy" at once.
 - **Checkpoints** at Phase starts arrive in step 6, but Mission state is saveable from day one.
@@ -50,7 +50,8 @@ A single-player arcade flight combat game in the spirit of Ace Combat, where Aut
 - Triggers fire once unless set to repeat. Triggers firing at the same moment run top to bottom.
 - **Orders.** Aircraft: Fly Route (once or looping), Patrol Zone, Attack, Escort, Strike Zone, Engage at will, Retreat. Ground vehicles: Drive Route, Hold position, Take Zone, Attack, Retreat. Ships: Sail Route, Hold position, Retreat. Static Units only use their weapons. Every Order has a hold-fire switch.
 - **Stances:** Balanced (default), Aggressive, Covering, Baiting.
-- **Traits:** Stealth, Invulnerable, Ace.
+- **Traits:** Stealth, Invulnerable.
+- **Skill:** Rookie, Regular (default), Veteran, Ace: how well a Unit's AI flies and fights. An Ace shows its name on the HUD.
 
 ## Editor
 

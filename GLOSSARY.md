@@ -81,8 +81,12 @@ Anything that can be locked on to and attacked: every Unit, and every piece of S
 _Avoid_: TGT (Ace Combat's marker for objective targets is a different idea)
 
 **AI Pilot**:
-What flies a Unit that isn't the Player's: it reads the situation and works the same controls a Player does, so it can't do anything a Player couldn't. Not a word for the Player.
+What flies a Unit that isn't the Player's: it reads the situation and works the same controls a Player does, so it can't do anything a Player couldn't. How well it does that is the Unit's Skill. Not a word for the Player.
 _Avoid_: Bot, Brain, Controller
+
+**Skill**:
+How good a Unit's AI Pilot is: Rookie, Regular, Veteran or Ace. Every Unit has one, Regular unless the Author says otherwise, and an Ace shows its name on the HUD. It sets what the AI Pilot can do with its aircraft (how soon it reacts, how hard it turns), never the aircraft itself.
+_Avoid_: Difficulty (there is no difficulty setting), Rank (a Mission's result), Level
 
 ### Flying
 
@@ -139,7 +143,7 @@ An Order the Player gives during a Mission to Units they select from those under
 _Avoid_: Player order, Wingman command
 
 **Trait**:
-A lasting property of a Unit that the game itself has to implement because no Trigger can express it: stealth, invulnerability, ace-level skill.
+A lasting property of a Unit that the game itself has to implement because no Trigger can express it: stealth, invulnerability.
 _Avoid_: Characteristic, Attribute, Behavior
 
 **Trigger**:
