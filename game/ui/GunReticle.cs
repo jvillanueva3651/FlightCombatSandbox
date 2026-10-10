@@ -3,11 +3,11 @@ using Godot;
 
 /// <summary>
 /// The gun reticle: a small circle with a dot in the middle where the gun's rounds will be at a
-/// hostile's distance if the jet keeps turning as it is (<see cref="Gun.AimPoint"/>), so it stays on
-/// the nose line in straight flight and drops in a pull-up. It shows for the Target while it's within
-/// gun range; while Cross is held, and for a second after, for the hostile in front within range most
-/// on the nose instead, the Target or not. Hidden otherwise, while the jet is shot down, and when the
-/// spot is behind the camera.
+/// hostile's distance if the jet keeps turning as it is (<see cref="Gun.AimPoint"/>), so it stays by
+/// the nose line in straight flight and drops in a pull-up, easing into each change in the turn. It
+/// shows for the Target while it's within gun range; while Cross is held, and for a second after, for
+/// the hostile in front within range most on the nose instead, the Target or not. Hidden otherwise,
+/// while the jet is shot down, and when the spot is behind the camera.
 /// </summary>
 public partial class GunReticle : Control
 {

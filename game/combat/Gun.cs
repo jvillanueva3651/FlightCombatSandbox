@@ -4,16 +4,19 @@ using Godot;
 
 /// <summary>
 /// The jet's gun: holding Cross fires tracer rounds straight ahead from where the gun sits on the jet.
-/// Each round flies in a straight line at the jet's speed plus the muzzle speed and damages the Unit
-/// whose hit box it passes within a meter of; terrain stops it, and it vanishes at the end of its range.
+/// Each round leaves at the jet's speed plus the muzzle speed, falls toward the ground at three times
+/// gravity, and damages the Unit whose hit box it passes within a meter of; terrain stops it, and it
+/// vanishes at the end of its range.
 /// </summary>
 public partial class Gun : Node3D
 {
-    const float FireRate = 80;       // rounds per second
+    const float FireRate = 30;       // rounds per second
     const int RoundDamage = 4;       // damage per hit: 25 hits destroy a light fighter
-    const float MuzzleSpeed = 2500;  // m/s on top of the jet's speed
-    const float RoundLife = 1;       // seconds before a round vanishes: 2.5 km ahead of the jet
+    const float MuzzleSpeed = 1800;  // m/s on top of the jet's speed
+    const float RoundLife = 2.5f;    // seconds before a round vanishes: 4.5 km ahead of the jet
+    const float Gravity = 3 * 9.8f;  // m/s² a round falls at: three times real gravity, so the stream visibly arcs down far out
     const float HitRadius = 1;       // m: a round passing this close to a hit box hits it
+    const float AimSmoothing = 0.2f; // seconds the aim point takes to follow most of a change in the jet's turn
 
     sealed class Round
     {
@@ -46,7 +49,7 @@ public partial class Gun : Node3D
     float _cooldown;     // seconds until the next round can fire
     Basis _lastBasis;    // the jet's orientation last frame
     bool _wasShotDown;   // the jet was shot down last frame
-    Vector3 _turn;       // how fast the jet is turning about its own axes: the axis, as long as the radians per second
+    Vector3 _turn;       // how fast the jet is turning about its own axes, eased: the axis, as long as the radians per second
 
     public override void _Ready()
     {
@@ -56,9 +59,9 @@ public partial class Gun : Node3D
 
     /// <summary>
     /// Where a round fired now will sit from the jet once it's <paramref name="distance"/> meters out, if
-    /// the jet keeps turning as it is, placed the same way from the jet as it is now: on the nose line
-    /// in straight flight, and below it in a pull-up, since the round flies straight on while the jet
-    /// turns away. The gun reticle shows it on the HUD.
+    /// the jet keeps turning as it is, placed the same way from the jet as it is now: just under the
+    /// nose line in straight flight, by the round's fall, and well below it in a pull-up, since the
+    /// round flies on while the jet turns away. The gun reticle shows it on the HUD.
     /// </summary>
     public Vector3 AimPoint(float distance)
     {
@@ -79,6 +82,7 @@ public partial class Gun : Node3D
             basis *= stepTurn;
         }
         var round = Transform * (Vector3.Forward * (speed + MuzzleSpeed) * flight);  // fired from the gun, straight along the nose
+        round += _jet.GlobalBasis.Inverse() * Vector3.Down * Gravity * flight * flight / 2;  // and fallen this far since
         return _jet.GlobalTransform * (basis.Inverse() * (round - at));
     }
 
@@ -88,10 +92,12 @@ public partial class Gun : Node3D
         var dt = (float)delta;
 
         // How fast the jet is turning, from how far it turned since last frame; not the jump back to
-        // where it began when it starts again after being shot down.
+        // where it began when it starts again after being shot down. Eased, so the aim point glides
+        // into each change in the turn rather than jumping with it.
         var turned = (_lastBasis.Inverse() * _jet.GlobalBasis).GetRotationQuaternion();
         var axis = new Vector3(turned.X, turned.Y, turned.Z);  // the turn's axis, as long as the sine of half its angle
-        _turn = _wasShotDown || axis.IsZeroApprox() ? Vector3.Zero : axis.Normalized() * 2 * Mathf.Atan2(axis.Length(), turned.W) / dt;
+        var turn = _wasShotDown || axis.IsZeroApprox() ? Vector3.Zero : axis.Normalized() * 2 * Mathf.Atan2(axis.Length(), turned.W) / dt;
+        _turn = _turn.Lerp(turn, 1 - Mathf.Exp(-dt / AimSmoothing));
         _lastBasis = _jet.GlobalBasis;
         _wasShotDown = _jet.ShotDown;
 
@@ -107,7 +113,8 @@ public partial class Gun : Node3D
         {
             var round = _rounds[i];
             var from = round.Tracer.GlobalPosition;
-            var move = round.Velocity * dt;
+            var move = (round.Velocity + Vector3.Down * Gravity * dt / 2) * dt;  // its fall this frame, exact under steady gravity
+            round.Velocity += Vector3.Down * Gravity * dt;
             var query = new PhysicsShapeQueryParameters3D { Shape = _hitBall, Transform = new Transform3D(Basis.Identity, from), Motion = move, CollideWithAreas = true };
             var reached = space.CastMotion(query)[1];  // how far along the move the ball first touches something: 1 for nothing
             round.Age += dt;

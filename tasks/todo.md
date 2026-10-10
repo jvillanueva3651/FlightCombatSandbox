@@ -197,12 +197,12 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
   - Done when the gun fires 80 rounds a second instead of 20 (the user's pick), a dense, easily followed stream of tracers down range, more like Project Wingman's minigun than Ace Combat's machine gun (the user's design).
   - Verify: play. Files: `game/combat/Gun.cs`.
   - Settled when planning (the user's pick, "let's see how it feels for now"): each round still does 4 damage, so the gun does four times the damage per second, and a light fighter goes down after about a quarter second of hits instead of a second. Rounds fired within one frame leave spaced along their path by how late in the frame each was due, so the stream is even (12.5 m apart) rather than in pairs.
-  - Not judged yet: flown 2026-10-09 together with 2.37; the user judges it after 2.39's faster rounds. Play it: hold Cross and check the stream is dense and even with no gaps or pairs, easy to follow down range; hit a dummy and judge whether it goes down too fast (lower damage per round if so); turn while firing and watch the stream bend away smoothly.
+  - Played 2026-10-09: the user cut the rate to 30 rounds a second in 2.40.
 - [x] **2.36 Forgiving gun hits** · XS · after 2.3
   - Done when a round passing within about 1 m of a Unit's hit box counts as a hit, so the stream needn't land exactly on it.
   - Verify: play. Files: `game/combat/Gun.cs`.
   - Settled when planning (the user's pick): a fixed 1 m (`HitRadius`), to fine-tune later by playing. Each round sweeps a 1 m ball along its path instead of a line, so terrain still stops it, up to 1 m short of the ground.
-  - Not judged yet: flown 2026-10-09 together with 2.37; the user judges it after 2.39's faster rounds. Play it: fire just beside a dummy (rounds grazing within about a meter hit it), fire clearly past it (no hits), and judge whether 1 m is the right forgiveness together with 2.35's damage.
+  - Played 2026-10-09 with 2.40: passed, the 1 m kept.
 - [x] **2.37 Gun reticle** · M · after 2.35, 2.9
   - Done when a small reticle shows on the HUD while a hostile Unit is in gun range, marking where the rounds will be at its distance. It stays still when flying straight at the Unit, and drops down the HUD in a pull-up, furthest in a high-G turn, since rounds fired mid-turn end up below where the nose now points (the user's design).
   - Verify: play. Files: `game/ui/GunReticle.cs`, `game/ui/hud.tscn`, `game/combat/Gun.cs`, `game/combat/Targeting.cs`, `game/flight/Jet.cs`.
@@ -217,7 +217,13 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
   - Done when rounds leave at 2500 m/s on top of the jet's speed instead of 1000 and fly 2.5 km ahead of the jet before vanishing instead of 1.2 km, so the gun reticle moves with the jet in turns instead of springing across the HUD (the user's design, from playing 2.37). The reticle still shows from 1.5 km; rounds fly on past it.
   - Verify: play. Files: `game/combat/Gun.cs`.
   - Settled when planning (the user's picks): 2500 m/s, a middle ground between 2000 and 3000; 2.5 km of range ("bullets can go beyond that"); no smoothing on the reticle until faster rounds have been flown; the gun's damage and 1 m forgiveness (2.35, 2.36) judged after this change. The reticle now drops about 2.5 times less: 9° below the nose at 500 m in a half-stick pull, 15° at full stick.
-  - Not played yet: committed 2026-10-09 while the user couldn't play. Play it: pull up with a dummy within 1.5 km (the reticle moves with the jet, not springy; in hard pulls it sits over the jet's body, judge whether that reads well); roll while pulling (it barely swings sideways); fire with nothing ahead (tracers carry well past 1.5 km; at 80 rounds a second they're now 31 m apart, so judge whether the stream still reads); and hit a dummy, now with less lead, to judge whether the gun is too deadly (2.35, 2.36).
+  - Played 2026-10-09: the user retuned the gun in 2.40 (slower rounds at a lower rate, a longer life, bullet drop and an eased reticle).
+- [x] **2.40 Slower gun rounds with drop, and an eased reticle** · S · after 2.39
+  - Done when rounds leave at 1800 m/s and 30 a second, live 2.5 s (about 4.5 km, well past the reticle's unchanged 1.5 km) and fall at three times gravity, with the reticle allowing for the fall; and the reticle eases into each change in the jet's turn over 0.2 s instead of jumping with it (the user's design, from playing 2.39).
+  - Verify: play. Files: `game/combat/Gun.cs`, `game/ui/GunReticle.cs`.
+  - Settled when planning (the user's picks): 1800 m/s; 30 rounds a second, down from a first thought of 50; a 2.5 s life ("1.4 s is just too little"); bullet drop at 3× gravity, to test; 0.2 s of smoothing; 4 damage per round, so a light fighter takes about 0.8 s of hits. For comparison, Project Wingman's wiki gives its standard gun about 20 rounds a second (rapid gunpod 100, heavy 5), a pipper from 1.2 km and heavy bullet drop; its muzzle velocity isn't published.
+  - Changed while building: the easing sits on the turn the aim point is predicted from (`AimSmoothing` in `Gun.cs`), not on the reticle's place on the HUD, which also lagged about 30 m behind in range when closing on a hostile. Its cost: in a hard pull the jet keeps slowing and its turn keeps easing off, so the reticle reads deep by 0.2 s' worth: about 1° at full stick (18.4° shown, 17.4° true at 500 m), 0.4° at half stick.
+  - Played 2026-10-09: passed ("this all feels way better").
 
 - [x] **2.11 AI Pilot flies to a point** · M · after 2.4
   - Done when the flight model takes its inputs from either the controller or an AI Pilot, and an enemy jet (same Unit Type, Team 2) flies to a given point with it.
