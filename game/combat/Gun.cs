@@ -26,7 +26,8 @@ public partial class Gun : Node3D
     }
 
     readonly List<Round> _rounds = new();
-    readonly SphereShape3D _hitBall = new() { Radius = HitRadius };  // swept along each round's path
+    // A ball swept along each round's path. One query for every round: a new one per round per frame can crash the process as it quits.
+    readonly PhysicsShapeQueryParameters3D _sweep = new() { Shape = new SphereShape3D { Radius = HitRadius }, CollideWithAreas = true };
 
     // Seen from the chase camera the rounds fly almost straight away from it, so a real-sized tracer
     // shrinks to nothing within a few hundred meters. Instead each one is a dot facing the camera that
@@ -115,8 +116,9 @@ public partial class Gun : Node3D
             var from = round.Tracer.GlobalPosition;
             var move = (round.Velocity + Vector3.Down * Gravity * dt / 2) * dt;  // its fall this frame, exact under steady gravity
             round.Velocity += Vector3.Down * Gravity * dt;
-            var query = new PhysicsShapeQueryParameters3D { Shape = _hitBall, Transform = new Transform3D(Basis.Identity, from), Motion = move, CollideWithAreas = true };
-            var reached = space.CastMotion(query)[1];  // how far along the move the ball first touches something: 1 for nothing
+            _sweep.Transform = new Transform3D(Basis.Identity, from);
+            _sweep.Motion = move;
+            var reached = space.CastMotion(_sweep)[1];  // how far along the move the ball first touches something: 1 for nothing
             round.Age += dt;
             if (reached >= 1 && round.Age < RoundLife)
             {
@@ -125,9 +127,9 @@ public partial class Gun : Node3D
             }
             if (reached < 1)
             {
-                query.Transform = new Transform3D(Basis.Identity, from + move * reached);
-                query.Motion = Vector3.Zero;
-                space.IntersectShape(query).Select(hit => hit["collider"].As<Node>().GetParent()).OfType<Unit>().FirstOrDefault()?.Damage(RoundDamage);  // terrain just stops it
+                _sweep.Transform = new Transform3D(Basis.Identity, from + move * reached);
+                _sweep.Motion = Vector3.Zero;
+                space.IntersectShape(_sweep).Select(hit => hit["collider"].As<Node>().GetParent()).OfType<Unit>().FirstOrDefault()?.Damage(RoundDamage);  // terrain just stops it
             }
             round.Tracer.QueueFree();
             _rounds.RemoveAt(i);
