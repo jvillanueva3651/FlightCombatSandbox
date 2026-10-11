@@ -28,9 +28,6 @@ public partial class ChaseCamera : Camera3D
     // off so the whole fireball shows, and seconds it stays there watching.
     const float MissileViewBehind = 8, MissileViewAbove = 1.5f, ExplosionViewBack = 80, WatchExplosion = 1;
 
-    // km/h at and below which there are no wind streaks.
-    const float StreakStartSpeed = 800;
-
     Transform3D _offset;  // the camera relative to the jet, as placed in the scene
     Transform3D _nose;    // the nose view relative to the jet: the jet's NoseView marker
     bool _noseView;       // looking from the nose instead of chasing the jet
@@ -155,14 +152,15 @@ public partial class ChaseCamera : Camera3D
         return false;
     }
 
-    // The wind streaks stream back along the jet's flight path at its speed: none up to their start
-    // speed, then more of them the faster it flies, all of them at top speed.
+    // The wind streaks stream back along the jet's flight path at its speed: none up to the Feel
+    // Settings' start speed, then more of them the faster it flies, all of them at top speed.
     void StreamWind()
     {
         _streaks.GlobalTransform = new Transform3D(Jet.GlobalBasis, GlobalPosition);
         _streaks.SpeedScale = Jet.Speed / 3.6f / _streakSpeed;
-        var streaks = (Jet.Speed - StreakStartSpeed) / (Jet.Handling.TopSpeed - StreakStartSpeed);
-        _streaks.AmountRatio = Jet.Speed > StreakStartSpeed ? Mathf.Clamp(streaks, 0, 1) : 0;  // none even if top speed is below the start
+        var start = Packs.Base.Feel.WindStreakStartSpeed;
+        var streaks = (Jet.Speed - start) / (Jet.Handling.TopSpeed - start);
+        _streaks.AmountRatio = Jet.Speed > start ? Mathf.Clamp(streaks, 0, 1) : 0;  // none even if top speed is below the start
         _streaks.Visible = !Jet.ShotDown;  // being shot down stops them dead, so hide them rather than leave them hanging
     }
 

@@ -4,7 +4,8 @@ namespace Core;
 /// Settings shared by every aircraft that shape how flying feels, from the base Pack's feel.json.
 /// The dead zone is a fraction of the stick's travel, the response curve runs from 0 (straight) to 1
 /// (softest), the multipliers apply on top of every aircraft's Handling (1 leaves it as it is), the
-/// camera lag is in seconds, and the speed zoom and shakes are in degrees.
+/// camera lag is in seconds, the speed zoom and shakes are in degrees, and the wind streaks' start
+/// speed, at and below which there are none, is in km/h.
 /// </summary>
 public sealed record FeelSettings
 {
@@ -19,6 +20,7 @@ public sealed record FeelSettings
     public required float SpeedZoom { get; set; }
     public required float HighGShake { get; set; }
     public required float StallShake { get; set; }
+    public required float WindStreakStartSpeed { get; set; }
 
     public static FeelSettings FromJson(string json) => PackLoader.Read<FeelSettings>(json);
 

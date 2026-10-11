@@ -18,7 +18,7 @@ A single-player arcade flight combat game in the spirit of Ace Combat, where Aut
 - **Flight model:** arcade, driven by Handling values ([ADR 0009](adr/0009-arcade-flight-model.md)).
   - Like Ace Combat, braking hard can slow a jet into a stall, and the HUD shows STALL; climbing alone never stalls it.
   - Per aircraft, in its Unit Type: top and stall speed, throttle and brake strength, pitch/roll/yaw rates at each speed (best at corner speed), speed lost in hard turns, speed gained or lost climbing and diving, high-G turn strength, response time.
-  - Shared by all aircraft: stick dead zone and response curve, camera lag, zoom-out at speed, camera shake, overall multipliers on Handling.
+  - Shared by all aircraft: stick dead zone and response curve, camera lag, zoom-out at speed, camera shake, the speed wind streaks start at, overall multipliers on Handling.
   - A live tuning panel changes any value mid-flight and saves it back to the file.
   - G-load shows only in the debug overlay, a developer tool, never on the HUD.
 - **Ace Combat rules:** health bars, no fuel, air starts, lock-on HUD and radar, no friendly fire, crashing counts as being shot down, leaving the Map gives a warning and then fails the Mission.

@@ -17,7 +17,8 @@ public class FeelSettingsTests
           "cameraLag": 0.1,
           "speedZoom": 15,
           "highGShake": 0.4,
-          "stallShake": 0.8
+          "stallShake": 0.8,
+          "windStreakStartSpeed": 800
         }
         """;
 
@@ -44,6 +45,7 @@ public class FeelSettingsTests
         Assert.Equal(15f, Feel.SpeedZoom);
         Assert.Equal(0.4f, Feel.HighGShake);
         Assert.Equal(0.8f, Feel.StallShake);
+        Assert.Equal(800f, Feel.WindStreakStartSpeed);
     }
 
     [Fact]
