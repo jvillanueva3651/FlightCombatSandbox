@@ -19,5 +19,6 @@ Single-player arcade flight combat game (Ace Combat's rules, an original univers
 - One task at a time; when a task changes what's on screen, the user plays it before the next one starts.
 - Flight and combat feel is done when the user has flown it and says it feels right.
 - Each finished task gets its own commit.
+- The repository is public on GitHub (`origin`). Push only when the user explicitly says to; a commit is never permission to push.
 - A term that settles goes into `GLOSSARY.md`; a hard-to-reverse decision gets a new ADR.
 - Everything in this repository is original. The user's personal Ace Combat and Project Wingman music lives in a private Pack in their user Packs folder.
