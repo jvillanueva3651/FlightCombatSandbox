@@ -49,6 +49,7 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
 - [x] **1.7 Flight readout** · XS · after 1.6
   - Done when the debug overlay shows speed, altitude, throttle and G-load.
   - Verify: play. Files: `game/ui/DebugOverlay.cs`.
+  - Settled 2026-10-10 (the user's pick): G-load stays in the debug overlay as it is, about 25 G in a full pull, the true figure for these turn rates. It will never be on the HUD.
 - [x] **1.8 Throttle and brake** · S · after 1.7
   - Done when R2 accelerates toward top speed, L2 slows toward minimum speed (set below where the jet will stall, so braking can stall it), and letting go returns to cruise speed, all at Handling rates.
   - Verify: test, play. Files: `core/Handling.cs`, `packs/base/unit-types/light-fighter.json`, `game/flight/Jet.cs`.
@@ -92,6 +93,7 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
 - [x] **1.27 Look around** · S · after 1.17
   - Done when the right stick swings the camera around the jet, and the camera eases back behind the jet when the stick is let go.
   - Verify: play. Files: `game/flight/ChaseCamera.cs`.
+  - Settled 2026-10-10 (the user's pick): no second look mode that stays level with the horizon. The look turns with the jet.
 - [x] **1.28 Change view** · S · after 1.17
   - Done when R3 switches between the chase camera and a view from the jet's nose with the jet hidden, and L3+R3 for flares never switches the view, whichever stick is clicked first. A cockpit view comes with models in 6.25.
   - Verify: play. Files: `game/flight/ChaseCamera.cs`, `game/flight/jet.tscn`.
@@ -305,9 +307,10 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
 - [ ] **2.23 Score** · XS · after 2.2
   - Done when destroying a Unit adds its points and the HUD shows the score.
   - Verify: play. Files: `game/ui/Hud.cs`.
-- [ ] **2.24 Combat sounds** · S · after 2.15
-  - Done when placeholder CC0 sounds play for the gun, missile launch, hits, explosions and the missile alarm, and the credits are updated.
-  - Verify: play. Files: `packs/base/sounds/`, `packs/base/CREDITS.md`, `game/combat/`.
+- [ ] **2.24 Combat sounds** · S · after 2.2, 2.3, 2.7
+  - Done when placeholder sounds made in code play for the gun, missile launch, hits and explosions. The missile alarm is 2.15's.
+  - Verify: play. Files: `game/combat/`.
+  - Settled 2026-10-10 (the user's picks): the sounds are made in code, like `JetSound`'s and the lock tone in `TargetMarker`, where this task first said CC0 files. It no longer waits for 2.15, so it can be done whenever the user asks for it. Share the code that packs samples into a WAV, as 2.15's note says.
 - [ ] **2.25 Hit and explosion effects** · S · after 2.7
   - Done when missiles leave smoke trails, hits flash, and explosions throw debris and smoke.
   - Verify: play. Files: `game/combat/explosion.tscn`, `game/combat/missile.tscn`.
