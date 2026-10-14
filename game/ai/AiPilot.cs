@@ -154,7 +154,10 @@ public partial class AiPilot : Node
         if (Vector3.Forward.AngleTo(to) > Mathf.DegToRad(HardTurn) && GroundNear())
             to = (fromJet * ((nose with { Y = 0 }).Normalized() + Vector3.Up * Mathf.Tan(Mathf.DegToRad(ClimbOut)))).Normalized();
 
-        var far = Mathf.Min(Vector3.Forward.AngleTo(to) / Mathf.DegToRad(NearNose), 1);  // 0 on the nose, 1 from NearNose out
+        // Flying level along its heading, the horizon is straight above or below its nose: it holds its
+        // wings level and eases its nose there with the stick, however far off. Banking at it would
+        // mean rolling onto its back to pull down, with no side to pick.
+        var far = level ? 0 : Mathf.Min(Vector3.Forward.AngleTo(to) / Mathf.DegToRad(NearNose), 1);  // 0 on the nose, 1 from NearNose out
         var bank = Mathf.LerpAngle(Mathf.Atan2(sky.X, sky.Y), Mathf.Atan2(to.X, to.Y), far);  // roll still to go: to wings level on the nose, to the point above the canopy further out
         var squeeze = evading && HighGEvade ? 1f : 0;
         var limit = recovering ? GentleG : skill.GLimit;

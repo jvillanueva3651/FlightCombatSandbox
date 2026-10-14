@@ -322,13 +322,20 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
     - `loop.gd` at each Skill, `chase.gd`, `skill.gd`, `ai.gd`, and the regression scenario matching its baseline byte for byte. 73 Core tests.
   - Seen while measuring, not looked into: 3 of the 64 `ttk.gd` runs died at exit with "Illegal instruction" after printing their result. That probe quits the frame the AI jet is destroyed. It looks like 2.41's exit crash again, with the destroyed jet's two physics queries left to .NET's finalizer.
   - Played 2026-10-13: "way more fun". The numbers stay as they are.
-- [ ] **2.45 AI levelling off, and pulling up while banked** · S · after 2.44
-  - Done when an AI jet told to fly level along its heading (passing its point, breaking off, recovering straight) eases its nose to the horizon with the stick, without rolling to get there; its terrain pull-up doesn't pull sideways while it's banked near 90°; and the canyon probes at every Skill never come within 10 m of the ground.
+- [x] **2.45 AI levelling off** · XS · after 2.44
+  - Done when an AI jet told to fly level along its heading (passing its point, breaking off, recovering straight) eases its nose to the horizon with the stick, wings level, without rolling to get there; and the canyon probes at every Skill never come within 10 m of the ground. As first written, this task also asked that the terrain pull-up not pull sideways while banked near 90°. That is left as it is: see below.
   - Verify: play. Files: `game/ai/AiPilot.cs`.
   - Found by 2.44's canyon probes, in 2.11's and 2.12's steering, with no missile and no Stamina involved. One run in 36 (a Rookie, `canyonchase.gd -- skill 0 z0 -3000 way 1`, 230 s in) came within 6 m of a canyon wall without crashing:
     - Flying on past its point with its nose 20° above the horizon, it had to get level. It only pushes within 15° of where it's headed (`far - 1` in `Fly`), so it tried to roll inverted and pull down. With level dead under its canopy it couldn't pick a side, and dithered for two seconds, still climbing toward rising ground.
     - It then rolled to 90° and the ground came into its look-ahead. The pull-up pulls as soon as the canopy isn't facing the ground (`sky.Y > -0.2`), so at 90° of bank its full stick turned it along the wall for half a second before it had rolled upright.
   - The same levelling is used by 2.42's break-off and 2.44's straight recovery. `canyonchase.gd -- diag <first frame> <last frame>` prints every frame of it.
+  - The fix, one line in `Fly`: flying level along its heading, it now steers the way it does with its goal on the nose, wings level and the stick easing its nose up or down to the horizon, however far off. Before, more than 15° off it banked "at" the horizon, which with its nose high meant rolling onto its back to pull down.
+  - The pull-up while banked stays as 2.12 tuned it. With the levelling fixed, no run got inside the 30 m its look-ahead keeps clear, so nothing shows the banked pull doing harm, and whether a sideways pull helps or hurts depends on which side the wall is.
+  - Checked by probe:
+    - `level.gd`, new: an AI jet 300 m past its point with its nose 20° or 40° above the horizon. Before, with wings level it still wasn't level after 4 s; started with 60° of bank it rolled on to 154-175°, took 3.3-3.7 s and ended 15-26° off its heading. Now it's level in 0.8-1.5 s, never banked more than 8° after the first half second, within 12° of its heading. A nose 20° low was already fine and is unchanged (0.8-0.9 s). Run for a Rookie and an Ace.
+    - The ground: 2.44's batch of 36 runs, all four Skills. Never destroyed by the ground, and never closer than 30 m to it, where two runs came to 6 m and 17 m before.
+    - `loop.gd` and `skill.gd` at each Skill, `chase.gd`, `ai.gd`, the three `evade.gd` cases, and the regression scenario matching its baseline byte for byte. 73 Core tests.
+  - Played 2026-10-13: looks good.
 - [ ] **2.14 AI attacks** · S · after 2.44, 2.7, 2.3
   - Done when AI jets fire the gun and missiles when their Target is in range and in front.
   - Verify: play. Files: `game/ai/AiPilot.cs`.
