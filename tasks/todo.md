@@ -260,32 +260,63 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
   - Verify: test, play. Files: `core/FeelSettings.cs`, `core.tests/FeelSettingsTests.cs`, `packs/base/feel.json`, `game/flight/ChaseCamera.cs`, `docs/SPEC.md`.
   - Checked by probe: the tab has the row, reading 800, on a slider from 0 to 1600 in steps of 1; at cruise speed there are no streaks at 800, 11% of them at 300, 22% at 0, and none again at 1000.
   - Played 2026-10-10: looks good. The start stays at 800.
-- [ ] **2.42 An AI that's fun to fight** · M · after 2.41
-  - Done when the user can beat a Rookie comfortably, a Regular with some work, and a Veteran or an Ace with skill rather than luck, and fighting them is fun rather than a chore. To design in its own session before any code: grill the idea, and try the candidates with a prototype.
-  - Verify: play. Files: `game/ai/AiPilot.cs`.
-  - The problem, from playing 2.41: the AI only knows how to hunt. From anywhere it turns onto the Player at once and never lets up, and it reverses the moment the Player gets behind it, so there is no stretch of the fight where the Player has the upper hand. The Skill numbers make it turn and react a little worse, not behave differently.
-  - The user's ideas: flight patterns (the AI flies set maneuvers and tracks, which the Player can read and get behind, rather than chasing all the time), and G-limits (a cap on how hard each Skill may turn, lower than 2.41's shares of the stick).
-  - Other things to weigh then: how long it holds a chase before breaking off; how soon it notices the Player behind it and what it does about it (2.16, AI defense, asks for a hard break); a longer reaction to everything the Player does, not just speed; whether a Rookie should see the Player at all from behind; and that Ace Combat's ordinary enemies mostly fly patterns and only its aces dogfight.
-  - Decide here too whether this comes before 2.14: an AI that already wins too often will be worse once it shoots.
-- [ ] **2.14 AI attacks** · S · after 2.13, 2.7, 2.3
+- [x] **2.42 AI maneuvers and a G limit** · M · after 2.41
+  - Done when an AI Pilot flies one Maneuver at a time (its pattern, an attack run, a break-off), never pulls more G than its Skill allows, and, as a Rookie or Regular, never turns back on a Player behind it; and the user can get behind each Skill and stay there. Until 2026-10-13 this task was "An AI that's fun to fight", done when each Skill was fun to beat. That verdict is the 1v1 checkpoint's now, after 2.44 and 2.14.
+  - Verify: test (`PullForG`), play. Files: `core/Handling.cs`, `core.tests/HandlingTests.cs`, `game/ai/AiPilot.cs`, `game/ai/Maneuver.cs`, `game/combat/Targeting.cs`, `game/ui/DebugOverlay.cs`, `GLOSSARY.md`, `docs/SPEC.md`, `tasks/plan.md`, `README.md`.
+  - The problem, from playing 2.41: the AI only knew how to hunt. From anywhere it turned onto the Player at once and never let up, and it reversed the moment the Player got behind it, so no stretch of the fight gave the Player the upper hand. The cause: it looked at the Player and decided again every frame, knew exactly where the Player was in every direction, and paid almost nothing for what it did. Three things can be limited: what it knows, how long a decision holds, and what hard flying costs.
+  - Settled in the design session of 2026-10-12/13 (the user's picks):
+    - AI Pilots are obstacles, not rivals (now in `docs/SPEC.md`). From the user's Ace Combat experience: ordinary enemies are far more passive than the Player and mostly don't react to missiles; attacks on the Player come when the Player's attention is elsewhere; higher Skills dodge missiles so well that the gun becomes the better weapon; aces dodge all but the most unavoidable missiles.
+    - The fix comes in three tasks, each played before the next: this one, 2.44 (evading), then 2.14 (attacking).
+    - The G limit replaces 2.41's share of the stick. Skill also decides which Maneuvers an AI Pilot flies, not only its numbers: only a Veteran or an Ace turns back on a jet behind it.
+    - The word for the loop's steps is Maneuver. The meter 2.44 adds is Stamina, which the Player never sees.
+    - Starting numbers, Rookie / Regular / Veteran / Ace: G limit 10 / 14 / 19 / 30; seconds in its pattern before an attack run 12 / 8 / 4 / 2; seconds of break-off 6 / 4 / 3 / 1.5.
+    - Left for later: turn-taking between several enemies (2.26), and "Flight Style" (`plan.md`, open questions).
+  - How it flies, in `AiPilot.cs`:
+    - Its pattern is the passes on its point that F6-off flew before.
+    - An attack run is 2.13's chase, on the nearest hostile jet. It starts once the AI Pilot has flown its pattern for its Skill's wait; a Rookie or Regular also needs the jet in the half of the sky ahead of its nose.
+    - The run ends when it has held its Target in the standard missile's seeker (2,000 m, 50°: `Targeting.InSeeker`) for the lock time (0.5 s), which stands in for the shot until 2.14; or after 20 s (`RunLimit`); or, for a Rookie or Regular, when the Target is behind it.
+    - A break-off is level along its heading for its Skill's time, then its pattern again. With F6 off it flies its pattern only.
+    - 2.12's terrain rules come first as before, and the terrain pull-up keeps the full stick at every Skill.
+  - The G limit: the pitch stick is capped at `Handling.PullForG`, new in Core: the pull that turns the jet at a given G at its speed. Gravity's share is counted the way the debug overlay counts it, so the overlay's G-load never reads over the limit. At cruise speed the limits come to 37 / 52 / 70 / 89 degrees a second, against 54 / 68 / 79 / 88 before. The limit only bites at speed: below about 350 km/h even a Rookie has the full stick. A Rookie's 10 G is 41% of the stick at cruise speed, under the half stick that counts as a hard pull, so it now lets go of the triggers only when slow.
+  - What stopped mattering: it never settles 600 m behind its Target, since a run ends half a second after it has the Target in its sights. From 3 km behind a Player flying straight, a run ends about 1,950 m back. The chase code stays: it steers and sets the speed during a run.
+  - The debug overlay has two new rows, "AI maneuver" and "AI G-load".
+  - Checked by probe:
+    - `loop.gd`, new, at each Skill. On 2.41's code it failed: no Maneuver, and G-load peaks of 15.5 / 19.1 / 21.9 / 25.0. Now: its pattern for 12.0 / 8.0 / 4.0 / 2.0 s, then a run that ended with the Player in its sights 1,948 m away; a break-off of 6.0 / 4.0 / 3.0 / 1.5 s holding its heading within 1.1°; with the Player held 500 m behind it for a minute, a Rookie and a Regular never left their pattern, and a Veteran and an Ace turned back after 4 and 2 s, their run ending at 20 s; F6 off, its pattern only; G-load peaks of 10.0 / 14.0 / 19.0 / 25.2.
+    - The ground: `terrain.gd` and `canyonchase.gd` at three spots each and all four Skills, 24 runs. Never destroyed, never closer than 28 m to the ground, and 7 to 48 attack runs in five minutes in the canyon.
+    - `chase.gd` and `skill.gd` cut down to what still holds, `ai.gd` unchanged and passing, and the regression scenario matching its baseline byte for byte. 73 Core tests.
+  - Noted while building, and not raised by the user after playing: a run on a Player already inside 2 km is over in about a second. It swings its nose to within 50° of the Player, holds half a second and breaks off. If that ever reads as nothing happening, the run can press closer than the missile's range and cone: two numbers. A tail chase from over 6 km times out at 20 s, still 2.5 km back.
+  - Played 2026-10-13: it feels a lot better. The lower Skills were easy enough to fight, and the higher ones, the Ace especially, felt like a challenge without being impossible or frustrating.
+- [ ] **2.44 AI evasion** · M · after 2.42
+  - Done when an AI Pilot that notices a missile fired at it breaks hard to dodge it, how often by its Skill; can't keep that up, because every evasion and all hard flying drain its Stamina, and out of Stamina it must fly gently until some is back; and doesn't see what is behind it except when it checks. It takes over 2.16 (AI defense), whose number retires.
+  - Verify: play. Files: `game/ai/AiPilot.cs`, `game/ai/Maneuver.cs`, `game/combat/Missile.cs`.
+  - Settled in the design session of 2026-10-12/13 (the user's picks), to plan from:
+    - Two more Maneuvers, evade and recover, cut into 2.42's loop when the AI Pilot is shot at.
+    - Blind spots: it sees ahead of it, and checks behind every few seconds, by Skill. 2.42's rule that a Rookie or Regular only starts a run on a jet ahead of it is the crude first version.
+    - The evasion chance: rolled once per missile, when the AI Pilot sees the launch. A missile it never sees gets no roll. Low for a Rookie, near certain for an Ace. The user doesn't want every AI Pilot dodging every time until it runs out: that would be repetitive and waste the Player's missiles. Blind spots and the chance are what prevent it.
+    - Whether the break works is left to the missile's flight: it turns at 50°/s, so a hard, late break across its path should beat it. A probe measures how often each Skill's break beats the missile before the chances are picked.
+    - Stamina: hard pulling drains it, gentle flying refills it, an evasion costs a fixed share, and with none left the AI Pilot can only fly gently. The user's example for a Regular: it dodges a missile, dodges the next salvo, and then can't dodge the gun. A Hardpoint reloads in 5 s, so the refill must be slower than that or the meter never runs out. Only AI Pilots have it, and the Player never sees it.
+    - Only missiles set off an evasion, at every Skill. The gun is dodged by however the AI Pilot is already moving, and it's on the Player to keep the shot lined up.
+    - The Ace's high-G turn belongs here.
+    - With two more Maneuvers, look at whether `AiPilot.cs` should be split.
+  - Note (from 2.16, by way of 2.41): how soon it notices a missile is a number for each Skill.
+- [ ] **2.14 AI attacks** · S · after 2.44, 2.7, 2.3
   - Done when AI jets fire the gun and missiles when their Target is in range and in front.
   - Verify: play. Files: `game/ai/AiPilot.cs`.
   - Note: AI jets got their hit box in 2.11 (`game/ai/ai_jet.tscn`). Once they fire, gun rounds must skip the shooter's own hit box and Team (the spec has no friendly fire). Their gun and launcher go in `ai_jet.tscn` and need the AI Pilot to pull the trigger instead of the controller, the way `FlightInput` does for flying. Within gun range it should aim by the rounds' flight time (`Gun.AimPoint`), where 2.13 leads only to close the distance; and in a sustained turn its nose trails its Target by about 16°, which the gun can't hit from.
-  - Note (from 2.41): how soon and how accurately it fires are numbers for each Skill; add them to the Skill table in `AiPilot.cs`. Read 2.42 first: the AI already wins too often without weapons.
+  - Note (from 2.41): how soon and how accurately it fires are numbers for each Skill; add them to the Skill table in `AiPilot.cs`.
+  - Note (from 2.42): the shot goes where an attack run ends today, once the AI Pilot has held its Target in the seeker for the lock time (`Choose` in `AiPilot.cs`). The user's picture of an attack: an enemy gets behind a Player whose attention is elsewhere, locks on and fires a missile or two, which the Player can evade or outrun.
 - [ ] **2.15 Missile warning** · S · after 2.14
   - Done when a "MISSILE" warning and alarm tone appear while a missile tracks the Player.
   - Verify: play. Files: `game/ui/Hud.cs`, `game/combat/Missile.cs`.
   - Note (from the Step 2 review): the alarm tone is the third sound made in code, after `JetSound`'s and the lock tone in `TargetMarker`, which pack their samples into a looping WAV the same way. Share that code here.
-- [ ] **2.16 AI defense** · S · after 2.14
-  - Done when AI jets break hard when a missile closes on them or a hostile sits on their tail.
-  - Verify: play. Files: `game/ai/AiPilot.cs`.
-  - Note (from 2.41): how soon it notices a missile or a hostile on its tail is a number for each Skill. What it does about a hostile on its tail is part of 2.42: today it reverses at once, which is what makes it so hard to stay behind.
 - [ ] **2.30 Flares** · S · after 2.15, 2.9
   - Done when L3+R3 releases flares that can pull missiles tracking the Player off course, and the HUD shows how many flares are left.
   - Verify: play. Files: `game/combat/Flares.cs`, `game/combat/Missile.cs`, `game/ui/Hud.cs`.
   - Note: the user's layout for the HUD's bottom-right block (`game/ui/WeaponDisplay.cs`, 2.9): a FLR row with the flares left, between the weapons and DMG, and little filled slots under the jet's silhouette that show each flare and refill as it recharges.
 
 **Checkpoint: 1v1.** The user dogfights one enemy jet and judges whether the AI is fun: neither helpless nor perfect.
+
+- The bar, from the user (2026-10-13): once the Player is on an enemy, shooting it down should take about 5 s for a Rookie, 15-20 s for a Regular, 40-50 s for a Veteran and 1-2 minutes for an Ace. The Player's rhythm is to get behind a Target, fire, break off and move to the next, so more of the higher Skills in a Mission means more effort overall. Beating a Rookie should be comfortable, a Regular some work, and a Veteran or an Ace a matter of skill rather than luck.
 
 - To tune here, against a moving jet: missile tracking. Since 2.7, missiles fly straight at where the Target is (pure pursuit, `game/combat/Missile.cs`) rather than leading it. One `seekerCone` (50°, the user's pick) sets both how wide lock-on is and how far off its nose a missile in flight can still see its Target; these may need to be split. The turn rate (50°/s) decides how easily a break turn dodges.
 
@@ -319,10 +350,11 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
 - [ ] **2.25 Hit and explosion effects** · S · after 2.7
   - Done when missiles leave smoke trails, hits flash, and explosions throw debris and smoke.
   - Verify: play. Files: `game/combat/explosion.tscn`, `game/combat/missile.tscn`.
-- [ ] **2.26 Dogfight test scene** · XS · after 2.16, 2.22
+- [ ] **2.26 Dogfight test scene** · XS · after 2.44, 2.22
   - Done when the test scene has four enemy jets, an AA gun and two tanks. It's a throwaway dev scene, not a Mission, so [ADR 0002](../docs/adr/0002-every-mission-built-in-the-editor.md) still holds; task 3.5 replaces it.
   - Verify: play. Files: `game/world/test_flight.tscn`.
   - Note (from 2.41): give the four enemy jets a mix of Skills (`AiPilot.Skill`).
+  - Note (from 2.42's design session): with several enemies, only one or two should attack the Player at a time, the rest flying their patterns, and an AI Pilot should prefer a Player who is locked onto someone else. Four AI Pilots each on their own wait would otherwise be four times the pressure. It may need its own task.
 
 **Checkpoint: Milestone 1, is it fun?** The user fights four enemy jets and says it's fun. Re-estimate the remaining steps in [plan.md](plan.md).
 

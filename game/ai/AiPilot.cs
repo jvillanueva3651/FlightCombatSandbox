@@ -3,28 +3,37 @@ using Godot;
 
 /// <summary>
 /// Flies its jet, its parent, through the same controls the Player uses, as well as its Skill allows:
-/// the Skill sets how quickly it notices its Target's speed changing, how much of the stick it pulls,
-/// and how slow it lets a hard turn make it before it works the triggers again. It chases its Target, the
-/// nearest hostile jet: it aims ahead of it while it's further back than its place behind it, so it
-/// cuts inside the Target's turn, and it works the triggers to sit there at the Target's speed. With
-/// no Target it flies to its point at cruise speed instead: close to the point it
-/// flies on level through it, and some way past it turns back for another pass, rather than circling
-/// it in a tight turn. Either way it rolls to put where it's headed straight above the canopy and
-/// pulls, the way an Ace Combat turn goes, and near the nose it levels the wings and finishes with
-/// small stick and L1/R1 corrections. The ground comes before all of that: it looks a few seconds
+/// the Skill sets how many G it pulls, how long it flies its pattern between attack runs and flies on
+/// after one, whether it turns back on a hostile jet behind it, how quickly it notices its Target's
+/// speed changing, and how slow it lets a hard turn make it before it works the triggers again. It
+/// flies one maneuver at a time. Its pattern is flying to its point at cruise speed: close to the
+/// point it flies on level through it, and some way past it turns back for another pass, rather than
+/// circling it in a tight turn. After its Skill's wait in its pattern it makes an attack run on its
+/// Target, the nearest hostile jet, though a Rookie or Regular only on one ahead of it: it aims
+/// ahead of it while it's further back than its place behind it, so it cuts inside the Target's
+/// turn, and it works the triggers to close on it. The run ends once it has held its Target in the
+/// missile seeker for the lock time, the shot it will take once it's armed; or after RunLimit; or,
+/// for a Rookie or Regular, when the Target gets behind it. Then it breaks off, flying straight and
+/// level for its Skill's time, and goes back to its pattern. In every maneuver it rolls to put where
+/// it's headed straight above the canopy and pulls, the way an Ace Combat turn goes, and near the
+/// nose it levels the wings and finishes with small stick and L1/R1 corrections. The ground comes
+/// before all of that, and before its G limit: it looks a few seconds
 /// along its nose, and while the ground is in the way it rolls the sky above its canopy and pulls up;
 /// it heads for its goal level while the straight way there runs through the ground; and it climbs
 /// for room before turning hard close to the ground.
 /// </summary>
 public partial class AiPilot : Node
 {
-    /// <summary>The point the jet flies to while it has no Target.</summary>
+    /// <summary>The point the jet flies to in its pattern.</summary>
     [Export] public Node3D Point { get; set; }
 
     /// <summary>How good it is.</summary>
     [Export] public Skill Skill { get; set; } = Skill.Regular;
 
-    /// <summary>The test scene's switch (F6): off, every AI Pilot flies to its point rather than chase a Target.</summary>
+    /// <summary>What it's flying right now.</summary>
+    public Maneuver Maneuver { get; private set; }
+
+    /// <summary>The test scene's switch (F6): off, no AI Pilot makes attack runs, and each flies its pattern only.</summary>
     public static bool Chasing { get; set; } = true;
 
     const float NearNose = 15;        // degrees off the nose inside which it eases toward wings level instead of banking at the point
@@ -43,12 +52,19 @@ public partial class AiPilot : Node
     const float CloseRate = 0.25f;    // km/h faster than its Target it flies for each meter further back than that, and slower for each meter closer
     const float StallMargin = 50;     // km/h above stall speed it stays when slowing down for its Target
     const float HardPull = 0.5f;      // stick beyond which a Skill that lets its turns cost it speed lets go of the triggers
+    const float RunLimit = 20;        // seconds an attack run lasts at most
 
     // What each Skill comes to, Rookie to Ace: the seconds it takes to notice its Target's speed changing;
-    // the most stick it pulls; and how slow it lets a hard turn make it, as a share of corner speed, before
-    // it works the triggers again. Veterans and Aces never let go of them.
-    static readonly (float SpeedReaction, float MaxStick, float TurnFloor)[] Skills =
-        { (2, 0.6f, 0.65f), (1, 0.75f, 0.75f), (0.5f, 0.9f, float.PositiveInfinity), (0.2f, 1, float.PositiveInfinity) };
+    // the most G it pulls, as the debug overlay counts them; how slow it lets a hard turn make it, as a
+    // share of corner speed, before it works the triggers again (Veterans and Aces never let go of
+    // them); the seconds it flies its pattern before an attack run; and the seconds it flies on after one.
+    static readonly (float SpeedReaction, float GLimit, float TurnFloor, float Wait, float BreakOff)[] Skills =
+    {
+        (2, 10, 0.65f, 12, 6),
+        (1, 14, 0.75f, 8, 4),
+        (0.5f, 19, float.PositiveInfinity, 4, 3),
+        (0.2f, 30, float.PositiveInfinity, 2, 1.5f),
+    };
 
     // The two ground checks, each asked every frame with the same query rather than a new one: a ball
     // swept along a path, and a ball around the jet.
@@ -57,6 +73,8 @@ public partial class AiPilot : Node
 
     Jet _jet;
     bool _passing;  // flying on level through the point until TurnBackRange past it
+    float _since;      // seconds it has flown this maneuver
+    float _inSights;   // seconds an attack run has held its Target in the missile seeker
     Jet _seen;         // the Target it chased last frame
     float _seenSpeed;  // the speed, in km/h, it has seen that Target doing: it trails the real one by its Skill's reaction
 
@@ -68,7 +86,9 @@ public partial class AiPilot : Node
         var fromJet = _jet.GlobalBasis.Inverse();
         var sky = fromJet * Vector3.Up;
         var skill = Skills[(int)Skill];
-        var target = Chasing ? Unit.Hostiles(GetTree(), _jet.Team).OfType<Jet>().MinBy(DistanceTo) : null;
+        var hostile = Chasing ? Unit.Hostiles(GetTree(), _jet.Team).OfType<Jet>().MinBy(DistanceTo) : null;
+        Choose(hostile, seconds);
+        var target = Maneuver == Maneuver.AttackRun ? hostile : null;
         if (target != null)
             _seenSpeed = target == _seen ? Mathf.Lerp(_seenSpeed, target.Speed, 1 - Mathf.Exp(-seconds / skill.SpeedReaction)) : target.Speed;
         _seen = target;
@@ -86,9 +106,9 @@ public partial class AiPilot : Node
 
         // Where it heads: its goal, the Target's lead point or its own point; level toward that while
         // the straight way there runs through the ground, so it doesn't dive at what the pull-up would
-        // only haul it back from; and level along its heading while passing its point.
+        // only haul it back from; and level along its heading while passing its point or breaking off.
         _passing = target == null && (offset.Length() < PassRange || (_passing && offset.Length() < TurnBackRange));
-        var heading = _passing ? nose with { Y = 0 } : GroundAlong(offset.Normalized()) ? offset with { Y = 0 } : offset;
+        var heading = _passing || Maneuver == Maneuver.BreakOff ? nose with { Y = 0 } : GroundAlong(offset.Normalized()) ? offset with { Y = 0 } : offset;
         var to = (fromJet * heading).Normalized();  // seen from the jet: -Z ahead, +Y above, +X right
 
         // A hard turn low down would swing it into ground its nose can't see yet, so without room to
@@ -98,7 +118,8 @@ public partial class AiPilot : Node
 
         var far = Mathf.Min(Vector3.Forward.AngleTo(to) / Mathf.DegToRad(NearNose), 1);  // 0 on the nose, 1 from NearNose out
         var bank = Mathf.LerpAngle(Mathf.Atan2(sky.X, sky.Y), Mathf.Atan2(to.X, to.Y), far);  // roll still to go: to wings level on the nose, to the point above the canopy further out
-        var pitch = Mathf.Clamp(Mathf.Atan2(to.Y, -to.Z) * PitchGain, far - 1, skill.MaxStick);  // pushes only near the nose
+        var pull = _jet.Handling.PullForG(skill.GLimit - _jet.GlobalBasis.Y.Y, _jet.Speed);  // the most stick its G limit allows: gravity's share counts, as on the debug overlay
+        var pitch = Mathf.Clamp(Mathf.Atan2(to.Y, -to.Z) * PitchGain, Mathf.Max(far - 1, -pull), pull);  // pushes only near the nose
         var coasting = Mathf.Abs(pitch) > HardPull && _jet.Speed > _jet.Handling.CornerSpeed * skill.TurnFloor;  // a hard pull costs it speed, as it costs the Player, down to its floor
         return new FlightInput(
             pitch,
@@ -107,6 +128,31 @@ public partial class AiPilot : Node
             Throttle: coasting ? 0 : throttle,
             Squeeze: 0);
     }
+
+    // Moves it on to its next maneuver once this one is over: from its pattern to an attack run on the
+    // hostile jet, from the run to a break-off, and from that back to its pattern.
+    void Choose(Jet hostile, float seconds)
+    {
+        var skill = Skills[(int)Skill];
+        var turnsBack = Skill >= Skill.Veteran;  // on a hostile jet behind it; a Rookie or Regular leaves it there
+        _since += seconds;
+        _inSights = Maneuver == Maneuver.AttackRun && hostile != null && Targeting.InSeeker(_jet, hostile) ? _inSights + seconds : 0;
+        var next = Maneuver switch
+        {
+            Maneuver.Pattern when hostile != null && _since >= skill.Wait && (turnsBack || !Behind(hostile)) => Maneuver.AttackRun,
+            Maneuver.AttackRun when hostile == null => Maneuver.Pattern,
+            Maneuver.AttackRun when _inSights >= Targeting.Seeker.LockTime || _since >= RunLimit || (!turnsBack && Behind(hostile)) => Maneuver.BreakOff,
+            Maneuver.BreakOff when _since >= skill.BreakOff => Maneuver.Pattern,
+            _ => Maneuver,
+        };
+        if (next == Maneuver)
+            return;
+        Maneuver = next;
+        _since = 0;
+    }
+
+    // True for a Unit in the half of the sky behind the jet's tail.
+    bool Behind(Unit unit) => (unit.GlobalPosition - _jet.GlobalPosition).Dot(_jet.GlobalBasis.Z) > 0;
 
     float DistanceTo(Unit unit) => _jet.GlobalPosition.DistanceTo(unit.GlobalPosition);
 

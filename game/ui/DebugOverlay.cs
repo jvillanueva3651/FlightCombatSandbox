@@ -4,11 +4,12 @@ using System.Linq;
 using Godot;
 
 /// <summary>
-/// Shows the jet's flight numbers, its and its Target's health and what every control is doing right
-/// now, from the DualSense and the keyboard. It starts hidden, since the HUD shows what matters in
-/// flight, and F4 shows and hides it. F2 damages the Target and F3 the jet, shown or not, F5 moves
-/// the test scene's AI point to the jet, F6 switches the AI Pilots between chasing their Target and
-/// flying to that point, and F7 moves them on to the next Skill. The test dummies, every Unit on
+/// Shows the jet's flight numbers, its and its Target's health, the first AI Pilot's maneuver and its
+/// jet's G-load, and what every control is doing right now, from the DualSense and the keyboard. It
+/// starts hidden, since the HUD shows what matters in flight, and F4 shows and hides it. F2 damages
+/// the Target and F3 the jet, shown or not, F5 moves the test scene's AI point to the jet, F6 switches
+/// the AI Pilots' attack runs off and on, leaving them their pattern on that point, and F7 moves
+/// them on to the next Skill. The test dummies, every Unit on
 /// another Team when the scene starts (AI jets too), each come back as they were placed a few seconds
 /// after being destroyed, with the Skill F7 last set.
 /// </summary>
@@ -82,6 +83,7 @@ public partial class DebugOverlay : CanvasLayer
         if (!Visible)
             return;  // nothing to show while hidden, though the dummies above still come back
         var targetHealth = _targeting.Target is { } target ? $"{target.Health,5}" : " none";
+        var aiPilot = AiPilots().FirstOrDefault();
         _label.Text = $"""
             Speed          {Jet.Speed,5:0} km/h
             Altitude       {Jet.GlobalPosition.Y,5:0} m
@@ -89,6 +91,8 @@ public partial class DebugOverlay : CanvasLayer
             G-load         {Jet.GLoad,5:0.0} G
             Jet health     {Jet.Health,5}
             Target health  {targetHealth}
+            AI maneuver    {aiPilot?.Maneuver.ToString() ?? "--"}
+            AI G-load      {aiPilot?.GetParent<Jet>().GLoad ?? 0,5:0.0} G
 
             Control        Value  DualSense              Keyboard
             Pitch          {Axis(Controls.PitchDown, Controls.PitchUp)}  Left stick up/down     W / S
@@ -111,7 +115,7 @@ public partial class DebugOverlay : CanvasLayer
             Debug overlay  {Held(Controls.DebugOverlay)}  --                     F4
             Move AI point  {Held(Controls.MoveAiPoint)}  --                     F5
             AI chase       {Held(AiPilot.Chasing)}  --                     F6
-            AI skill     {AiPilots().FirstOrDefault()?.Skill.ToString() ?? "--",7}  --                     F7
+            AI skill     {aiPilot?.Skill.ToString() ?? "--",7}  --                     F7
             """;
     }
 

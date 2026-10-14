@@ -69,6 +69,14 @@ public sealed record Handling
         : float.Lerp(1, TurnAtTopSpeed, Math.Clamp((speed - CornerSpeed) / (TopSpeed - CornerSpeed), 0, 1));
 
     /// <summary>
+    /// The pull on the stick, from 0 to 1, that turns the jet at <paramref name="g"/> G at
+    /// <paramref name="speed"/>: the G of the turn alone, speed times pitch rate, without a high-G turn.
+    /// The full stick when even that turns it more gently.
+    /// </summary>
+    public float PullForG(float g, float speed) =>
+        Math.Clamp(g * 9.81f / (speed / 3.6f * float.DegreesToRadians(PitchRate * TurnRateScale(speed))), 0, 1);
+
+    /// <summary>
     /// Speed after <paramref name="seconds"/> of pitching with the stick at <paramref name="pitch"/>
     /// (-1 to 1). A full pull either way loses the turn speed loss each second and a half pull a quarter
     /// as much, so gentle turns barely cost speed. Turning alone never slows the jet below stall speed,

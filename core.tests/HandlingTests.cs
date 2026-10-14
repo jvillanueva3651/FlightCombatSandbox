@@ -177,6 +177,27 @@ public class HandlingTests
         Assert.Equal(0.6f, LightFighter.TurnRateScale(speed: 1400));
     }
 
+    // A full pull at corner speed: 500 km/h is 138.9 m/s, turning 90 degrees a second, which is 22.24 G.
+    [Fact]
+    public void Half_the_g_of_a_full_pull_takes_half_the_stick()
+    {
+        Assert.Equal(0.5f, LightFighter.PullForG(11.12f, speed: 500), 3);
+    }
+
+    [Fact]
+    public void More_g_than_a_full_pull_makes_takes_the_full_stick()
+    {
+        Assert.Equal(1f, LightFighter.PullForG(30, speed: 500));
+    }
+
+    // At 900 km/h a full pull turns 72 degrees a second at 250 m/s, which is 32.02 G.
+    [Fact]
+    public void The_same_g_takes_less_stick_the_faster_the_jet_flies()
+    {
+        Assert.Equal(0.45f, LightFighter.PullForG(10, speed: 500), 3);
+        Assert.Equal(0.312f, LightFighter.PullForG(10, speed: 900), 3);
+    }
+
     [Fact]
     public void A_full_pull_loses_the_turn_speed_loss_each_second()
     {

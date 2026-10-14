@@ -67,7 +67,7 @@ public partial class Targeting : Node
             _target = hostiles.Where(InFront).MinBy(OffNose);
 
         var target = Target;
-        if (target == null || target != _seeking || _jet.ShotDown || !InSeeker(target))
+        if (target == null || target != _seeking || _jet.ShotDown || !InSeeker(_jet, target))
             _inSeeker = 0;
         else
             _inSeeker += (float)delta;
@@ -101,9 +101,10 @@ public partial class Targeting : Node
     /// <summary>True for a Unit in the half of the sky the jet's nose points into.</summary>
     public bool InFront(Unit unit) => (unit.GlobalPosition - _jet.GlobalPosition).Dot(-_jet.GlobalBasis.Z) > 0;
 
-    bool InSeeker(Unit unit)
+    /// <summary>True for a Unit inside the seeker's range and its cone around <paramref name="from"/>'s nose.</summary>
+    public static bool InSeeker(Node3D from, Unit unit)
     {
-        var toUnit = unit.GlobalPosition - _jet.GlobalPosition;
-        return toUnit.Length() <= Seeker.LockRange && toUnit.AngleTo(-_jet.GlobalBasis.Z) <= Mathf.DegToRad(Seeker.SeekerCone);
+        var toUnit = unit.GlobalPosition - from.GlobalPosition;
+        return toUnit.Length() <= Seeker.LockRange && toUnit.AngleTo(-from.GlobalBasis.Z) <= Mathf.DegToRad(Seeker.SeekerCone);
     }
 }

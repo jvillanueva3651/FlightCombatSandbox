@@ -26,6 +26,7 @@ A single-player arcade flight combat game in the spirit of Ace Combat, where Aut
 - Players fly fighters, multiroles and attackers, never bombers.
 - **Score and Rank:** points per Unit Type, which the Author can override per Group; S/A/B/C Rank from score and time, with thresholds set by the Author or worked out automatically.
 - No difficulty settings, no unlocks, no currency.
+- **AI Pilots are obstacles, not rivals.** The Player carries far more missiles than a real jet and is meant to shoot down far more aircraft than is realistic. An AI Pilot mostly flies its pattern and attacks now and then. Only an Ace comes close to matching the Player.
 - **Mission flow:** briefing (text and map) → hangar (jet and Special Weapons within the Ruleset) → fly → results.
 
 ## Missions
@@ -52,7 +53,7 @@ A single-player arcade flight combat game in the spirit of Ace Combat, where Aut
 - **Orders.** Aircraft: Fly Route (once or looping), Patrol Zone, Attack, Escort, Strike Zone, Engage at will, Retreat. Ground vehicles: Drive Route, Hold position, Take Zone, Attack, Retreat. Ships: Sail Route, Hold position, Retreat. Static Units only use their weapons. Every Order has a hold-fire switch.
 - **Stances:** Balanced (default), Aggressive, Covering, Baiting.
 - **Traits:** Stealth, Invulnerable.
-- **Skill:** Rookie, Regular (default), Veteran, Ace: how well a Unit's AI flies and fights. An Ace shows its name on the HUD.
+- **Skill:** Rookie, Regular (default), Veteran, Ace: how well a Unit's AI flies and fights. It sets how many G the AI Pilot pulls, how often it makes an attack run and how long it flies on after one, and which Maneuvers it flies: only a Veteran or an Ace turns back on a jet behind it. An Ace shows its name on the HUD.
 
 ## Editor
 
