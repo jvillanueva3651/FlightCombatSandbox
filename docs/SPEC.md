@@ -26,7 +26,7 @@ A single-player arcade flight combat game in the spirit of Ace Combat, where Aut
 - Players fly fighters, multiroles and attackers, never bombers.
 - **Score and Rank:** points per Unit Type, which the Author can override per Group; S/A/B/C Rank from score and time, with thresholds set by the Author or worked out automatically.
 - No difficulty settings, no unlocks, no currency.
-- **AI Pilots are obstacles, not rivals.** The Player carries far more missiles than a real jet and is meant to shoot down far more aircraft than is realistic. An AI Pilot mostly flies its pattern and attacks now and then. Only an Ace comes close to matching the Player.
+- **AI Pilots are obstacles, not rivals.** The Player carries far more missiles than a real jet and is meant to shoot down far more aircraft than is realistic. An AI Pilot mostly flies its pattern and attacks now and then, with missiles, never the gun. Only an Ace comes close to matching the Player. Enemy guns, such as an AA gun's, are a deterrent or an inconvenience, never as deadly as the Player's gun.
 - **Mission flow:** briefing (text and map) → hangar (jet and Special Weapons within the Ruleset) → fly → results.
 
 ## Missions
@@ -53,7 +53,7 @@ A single-player arcade flight combat game in the spirit of Ace Combat, where Aut
 - **Orders.** Aircraft: Fly Route (once or looping), Patrol Zone, Attack, Escort, Strike Zone, Engage at will, Retreat. Ground vehicles: Drive Route, Hold position, Take Zone, Attack, Retreat. Ships: Sail Route, Hold position, Retreat. Static Units only use their weapons. Every Order has a hold-fire switch.
 - **Stances:** Balanced (default), Aggressive, Covering, Baiting.
 - **Traits:** Stealth, Invulnerable.
-- **Skill:** Rookie, Regular (default), Veteran, Ace: how well a Unit's AI flies and fights. It sets how many G the AI Pilot pulls, how often it makes an attack run and how long it flies on after one, and which Maneuvers it flies: only a Veteran or an Ace turns back on a jet behind it. It also sets how often the AI Pilot looks behind it, its chance of evading a missile it sees, and how many evasions its Stamina pays for before it has to recover. Only missiles set off an evasion, never the gun. An Ace shows its name on the HUD.
+- **Skill:** Rookie, Regular (default), Veteran, Ace: how well a Unit's AI flies and fights. It sets how many G the AI Pilot pulls, how often it makes an attack run and how long it flies on after one, how many missiles it fires when a run ends with its Target locked (one, or two for an Ace), and which Maneuvers it flies: only a Veteran or an Ace turns back on a jet behind it. It also sets how often the AI Pilot looks behind it, its chance of evading a missile it sees, and how many evasions its Stamina pays for before it has to recover. Only missiles set off an evasion, never the gun. An Ace shows its name on the HUD.
 
 ## Editor
 

@@ -2,9 +2,19 @@
 
 [ext_resource type="PackedScene" path="res://flight/jet.tscn" id="1_jet"]
 [ext_resource type="Script" path="res://ai/AiPilot.cs" id="2_pilot"]
+[ext_resource type="Script" path="res://combat/MissileLauncher.cs" id="3_launcher"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_hit"]
 size = Vector3(10, 3, 15)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_missile"]
+albedo_color = Color(0.9, 0.9, 0.9, 1)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_missile"]
+material = SubResource("StandardMaterial3D_missile")
+top_radius = 0.15
+bottom_radius = 0.15
+height = 3.0
 
 [node name="Jet" instance=ExtResource("1_jet")]
 
@@ -16,3 +26,14 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1.5)
 
 [node name="Shape" type="CollisionShape3D" parent="HitBox"]
 shape = SubResource("BoxShape3D_hit")
+
+[node name="MissileLauncher" type="Node3D" parent="."]
+script = ExtResource("3_launcher")
+
+[node name="LeftHardpoint" type="MeshInstance3D" parent="MissileLauncher"]
+transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, -5.2, -0.2, 0.5)
+mesh = SubResource("CylinderMesh_missile")
+
+[node name="RightHardpoint" type="MeshInstance3D" parent="MissileLauncher"]
+transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 5.2, -0.2, 0.5)
+mesh = SubResource("CylinderMesh_missile")

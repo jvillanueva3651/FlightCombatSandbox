@@ -336,16 +336,35 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
     - The ground: 2.44's batch of 36 runs, all four Skills. Never destroyed by the ground, and never closer than 30 m to it, where two runs came to 6 m and 17 m before.
     - `loop.gd` and `skill.gd` at each Skill, `chase.gd`, `ai.gd`, the three `evade.gd` cases, and the regression scenario matching its baseline byte for byte. 73 Core tests.
   - Played 2026-10-13: looks good.
-- [ ] **2.14 AI attacks** · S · after 2.44, 2.7, 2.3
-  - Done when AI jets fire the gun and missiles when their Target is in range and in front.
-  - Verify: play. Files: `game/ai/AiPilot.cs`.
-  - Note: AI jets got their hit box in 2.11 (`game/ai/ai_jet.tscn`). Once they fire, gun rounds must skip the shooter's own hit box and Team (the spec has no friendly fire). Their gun and launcher go in `ai_jet.tscn` and need the AI Pilot to pull the trigger instead of the controller, the way `FlightInput` does for flying. Within gun range it should aim by the rounds' flight time (`Gun.AimPoint`), where 2.13 leads only to close the distance; and in a sustained turn its nose trails its Target by about 16°, which the gun can't hit from.
-  - Note (from 2.41): how soon and how accurately it fires are numbers for each Skill; add them to the Skill table in `AiPilot.cs`.
-  - Note (from 2.42): the shot goes where an attack run ends today, once the AI Pilot has held its Target in the seeker for the lock time (`Choose` in `AiPilot.cs`). The user's picture of an attack: an enemy gets behind a Player whose attention is elsewhere, locks on and fires a missile or two, which the Player can evade or outrun.
+- [x] **2.14 AI attacks** · S · after 2.44, 2.7, 2.3
+  - Done when an AI jet fires at its Target when an attack run ends with the Target locked: one missile, or a salvo of two for an Ace. As first written, this task also had AI jets fire the gun; the user's decision on 2026-10-14 is that AI Pilots never use it.
+  - Verify: play. Files: `game/ai/AiPilot.cs`, `game/ai/ai_jet.tscn`, `game/combat/MissileLauncher.cs`, `game/flight/Jet.cs`, `docs/SPEC.md`, `GLOSSARY.md`, `README.md`.
+  - The user's picture of an attack (from 2.42's design session): an enemy gets behind a Player whose attention is elsewhere, locks on and fires a missile or two, which the Player can evade or outrun.
+  - Settled when planning (the user's picks, 2026-10-14):
+    - Missiles only. Ground Units such as the AA gun (2.22) will use guns, but as a deterrent or an inconvenient obstacle, never as deadly as the Player's gun.
+    - One missile per attack run at every Skill but Ace, which fires two. Two hits shoot the Player down (60 each against 100 health), so an Ace's salvo that lands does it in one go.
+    - It fires the moment its run ends with its Target locked, where 2.42's runs already ended. No other new Skill numbers: the Skills already differ in how often they attack. 2.41's note asked for "how soon and how accurately it fires"; 2.42's waits took over "how soon".
+    - Play it on its own to check the attacks work, and judge how dangerous they are after 2.15's missile warning.
+  - How it works:
+    - The AI jet carries the Player's launcher (`ai_jet.tscn`): two wingtip missiles, shown while loaded, each loading again 5 s after firing, from 144.
+    - The launcher fires for the AI Pilot when the jet has one (`Jet.AiPilot`, new) and for Circle otherwise, the way the jet takes its stick. The AI Pilot sets `FiresAt` on the frame its run ends with its Target locked, and the launcher fires its Skill's `Salvo` at it once the jet has moved, as it does for Circle. AI jets have no Targeting, which reads Triangle: the AI Pilot's own lock decides what its missiles home on.
+    - A run that ends at its time limit, or with its Target behind it, fires nothing. A run that ends at lock with both Hardpoints empty breaks off without firing.
+  - Checked by probe:
+    - `attack.gd`, new, at each Skill. It failed on the old code: the AI jet had no launcher. Now Circle fires the Player's missile and none of the AI jet's. The first run ends 1,948 m from a Player flying straight, with one missile leaving a Hardpoint on Team 2 and homing on the Player's jet, or for an Ace two, from wingtips 10.4 m apart. 3.9 s later the Player has lost 60 health, or 100 to an Ace's two and been shot down. The Hardpoints are still empty at 4.83 s and loaded again at 5.05 s. With the Player held 500 m behind it for a minute, a Veteran's or an Ace's three runs ended without a lock and fired nothing, and a Rookie or Regular made no run.
+    - The ground: 2.45's 36 runs at all four Skills, never destroyed by the ground and never closer than 30 m to it. `loop.gd` and `skill.gd` at each Skill, `chase.gd`, `ai.gd` and the three `evade.gd` cases pass unchanged, though the Player now gets hit in some of them; the regression scenario matches its baseline byte for byte. 73 Core tests.
+  - Measured (`pressure.gd`, new, and `canyonchase.gd`): how hard each Skill presses a Player who never evades or fires back, five minutes at a time, three starts per Skill. In open air the Player circles 3 km out round the AI point at cruise speed; in the canyon it flies its rails 150 m above the floor. Per minute, Rookie / Regular / Veteran / Ace:
+    - Open air: missiles fired 1.4 / 1.6 / 5.9 / 17.6 (an Ace makes 9 runs a minute, two missiles each); hits 0.07 / 0.07 / 5.6 / 11.5; the Player shot down never / never / every 21 s / every 10 s. Rookies and Regulars lock from about 1,850 m, Veterans from 1,400 m and Aces from 1,270 m.
+    - Canyon: missiles fired 1.3 / 1.3 / 5.1 / 12.4; hits 0.8 / 0.9 / 3.6 / 8.4; the Player shot down every 3 min / 3 min / 35 s / 14 s.
+    - Only a Veteran or an Ace turns back on a Player behind it, and they wait less, so they make about four times the runs. In open air a Rookie's or Regular's missile nearly always lost the circling Player from its seeker (43 of 45). Of an Ace's 133 runs that ended at lock, one found both Hardpoints empty.
+    - These are what a Player who never breaks would face. 2.44's measurement says a break within a second beats nearly every missile, so 2.15's warning decides how much of this lands. The numbers to change if it's too much: the waits, a chance to fire per run, or the Ace's salvo.
+  - Played 2026-10-14: everything looks good.
 - [ ] **2.15 Missile warning** · S · after 2.14
   - Done when a "MISSILE" warning and alarm tone appear while a missile tracks the Player.
   - Verify: play. Files: `game/ui/Hud.cs`, `game/combat/Missile.cs`.
   - Note (from the Step 2 review): the alarm tone is the third sound made in code, after `JetSound`'s and the lock tone in `TargetMarker`, which pack their samples into a looping WAV the same way. Share that code here.
+- [ ] **2.48 Missiles on the radar** · S · after 2.10, 2.14
+  - Done when missiles in flight show on the radar as small lines along their path, so one homing on the Player is plainly closing on the Player's blip, as other games show them (the user's design, 2026-10-14, after playing 2.14). Whether the Player's own missiles show too is to settle when planning.
+  - Verify: play. Files: `game/ui/Radar.cs`.
 - [ ] **2.30 Flares** · S · after 2.15, 2.9
   - Done when L3+R3 releases flares that can pull missiles tracking the Player off course, and the HUD shows how many flares are left.
   - Verify: play. Files: `game/combat/Flares.cs`, `game/combat/Missile.cs`, `game/ui/Hud.cs`.
@@ -356,6 +375,15 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
 - The bar, from the user (2026-10-13): once the Player is on an enemy, shooting it down should take about 5 s for a Rookie, 15-20 s for a Regular, 40-50 s for a Veteran and 1-2 minutes for an Ace. The Player's rhythm is to get behind a Target, fire, break off and move to the next, so more of the higher Skills in a Mission means more effort overall. Beating a Rookie should be comfortable, a Regular some work, and a Veteran or an Ace a matter of skill rather than luck.
 
 - To tune here, against a moving jet: missile tracking. Since 2.7, missiles fly straight at where the Target is (pure pursuit, `game/combat/Missile.cs`) rather than leading it. One `seekerCone` (50°, the user's pick) sets both how wide lock-on is and how far off its nose a missile in flight can still see its Target; these may need to be split. The turn rate (50°/s) decides how easily a break turn dodges.
+
+- Also to tune around here (the user, 2026-10-14, after playing 2.14): hit boxes, missile speeds and guidance, and damage values.
+
+- [ ] **2.46 Markers on every hostile Unit** · S · after 2.5, 2.9
+  - Done when every hostile Unit on screen has a small HUD marker, not only the Target, so the Player can pick them out without the radar. The Target keeps its own box. A quality-of-life change the user asked for on 2026-10-14.
+  - Verify: play. Files: `game/ui/TargetMarker.cs`, `game/ui/hud.tscn`, `game/ui/Hud.cs`.
+- [ ] **2.47 Off-screen Target arrow** · S · after 2.5, 2.9
+  - Done when, while the Target is off screen, an arrow near the middle of the HUD points the way to it, and it goes away once the Target is on screen again. A quality-of-life change the user asked for on 2026-10-14.
+  - Verify: play. Files: `game/ui/TargetMarker.cs`, `game/ui/hud.tscn`.
 
 - [ ] **2.17 Special Weapon slots** · M · after 2.8, 2.9
   - Done when Square cycles standard missile → Special Weapon 1 → Special Weapon 2, Special Weapons are defined in the base Pack, and the HUD shows the selected one and its count.
@@ -377,6 +405,8 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
 - [ ] **2.22 AA gun** · M · after 2.20
   - Done when an AA gun Unit Type (anti-air Role) tracks the Player within range and fires bursts that can damage it.
   - Verify: play. Files: `packs/base/unit-types/aa-gun.json`, `game/combat/aa_gun.tscn`, `game/combat/AaGun.cs`.
+  - Note (from 2.14, the user's design, 2026-10-14): an enemy's gun is a deterrent or an inconvenient obstacle, not a sky shredder. It must be far less deadly than the Player's gun, which shoots a jet down in under a second of hits. AI Pilots never use the gun, so this is the first enemy gun.
+  - Note (from 2.14): the Player's jet has no hit box yet, so enemy rounds would pass through it; and rounds must pass through their own side's hit boxes, the shooter's included (the spec has no friendly fire).
 - [ ] **2.23 Score** · XS · after 2.2
   - Done when destroying a Unit adds its points and the HUD shows the score.
   - Verify: play. Files: `game/ui/Hud.cs`.

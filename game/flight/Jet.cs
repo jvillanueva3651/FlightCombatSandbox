@@ -34,11 +34,14 @@ public partial class Jet : Unit
     /// <summary>The jet's Targeting, one of its parts in player_jet.tscn.</summary>
     public Targeting Targeting => GetNode<Targeting>("Targeting");
 
-    /// <summary>The jet's missile launcher, one of its parts in player_jet.tscn.</summary>
+    /// <summary>The jet's missile launcher, one of its parts in player_jet.tscn and ai_jet.tscn.</summary>
     public MissileLauncher MissileLauncher => GetNode<MissileLauncher>("MissileLauncher");
 
     /// <summary>The jet's gun, one of its parts in player_jet.tscn.</summary>
     public Gun Gun => GetNode<Gun>("Gun");
+
+    /// <summary>The AI Pilot that flies the jet and fires its missiles, one of its parts in ai_jet.tscn; null for the Player's.</summary>
+    public AiPilot AiPilot { get; private set; }
 
     const float RespawnDelay = 2;  // seconds from being shot down to starting again
 
@@ -47,7 +50,6 @@ public partial class Jet : Unit
     // Asked every frame with the same query rather than a new one.
     readonly PhysicsShapeQueryParameters3D _crashSweep = new() { Shape = new SphereShape3D { Radius = 4 } };
 
-    AiPilot _aiPilot;  // flies the jet if it has one; null for the Player's
     Transform3D _start;
     float _sinceShotDown;
 
@@ -63,7 +65,7 @@ public partial class Jet : Unit
         Handling = Packs.Base.Feel.Apply(UnitType.Handling);
         Speed = Handling.CruiseSpeed;
         _start = Transform;
-        _aiPilot = GetNodeOrNull<AiPilot>("AiPilot");
+        AiPilot = GetNodeOrNull<AiPilot>("AiPilot");
     }
 
     public override void _Process(double delta)
@@ -78,7 +80,7 @@ public partial class Jet : Unit
         }
 
         Handling = Packs.Base.Feel.Apply(UnitType.Handling);  // with the Feel Settings' multipliers on top
-        var input = _aiPilot?.Fly(dt) ?? FlightInput.FromController();
+        var input = AiPilot?.Fly(dt) ?? FlightInput.FromController();
         _pitch = Handling.NextTurn(_pitch, input.Pitch, dt);
         _roll = Handling.NextTurn(_roll, input.Roll, dt);
         _yaw = Handling.NextTurn(_yaw, input.Yaw, dt);
@@ -122,7 +124,7 @@ public partial class Jet : Unit
     // The Player's jet stays in the scene, stopped and hidden by the camera, until it starts again.
     protected override void Destroyed()
     {
-        if (_aiPilot != null)
+        if (AiPilot != null)
         {
             base.Destroyed();
             return;

@@ -85,7 +85,7 @@ What flies a Unit that isn't the Player's: it reads the situation and works the 
 _Avoid_: Bot, Brain, Controller
 
 **Skill**:
-How good a Unit's AI Pilot is: Rookie, Regular, Veteran or Ace. Every Unit has one, Regular unless the Author says otherwise, and an Ace shows its name on the HUD. It sets what the AI Pilot can do with its aircraft (how soon it reacts, how many G it pulls, how often it attacks, how readily it notices and evades a missile, which Maneuvers it flies), never the aircraft itself.
+How good a Unit's AI Pilot is: Rookie, Regular, Veteran or Ace. Every Unit has one, Regular unless the Author says otherwise, and an Ace shows its name on the HUD. It sets what the AI Pilot can do with its aircraft (how soon it reacts, how many G it pulls, how often it attacks and how many missiles it fires, how readily it notices and evades a missile, which Maneuvers it flies), never the aircraft itself.
 _Avoid_: Difficulty (there is no difficulty setting), Rank (a Mission's result), Level
 
 **Maneuver**:

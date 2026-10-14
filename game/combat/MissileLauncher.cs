@@ -5,8 +5,9 @@ using Godot;
 /// <summary>
 /// Fires the jet's standard missiles from its Hardpoints, the launcher's children. Each holds one
 /// missile, shown while it's loaded. Each press of Circle fires a loaded one, the Hardpoints taking
-/// turns, and the missile homes on the Target if it's locked and flies straight if not. An empty
-/// Hardpoint loads again a few seconds after firing, while the count, which includes the loaded
+/// turns, and the missile homes on the Target if it's locked and flies straight if not. On a jet an
+/// AI Pilot flies, the AI Pilot fires instead of Circle: its salvo at the Target it has locked. An
+/// empty Hardpoint loads again a few seconds after firing, while the count, which includes the loaded
 /// missiles, still has one for it. Being shot down refills the count and every Hardpoint. Holding
 /// Circle on after firing has the camera follow that missile; holding it with every Hardpoint empty
 /// follows the last missile fired, while it still flies.
@@ -33,7 +34,6 @@ public partial class MissileLauncher : Node3D
     public Missile Followed => _held >= FollowTime ? _toFollow : null;
 
     Jet _jet;
-    Targeting _targeting;
     Node3D[] _hardpoints;  // each is loaded while it shows its missile
     float[] _reload;       // seconds until each empty Hardpoint loads again
     int _next;             // the Hardpoint whose turn it is to fire
@@ -44,7 +44,6 @@ public partial class MissileLauncher : Node3D
     public override void _Ready()
     {
         _jet = GetParent<Jet>();
-        _targeting = _jet.Targeting;
         _hardpoints = GetChildren().Cast<Node3D>().ToArray();
         _reload = new float[_hardpoints.Length];
         Rearm();
@@ -52,7 +51,8 @@ public partial class MissileLauncher : Node3D
 
     public override void _Process(double delta)
     {
-        if (Input.IsActionPressed(Controls.FireMissile) && !_jet.ShotDown)
+        var pilot = _jet.AiPilot;  // fires instead of the controller, if the jet has one
+        if (pilot == null && Input.IsActionPressed(Controls.FireMissile) && !_jet.ShotDown)
             _held += (float)delta;
         else
         {
@@ -75,21 +75,35 @@ public partial class MissileLauncher : Node3D
                 _hardpoints[i].Visible = true;
         }
 
-        if (!Input.IsActionJustPressed(Controls.FireMissile))
-            return;
+        if (pilot != null)
+        {
+            for (var shot = 0; pilot.FiresAt != null && shot < pilot.Salvo; shot++)
+                Fire(pilot.FiresAt);
+        }
+        else if (Input.IsActionJustPressed(Controls.FireMissile))
+        {
+            var targeting = _jet.Targeting;
+            _toFollow = Fire(targeting.Locked ? targeting.Target : null) ?? (IsInstanceValid(_last) ? _last : null);  // nothing loaded: follow the last missile while it flies
+        }
+    }
+
+    // Fires the loaded missile whose Hardpoint's turn it is, homing on the target, or straight if
+    // that's null. Returns the missile, or null when no Hardpoint is loaded.
+    Missile Fire(Unit target)
+    {
         for (var turn = 0; turn < _hardpoints.Length; turn++)
         {
             var i = (_next + turn) % _hardpoints.Length;
             if (!_hardpoints[i].Visible)
                 continue;
-            _toFollow = _last = Launch(_hardpoints[i]);
+            _last = Launch(_hardpoints[i], target);
             _hardpoints[i].Visible = false;
             _reload[i] = ReloadTime;
             _next = (i + 1) % _hardpoints.Length;
             Count--;
-            return;
+            return _last;
         }
-        _toFollow = IsInstanceValid(_last) ? _last : null;  // nothing loaded: follow the last missile while it flies
+        return null;
     }
 
     /// <summary>
@@ -112,12 +126,12 @@ public partial class MissileLauncher : Node3D
             hardpoint.Visible = true;
     }
 
-    Missile Launch(Node3D hardpoint)
+    Missile Launch(Node3D hardpoint, Unit target)
     {
         var missile = GD.Load<PackedScene>("res://combat/missile.tscn").Instantiate<Missile>();
         missile.Type = Packs.Base.WeaponTypes[WeaponTypeId];
         missile.Team = _jet.Team;
-        missile.Target = _targeting.Locked ? _targeting.Target : null;
+        missile.Target = target;
         missile.Speed = _jet.Speed;
         _jet.GetParent().AddChild(missile);
         missile.GlobalTransform = new Transform3D(_jet.GlobalBasis, hardpoint.GlobalPosition);  // the Hardpoint's own basis is turned to lay its missile along the jet

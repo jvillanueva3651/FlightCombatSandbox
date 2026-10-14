@@ -6,16 +6,17 @@ using Godot;
 /// Flies its jet, its parent, through the same controls the Player uses, as well as its Skill allows:
 /// the Skill sets how many G it pulls, how long it flies its pattern between attack runs and flies on
 /// after one, whether it turns back on a hostile jet behind it, how quickly it notices its Target's
-/// speed changing, and how slow it lets a hard turn make it before it works the triggers again. It
-/// flies one maneuver at a time. Its pattern is flying to its point at cruise speed: close to the
-/// point it flies on level through it, and some way past it turns back for another pass, rather than
-/// circling it in a tight turn. After its Skill's wait in its pattern it makes an attack run on its
-/// Target, the nearest hostile jet, though a Rookie or Regular only on one ahead of it: it aims
-/// ahead of it while it's further back than its place behind it, so it cuts inside the Target's
-/// turn, and it works the triggers to close on it. The run ends once it has held its Target in the
-/// missile seeker for the lock time, the shot it will take once it's armed; or after RunLimit; or,
-/// for a Rookie or Regular, when the Target gets behind it. Then it breaks off, flying straight and
-/// level for its Skill's time, and goes back to its pattern.
+/// speed changing, how slow it lets a hard turn make it before it works the triggers again, and how
+/// many missiles it fires at a time. It flies one maneuver at a time. Its pattern is flying to its
+/// point at cruise speed: close to the point it flies on level through it, and some way past it
+/// turns back for another pass, rather than circling it in a tight turn. After its Skill's wait in
+/// its pattern it makes an attack run on its Target, the nearest hostile jet, though a Rookie or
+/// Regular only on one ahead of it: it aims ahead of it while it's further back than its place behind
+/// it, so it cuts inside the Target's turn, and it works the triggers to close on it. The run ends
+/// once it has held its Target in the missile seeker for the lock time, when it fires at it: one
+/// missile, or two for an Ace. Otherwise it ends with no shot after RunLimit or, for a Rookie or
+/// Regular, when the Target gets behind it. Then it breaks off, flying straight and level for its
+/// Skill's time, and goes back to its pattern.
 /// <para>
 /// A missile fired at it can cut in on any of that. It sees what is ahead of its nose, and looks
 /// behind only every so often, by Skill, so a missile from behind goes unnoticed until its next
@@ -46,6 +47,15 @@ public partial class AiPilot : Node
 
     /// <summary>How much hard flying it has left, from 0 to 1.</summary>
     public float Stamina { get; private set; } = 1;
+
+    /// <summary>
+    /// The Target it fires at this frame, or null: set on the frame an attack run ends with its
+    /// Target locked. Its jet's launcher asks once a frame, after the jet has moved.
+    /// </summary>
+    public Unit FiresAt { get; private set; }
+
+    /// <summary>How many missiles it fires at once.</summary>
+    public int Salvo => Skills[(int)Skill].Salvo;
 
     /// <summary>
     /// Whether it squeezes the triggers for a high-G turn through an evasion, still inside its G limit.
@@ -84,13 +94,14 @@ public partial class AiPilot : Node
     // share of corner speed, before it works the triggers again (Veterans and Aces never let go of
     // them); the seconds it flies its pattern before an attack run; the seconds it flies on after one;
     // the seconds between its looks behind; its chance of evading a missile it sees; the evasions full
-    // Stamina pays for; and the seconds it takes to get one of them back.
-    static readonly (float SpeedReaction, float GLimit, float TurnFloor, float Wait, float BreakOff, float Look, float Dodge, float Evasions, float Regain)[] Skills =
+    // Stamina pays for; the seconds it takes to get one of them back; and the missiles it fires at the
+    // end of an attack run.
+    static readonly (float SpeedReaction, float GLimit, float TurnFloor, float Wait, float BreakOff, float Look, float Dodge, float Evasions, float Regain, int Salvo)[] Skills =
     {
-        (2, 10, 0.65f, 12, 6, 8, 0.25f, 1, 15),
-        (1, 14, 0.75f, 8, 4, 2.5f, 0.7f, 2, 10),
-        (0.5f, 19, float.PositiveInfinity, 4, 3, 1.5f, 0.9f, 3, 8),
-        (0.2f, 30, float.PositiveInfinity, 2, 1.5f, 1, 1, 5, 8),
+        (2, 10, 0.65f, 12, 6, 8, 0.25f, 1, 15, 1),
+        (1, 14, 0.75f, 8, 4, 2.5f, 0.7f, 2, 10, 1),
+        (0.5f, 19, float.PositiveInfinity, 4, 3, 1.5f, 0.9f, 3, 8, 1),
+        (0.2f, 30, float.PositiveInfinity, 2, 1.5f, 1, 1, 5, 8, 2),
     };
 
     // The two ground checks, each asked every frame with the same query rather than a new one: a ball
@@ -234,18 +245,21 @@ public partial class AiPilot : Node
     }
 
     // Moves it on to its next maneuver once this one is over: from its pattern to an attack run on the
-    // hostile jet, from the run to a break-off, and from that back to its pattern.
+    // hostile jet, from the run to a break-off, and from that back to its pattern. A run that ends with
+    // the hostile locked ends with a shot at it.
     void Choose(Jet hostile, float seconds)
     {
         var skill = Skills[(int)Skill];
         var turnsBack = Skill >= Skill.Veteran;  // on a hostile jet behind it; a Rookie or Regular leaves it there
         _since += seconds;
         _inSights = Maneuver == Maneuver.AttackRun && hostile != null && Targeting.InSeeker(_jet, hostile) ? _inSights + seconds : 0;
+        var locked = _inSights >= Targeting.Seeker.LockTime;  // the run has held its Target in the seeker as long as a lock-on takes
+        FiresAt = locked ? hostile : null;
         var next = Maneuver switch
         {
             Maneuver.Pattern when hostile != null && _since >= skill.Wait && (turnsBack || !Behind(hostile)) => Maneuver.AttackRun,
             Maneuver.AttackRun when hostile == null => Maneuver.Pattern,
-            Maneuver.AttackRun when _inSights >= Targeting.Seeker.LockTime || _since >= RunLimit || (!turnsBack && Behind(hostile)) => Maneuver.BreakOff,
+            Maneuver.AttackRun when locked || _since >= RunLimit || (!turnsBack && Behind(hostile)) => Maneuver.BreakOff,
             Maneuver.BreakOff when _since >= skill.BreakOff => Maneuver.Pattern,
             _ => Maneuver,
         };
