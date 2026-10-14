@@ -31,7 +31,7 @@ The files that show how we work:
 - Chase and nose views, look-around, a Target camera and a missile camera.
 - A gun with a reticle that marks where the rounds will be at the Target's distance, lock-on, and missiles on Hardpoints that reload.
 - A HUD, a radar minimap and a large radar map.
-- An AI Pilot that flies the same flight model through the same controls and avoids terrain. Between passes on its point it makes attack runs on the Player and breaks off after each one, at one of four Skills. It doesn't shoot yet.
+- An AI Pilot that flies the same flight model through the same controls and avoids terrain. Between passes on its point it makes attack runs on the Player and breaks off after each one, at one of four Skills. It evades the missiles it notices until its Stamina runs out. It doesn't shoot yet.
 
 Everything is gray boxes over generated test terrain. Models, sounds, Missions and the editor come in later steps.
 

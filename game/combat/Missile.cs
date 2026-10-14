@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using Core;
 using Godot;
 
@@ -10,6 +12,9 @@ using Godot;
 /// </summary>
 public partial class Missile : Node3D
 {
+    // The Godot node group every missile joins so Homing can list them, as Units join theirs.
+    const string NodeGroup = "missiles";
+
     /// <summary>What kind of missile this is.</summary>
     public WeaponType Type { get; set; }
 
@@ -24,9 +29,17 @@ public partial class Missile : Node3D
 
     float _age;  // seconds since launch
 
+    /// <summary>The missiles in flight that are homing on <paramref name="unit"/>.</summary>
+    public static IEnumerable<Missile> Homing(SceneTree tree, Unit unit) =>
+        tree.GetNodesInGroup(NodeGroup).Cast<Missile>().Where(missile => missile.Target == unit && !missile.IsQueuedForDeletion());
+
     // Moves before everything else each frame, so the camera following it sits just behind where the
     // missile is now, not a frame's flight behind.
-    public override void _Ready() => ProcessPriority = -1;
+    public override void _Ready()
+    {
+        ProcessPriority = -1;
+        AddToGroup(NodeGroup);
+    }
 
     public override void _Process(double delta)
     {

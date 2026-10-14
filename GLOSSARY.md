@@ -85,15 +85,15 @@ What flies a Unit that isn't the Player's: it reads the situation and works the 
 _Avoid_: Bot, Brain, Controller
 
 **Skill**:
-How good a Unit's AI Pilot is: Rookie, Regular, Veteran or Ace. Every Unit has one, Regular unless the Author says otherwise, and an Ace shows its name on the HUD. It sets what the AI Pilot can do with its aircraft (how soon it reacts, how many G it pulls, how often it attacks, which Maneuvers it flies), never the aircraft itself.
+How good a Unit's AI Pilot is: Rookie, Regular, Veteran or Ace. Every Unit has one, Regular unless the Author says otherwise, and an Ace shows its name on the HUD. It sets what the AI Pilot can do with its aircraft (how soon it reacts, how many G it pulls, how often it attacks, how readily it notices and evades a missile, which Maneuvers it flies), never the aircraft itself.
 _Avoid_: Difficulty (there is no difficulty setting), Rank (a Mission's result), Level
 
 **Maneuver**:
-What an AI Pilot is flying right now: its pattern (the flying its Order asks for), an attack run on a Target, or a break-off, straight on after a run. It flies one at a time and finishes it before choosing the next.
+What an AI Pilot is flying right now: its pattern (the flying its Order asks for), an attack run on a Target, a break-off (straight on after a run), an evasion of a missile fired at it, or a recovery once its Stamina is gone. It flies one at a time and finishes it before choosing the next; only a missile it notices cuts in.
 _Avoid_: State, Mode, Behavior, Move
 
 **Stamina**:
-How much hard flying an AI Pilot has left before it must fly gently for a while to get it back. Only AI Pilots have it, and the Player never sees it.
+How much hard flying an AI Pilot has left before it must fly gently for a while to get it back. Evading a missile costs a share of it, turning flat out drains it, and it refills the rest of the time. Only AI Pilots have it, and the Player never sees it.
 _Avoid_: Fatigue, Energy, Endurance
 
 ### Flying

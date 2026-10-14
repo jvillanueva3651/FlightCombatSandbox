@@ -286,19 +286,49 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
     - `chase.gd` and `skill.gd` cut down to what still holds, `ai.gd` unchanged and passing, and the regression scenario matching its baseline byte for byte. 73 Core tests.
   - Noted while building, and not raised by the user after playing: a run on a Player already inside 2 km is over in about a second. It swings its nose to within 50° of the Player, holds half a second and breaks off. If that ever reads as nothing happening, the run can press closer than the missile's range and cone: two numbers. A tail chase from over 6 km times out at 20 s, still 2.5 km back.
   - Played 2026-10-13: it feels a lot better. The lower Skills were easy enough to fight, and the higher ones, the Ace especially, felt like a challenge without being impossible or frustrating.
-- [ ] **2.44 AI evasion** · M · after 2.42
-  - Done when an AI Pilot that notices a missile fired at it breaks hard to dodge it, how often by its Skill; can't keep that up, because every evasion and all hard flying drain its Stamina, and out of Stamina it must fly gently until some is back; and doesn't see what is behind it except when it checks. It takes over 2.16 (AI defense), whose number retires.
-  - Verify: play. Files: `game/ai/AiPilot.cs`, `game/ai/Maneuver.cs`, `game/combat/Missile.cs`.
-  - Settled in the design session of 2026-10-12/13 (the user's picks), to plan from:
-    - Two more Maneuvers, evade and recover, cut into 2.42's loop when the AI Pilot is shot at.
-    - Blind spots: it sees ahead of it, and checks behind every few seconds, by Skill. 2.42's rule that a Rookie or Regular only starts a run on a jet ahead of it is the crude first version.
-    - The evasion chance: rolled once per missile, when the AI Pilot sees the launch. A missile it never sees gets no roll. Low for a Rookie, near certain for an Ace. The user doesn't want every AI Pilot dodging every time until it runs out: that would be repetitive and waste the Player's missiles. Blind spots and the chance are what prevent it.
-    - Whether the break works is left to the missile's flight: it turns at 50°/s, so a hard, late break across its path should beat it. A probe measures how often each Skill's break beats the missile before the chances are picked.
-    - Stamina: hard pulling drains it, gentle flying refills it, an evasion costs a fixed share, and with none left the AI Pilot can only fly gently. The user's example for a Regular: it dodges a missile, dodges the next salvo, and then can't dodge the gun. A Hardpoint reloads in 5 s, so the refill must be slower than that or the meter never runs out. Only AI Pilots have it, and the Player never sees it.
+- [x] **2.44 AI evasion** · M · after 2.42
+  - Done when an AI Pilot that notices a missile fired at it breaks hard to dodge it, how often by its Skill; can't keep that up, because every evasion and all hard turning drain its Stamina, and out of Stamina it must fly gently until some is back; and doesn't see what is behind it except when it looks. It takes over 2.16 (AI defense), whose number retires.
+  - Verify: play. Files: `game/ai/AiPilot.cs`, `game/ai/Maneuver.cs`, `game/combat/Missile.cs`, `game/ui/DebugOverlay.cs`, `GLOSSARY.md`, `docs/SPEC.md`, `README.md`.
+  - Settled in the design session of 2026-10-12/13 and when planning (the user's picks):
+    - Two more Maneuvers, evade and recover. A missile the AI Pilot notices cuts into 2.42's loop.
+    - Blind spots, for missiles only: it sees what is ahead of its nose and looks behind every so often, by Skill. How soon a Veteran or an Ace turns back on a Player behind it stays its wait from 2.42.
+    - The evasion chance is rolled once per missile, the first time the AI Pilot sees it. A missile it never sees gets no roll. The user doesn't want every AI Pilot dodging every time until it runs out: that would be repetitive and waste the Player's missiles.
+    - Whether the break works is left to the missile's flight. The missile stays as it is for now; tuning it is the 1v1 checkpoint's.
+    - Stamina drains from evasions and from hard turning. Asked again when planning, since 2.42's run limit already ends long turning fights; the user kept both. The user's example for a Regular: it dodges a missile, dodges the next salvo, and then can't dodge the gun.
+    - Recovering is an even chance of straight and level or its pattern flown gently: the user's own mix of the two that were offered.
     - Only missiles set off an evasion, at every Skill. The gun is dodged by however the AI Pilot is already moving, and it's on the Player to keep the shot lined up.
-    - The Ace's high-G turn belongs here.
-    - With two more Maneuvers, look at whether `AiPilot.cs` should be split.
-  - Note (from 2.16, by way of 2.41): how soon it notices a missile is a number for each Skill.
+    - No Skill uses the high-G turn to evade, but it stays built and switched off (`AiPilot.HighGEvade`) in case it's wanted later. Switched on in the probe, an Ace pulled 29.9 G and the missile from 1,500 m ahead hit it: the turn costs it the speed across the missile's path that makes the missile miss.
+    - The numbers, Rookie / Regular / Veteran / Ace: looks behind every 8 / 2.5 / 1.5 / 1 s; chance to evade a missile it sees 25 / 70 / 90 / 100%; evasions on full Stamina 1 / 2 / 3 / 5; seconds to get one back 15 / 10 / 8 / 8. For every Skill: 30 s of flat-out turning empties full Stamina, and 4 G while recovering.
+  - The measurement the numbers rest on, taken first with every AI Pilot always evading: one missile at an AI jet flying straight at cruise speed, from 600, 1,000, 1,500 and 1,900 m, from behind, abeam and head-on, so 12 shots a Skill. Hits out of 12, Rookie / Regular / Veteran / Ace:
+    - never evading: 12 / 12 / 12 / 12;
+    - breaking at once: 3 / 2 / 0 / 0;
+    - 0.5 s late: 4 / 3 / 2 / 1;
+    - 1 s late: 6 / 5 / 4 / 3;
+    - 1.5 s late: 9 / 6 / 5 / 5;
+    - 2 s late: 10 / 8 / 8 / 7.
+  - What that showed: a break in time nearly always works, lateness is what lets a missile land, and the closest shots land first. The blind spot is what makes an AI Pilot late, so the closer the Player fires from behind, the less time it has. A salvo of two did no better than one missile, and full throttle was slightly better than cruise.
+  - How it works, in `AiPilot.cs` (`Watch`, before `Choose` each frame):
+    - Each missile homing on it (`Missile.Homing`, new, which 2.15's warning can use) is judged once, the first time it's seen: at once in the half of the sky ahead of its nose, otherwise on its next look, which is one frame every so many seconds.
+    - A seen missile gets one roll. A pass starts an evasion if it has any Stamina and isn't recovering. A fail means it ignores that missile for good. A missile seen within 1 s of an evasion starting joins it with no roll and no cost, so a salvo counts once.
+    - Evading, it turns level and square across the path of the nearest missile it's dodging, to the side its nose already leans, at full throttle and at its G limit, until none of those missiles homes on it. Then its pattern, with a fresh wait before its next attack run.
+    - Stamina runs from 0 to 1. An evasion costs one share (one over its Skill's evasions) and needs only some Stamina, not a whole share, so the count stays readable while hard turning leaves the meter at odd levels. Pulling 90% or more of what its G limit allows drains it, outside an evasion, a recovery and a terrain pull-up. Otherwise it refills, except during an evasion.
+    - At 0 it recovers, after finishing an evasion: held to 4 G, with no attack runs and no evading, until one share is back.
+    - The debug overlay shows its Stamina beside "AI G-load". `AiPilot.cs` stays one file: at about 300 lines with one new method, a split would make seams with one user each.
+  - Also fixed here, in 2.12's terrain rules: the look-ahead for ground went blind once the jet was within 30 m of it. Godot's motion sweep ignores ground the swept ball already overlaps, so the pull-up let go of the stick just when the jet was closest. A Rookie under fire in the canyon, in its pattern with full Stamina, came within 9 m of a canyon wall that way. `GroundAlong` now also counts ground the ball already touches; the same spot stays 17 m clear, holding the full stick.
+  - Checked by probe:
+    - `evade.gd`, new (it failed on the always-evading build, which had no Stamina). An Ace began to evade a missile from ahead the frame it was fired and one from behind 0.80 s later, on its next look; a salvo of two cost one evasion; every frame's change in Stamina followed the rule; from 0 it recovered for 8.02 s at 4.0 G at most, ignoring a missile fired at it; and over 16 scattered seeds it recovered in its pattern 9 times and straight 7 times. A Regular began to evade 13 of 20 missiles from ahead. A missile from 1,000 m behind a Rookie that had just looked hit it.
+    - How long each lasts against a Player held behind its tail, firing a salvo of two at every reload (`ttk.gd`, eight seeds, missiles only, so the quickest a Player could manage): from 1,500 m, Rookie 3 s, Regular 15 s, Veteran 24 s, Ace 24 s; from 800 m, 2 / 2 / 7 / 28 s. The Veteran and the Ace come out well under the user's 40-50 s and 1-2 min, because the hard turn back to its pattern after each evasion drains Stamina too. In play they also turn back on the Player, who can't hold a perfect tail chase, so these are floors. The numbers to raise if they feel too short: the evasions, the seconds to get one back, or the 30 s.
+    - The ground: `terrain.gd` at three spots, and `canyonchase.gd` at three starts with and without the Player firing, at all four Skills: 36 runs, never destroyed by the ground. 35 never came closer than 17 m to it. One, a Rookie with no missiles in the air, came within 6 m: task 2.45.
+    - `loop.gd` at each Skill, `chase.gd`, `skill.gd`, `ai.gd`, and the regression scenario matching its baseline byte for byte. 73 Core tests.
+  - Seen while measuring, not looked into: 3 of the 64 `ttk.gd` runs died at exit with "Illegal instruction" after printing their result. That probe quits the frame the AI jet is destroyed. It looks like 2.41's exit crash again, with the destroyed jet's two physics queries left to .NET's finalizer.
+  - Played 2026-10-13: "way more fun". The numbers stay as they are.
+- [ ] **2.45 AI levelling off, and pulling up while banked** · S · after 2.44
+  - Done when an AI jet told to fly level along its heading (passing its point, breaking off, recovering straight) eases its nose to the horizon with the stick, without rolling to get there; its terrain pull-up doesn't pull sideways while it's banked near 90°; and the canyon probes at every Skill never come within 10 m of the ground.
+  - Verify: play. Files: `game/ai/AiPilot.cs`.
+  - Found by 2.44's canyon probes, in 2.11's and 2.12's steering, with no missile and no Stamina involved. One run in 36 (a Rookie, `canyonchase.gd -- skill 0 z0 -3000 way 1`, 230 s in) came within 6 m of a canyon wall without crashing:
+    - Flying on past its point with its nose 20° above the horizon, it had to get level. It only pushes within 15° of where it's headed (`far - 1` in `Fly`), so it tried to roll inverted and pull down. With level dead under its canopy it couldn't pick a side, and dithered for two seconds, still climbing toward rising ground.
+    - It then rolled to 90° and the ground came into its look-ahead. The pull-up pulls as soon as the canopy isn't facing the ground (`sky.Y > -0.2`), so at 90° of bank its full stick turned it along the wall for half a second before it had rolled upright.
+  - The same levelling is used by 2.42's break-off and 2.44's straight recovery. `canyonchase.gd -- diag <first frame> <last frame>` prints every frame of it.
 - [ ] **2.14 AI attacks** · S · after 2.44, 2.7, 2.3
   - Done when AI jets fire the gun and missiles when their Target is in range and in front.
   - Verify: play. Files: `game/ai/AiPilot.cs`.

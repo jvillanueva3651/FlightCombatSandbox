@@ -4,8 +4,8 @@ using System.Linq;
 using Godot;
 
 /// <summary>
-/// Shows the jet's flight numbers, its and its Target's health, the first AI Pilot's maneuver and its
-/// jet's G-load, and what every control is doing right now, from the DualSense and the keyboard. It
+/// Shows the jet's flight numbers, its and its Target's health, the first AI Pilot's maneuver, Stamina
+/// and its jet's G-load, and what every control is doing right now, from the DualSense and the keyboard. It
 /// starts hidden, since the HUD shows what matters in flight, and F4 shows and hides it. F2 damages
 /// the Target and F3 the jet, shown or not, F5 moves the test scene's AI point to the jet, F6 switches
 /// the AI Pilots' attack runs off and on, leaving them their pattern on that point, and F7 moves
@@ -92,7 +92,7 @@ public partial class DebugOverlay : CanvasLayer
             Jet health     {Jet.Health,5}
             Target health  {targetHealth}
             AI maneuver    {aiPilot?.Maneuver.ToString() ?? "--"}
-            AI G-load      {aiPilot?.GetParent<Jet>().GLoad ?? 0,5:0.0} G
+            AI G-load      {aiPilot?.GetParent<Jet>().GLoad ?? 0,5:0.0} G   stamina {(aiPilot?.Stamina ?? 0) * 100,3:0} %
 
             Control        Value  DualSense              Keyboard
             Pitch          {Axis(Controls.PitchDown, Controls.PitchUp)}  Left stick up/down     W / S

@@ -53,7 +53,7 @@ A single-player arcade flight combat game in the spirit of Ace Combat, where Aut
 - **Orders.** Aircraft: Fly Route (once or looping), Patrol Zone, Attack, Escort, Strike Zone, Engage at will, Retreat. Ground vehicles: Drive Route, Hold position, Take Zone, Attack, Retreat. Ships: Sail Route, Hold position, Retreat. Static Units only use their weapons. Every Order has a hold-fire switch.
 - **Stances:** Balanced (default), Aggressive, Covering, Baiting.
 - **Traits:** Stealth, Invulnerable.
-- **Skill:** Rookie, Regular (default), Veteran, Ace: how well a Unit's AI flies and fights. It sets how many G the AI Pilot pulls, how often it makes an attack run and how long it flies on after one, and which Maneuvers it flies: only a Veteran or an Ace turns back on a jet behind it. An Ace shows its name on the HUD.
+- **Skill:** Rookie, Regular (default), Veteran, Ace: how well a Unit's AI flies and fights. It sets how many G the AI Pilot pulls, how often it makes an attack run and how long it flies on after one, and which Maneuvers it flies: only a Veteran or an Ace turns back on a jet behind it. It also sets how often the AI Pilot looks behind it, its chance of evading a missile it sees, and how many evasions its Stamina pays for before it has to recover. Only missiles set off an evasion, never the gun. An Ace shows its name on the HUD.
 
 ## Editor
 
