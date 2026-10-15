@@ -1,5 +1,4 @@
 using System;
-using System.Buffers.Binary;
 using System.Linq;
 using Godot;
 
@@ -10,7 +9,6 @@ using Godot;
 /// </summary>
 public partial class JetSound : Node
 {
-    const int Rate = 44100;        // samples per second
     const float Loudness = 0.027f; // how loud each sound peaks, as a fraction of the loudest a sound can be
     const float WindLevel = 0.3f;  // the wind at top speed, as a fraction of the engine at full throttle
     const float SpoolTime = 0.6f;  // seconds the engine takes to get about two thirds of the way to a new throttle
@@ -57,12 +55,12 @@ public partial class JetSound : Node
     static AudioStreamWav Loop(float cutoff, int whine, float whineLevel, int seed)
     {
         var random = new Random(seed);
-        var noise = new float[Rate * 2];
+        var noise = new float[Wav.Rate * 2];
         for (var i = 0; i < noise.Length; i++)
             noise[i] = random.NextSingle() * 2 - 1;
 
         // A running average keeps the low sounds; going round twice makes the end flow into the start.
-        var smoothing = 1 - MathF.Exp(-MathF.Tau * cutoff / Rate);
+        var smoothing = 1 - MathF.Exp(-MathF.Tau * cutoff / Wav.Rate);
         var smoothed = new float[noise.Length];
         var y = 0f;
         for (var pass = 0; pass < 2; pass++)
@@ -70,19 +68,9 @@ public partial class JetSound : Node
                 smoothed[i] = y += smoothing * (noise[i] - y);
         var peak = smoothed.Max(MathF.Abs);
 
-        var data = new byte[noise.Length * 2];
+        var samples = new float[noise.Length];
         for (var i = 0; i < noise.Length; i++)
-        {
-            var sample = Loudness * ((1 - whineLevel) * smoothed[i] / peak + whineLevel * MathF.Sin(MathF.Tau * whine * i / Rate));
-            BinaryPrimitives.WriteInt16LittleEndian(data.AsSpan(i * 2), (short)(sample * short.MaxValue));
-        }
-        return new AudioStreamWav
-        {
-            Data = data,
-            Format = AudioStreamWav.FormatEnum.Format16Bits,
-            MixRate = Rate,
-            LoopMode = AudioStreamWav.LoopModeEnum.Forward,
-            LoopEnd = noise.Length,
-        };
+            samples[i] = Loudness * ((1 - whineLevel) * smoothed[i] / peak + whineLevel * MathF.Sin(MathF.Tau * whine * i / Wav.Rate));
+        return Wav.Pack(samples, loop: true);
     }
 }

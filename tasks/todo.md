@@ -358,10 +358,24 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
     - Only a Veteran or an Ace turns back on a Player behind it, and they wait less, so they make about four times the runs. In open air a Rookie's or Regular's missile nearly always lost the circling Player from its seeker (43 of 45). Of an Ace's 133 runs that ended at lock, one found both Hardpoints empty.
     - These are what a Player who never breaks would face. 2.44's measurement says a break within a second beats nearly every missile, so 2.15's warning decides how much of this lands. The numbers to change if it's too much: the waits, a chance to fire per run, or the Ace's salvo.
   - Played 2026-10-14: everything looks good.
-- [ ] **2.15 Missile warning** · S · after 2.14
+- [x] **2.15 Missile warning** · S · after 2.14
   - Done when a "MISSILE" warning and alarm tone appear while a missile tracks the Player.
-  - Verify: play. Files: `game/ui/Hud.cs`, `game/combat/Missile.cs`.
+  - Verify: play. Files: `game/ui/MissileWarning.cs`, `game/ui/hud.tscn`, `game/content/Wav.cs`, `game/flight/JetSound.cs`, `game/ui/TargetMarker.cs`, `README.md`.
   - Note (from the Step 2 review): the alarm tone is the third sound made in code, after `JetSound`'s and the lock tone in `TargetMarker`, which pack their samples into a looping WAV the same way. Share that code here.
+  - Settled when planning (the user's picks, 2026-10-14):
+    - The alarm mustn't be obnoxious: it's the sound the Player will hear more than any other (the user's note).
+    - Its beeps speed up as the nearest missile closes, about 2 a second at 2 km to about 8 a second near impact, and stop once no missile tracks the Player.
+    - Half the lock tone's loudness, at 1000 Hz instead of 1600 Hz, with softer starts and ends to each beep.
+    - MISSILE in the HUD's red, steady, in a box like STALL's, 150 px above the middle of the screen as STALL's sits below it, so both can show at once. No voice.
+  - How it works:
+    - `MissileWarning`, a HUD part like `StallWarning`, shows while a missile homes on the Player's jet (`Missile.Homing`, from 2.44). A missile stops homing when it loses the Player from its seeker, explodes, burns out, or the Player is shot down, so the warning going out means a break worked.
+    - The alarm is one beep, started again each time the next is due: 1000 Hz, peaking at 0.015 against the lock tone's 0.03, 80 ms long with 15 ms fades against the lock tone's 5 ms. The beeps come 0.5 s apart with the nearest missile from 2,000 m out and 0.12 s from 300 m in, straight between; at 60 frames a second the shortest gap is 8 frames, 7.5 beeps a second. The first beep sounds as the warning appears.
+    - `Wav` (`game/content/Wav.cs`, new) holds the sound code the jet's sounds, the lock tone and the alarm now share: packing samples into a 16-bit WAV, and the beep. The engine, wind and lock tone come out byte for byte as before.
+  - Checked by probe:
+    - `warning.gd`, new, in `attack.gd`'s setup at Regular. It failed on the old code: no warning on the HUD. Now, every frame, the warning showed exactly while a missile homed on the Player, beeping on its first frame. Each beep came on the first frame its timer reached the gap for the distance: 28 frames apart at first, closing to 8, 17 beeps in all. It stopped the frame the first missile hit (60 damage), and the frame the second lost the Player from its seeker while that missile flew on.
+    - `wavs.gd`, new: the engine, wind and lock tone hash the same before and after the change.
+    - `attack.gd` at each Skill passes, and the regression scenario matches its baseline byte for byte. 73 Core tests.
+  - Played 2026-10-14: good, "the warning adds a lot". Veterans' and Aces' missiles still landed on the user often, which makes the tuning noted at the 1v1 checkpoint more pressing.
 - [ ] **2.48 Missiles on the radar** · S · after 2.10, 2.14
   - Done when missiles in flight show on the radar as small lines along their path, so one homing on the Player is plainly closing on the Player's blip, as other games show them (the user's design, 2026-10-14, after playing 2.14). Whether the Player's own missiles show too is to settle when planning.
   - Verify: play. Files: `game/ui/Radar.cs`.
@@ -376,7 +390,7 @@ From step 3 on, *Verify* is **test** for Core behavior and **play** for anything
 
 - To tune here, against a moving jet: missile tracking. Since 2.7, missiles fly straight at where the Target is (pure pursuit, `game/combat/Missile.cs`) rather than leading it. One `seekerCone` (50°, the user's pick) sets both how wide lock-on is and how far off its nose a missile in flight can still see its Target; these may need to be split. The turn rate (50°/s) decides how easily a break turn dodges.
 
-- Also to tune around here (the user, 2026-10-14, after playing 2.14): hit boxes, missile speeds and guidance, and damage values.
+- Also to tune around here (the user, 2026-10-14, after playing 2.14): hit boxes, missile speeds and guidance, and damage values. After playing 2.15, with the warning in, Veterans' and Aces' missiles still landed often, which the user says reinforces the need.
 
 - [ ] **2.46 Markers on every hostile Unit** · S · after 2.5, 2.9
   - Done when every hostile Unit on screen has a small HUD marker, not only the Target, so the Player can pick them out without the radar. The Target keeps its own box. A quality-of-life change the user asked for on 2026-10-14.
